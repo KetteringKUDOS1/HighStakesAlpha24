@@ -162,7 +162,7 @@ void move_arm(int rpm = 100){
     stop_arm();
     return;
   }
-  if (lift.get_position(2) < -3400 && arm_dir == -1 && on_rings){
+  if (lift.get_position(2) < -3200 && arm_dir == -1 && on_rings){
     stop_arm();
     return;
   }
@@ -224,11 +224,57 @@ void move_arm(int rpm = 100){
 
 void home_arm(){
   int current_limit = 600;
-  while(lift.get_current_draw() < current_limit){
-    lift.move(40);
+
+  // Run homing for 0.5 seconds
+  // This allows for a consistent homing time and ensures it will exit even if the current limit isnt met
+  for(int i = 0; i < 50; i++){
+    if (lift.get_current_draw() < current_limit){
+      lift.move(40);
+    }
+    else{
+      lift.brake();
+    }
     printf("Homing current %d\n", lift.get_current_draw());
+    pros::delay(ez::util::DELAY_TIME);
+  }
+  lift.brake();
+
+  return;
+
+}
+
+bool lift_task_enabled = false;
+bool climb_task_enabled = false;
+void lift_task(){
+  pros::delay(2000);
+  while (true){
+    if (lift_task_enabled){
+      lift.set_current_limit_all(2500);
+      lift.move_absolute(-2000, 75); 
+      printf("Lift Pos 1: %f\n", lift.get_position());
+      if (lift.get_position() < -1990){
+        printf("Done with lifting 1\n");
+        ladder_arm.move_relative(500, 100);
+        pros::delay(500);
+        lift_task_enabled = false;
+      }
+    }
+    if (climb_task_enabled){
+      platform.set_value(false);
+      on_rings = true;
+      lift.set_current_limit_all(2500);
+      lift.move_absolute(-3200, 75);
+      printf("Lift Pos 2: %f\n", lift.get_position());
+      if (lift.get_position() < -3190){
+        printf("Done with lifting 2\n");
+        climb_task_enabled = false;
+      }
+    }
+    pros::delay(ez::util::DELAY_TIME);
   }
 }
+
+pros::Task LiftTask(lift_task);
 
 /**
  * Runs initialization code. This occurs as soon as the program is started.
@@ -283,6 +329,7 @@ void initialize() {
   pros::delay(200);
   ladder_arm.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
   ladder_arm.brake();
+  ladder_arm.tare_position();
   home_arm();
   dock.set_value(true);
   platform.set_value(true);
@@ -340,7 +387,8 @@ void competition_initialize() {
 
 
 void autonomous() {
-
+  //lift.move_absolute(-2000, 75);
+  //pros::delay(9999999);
   ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
 
   /*
@@ -498,12 +546,14 @@ bool lower_claw(){
 */
 int climb_status = 0;
 
+
 void opcontrol() {
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
   bool mogo_toggle = false;
   bool mogo_pressed = false;
   platform.set_value(true);
+  
   while (true) {
     // Gives you some extras to make EZ-Template easier
     ez_template_etxras();
@@ -520,17 +570,36 @@ void opcontrol() {
     // . . .
     if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
       lift.set_current_limit_all(2500);
+      lift_task_enabled = false;
       move_arm(50);
     }
     else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
       lift.set_current_limit_all(2500);
+      lift_task_enabled = false;
       move_arm(-50);
     }
     else{
-      lift.set_current_limit_all(200);
-      stop_arm();
-      chassis.drive_current_limit_set(2500);
+      if (!lift_task_enabled && !climb_task_enabled){
+        
+        lift.set_current_limit_all(200);
+        stop_arm();
+        chassis.drive_current_limit_set(2500);
+      }
+      
     }
+
+    // Macro button
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
+      if (lift.get_position() >= -1900){
+        printf("Running lift task\n");
+        lift_task_enabled = true;
+      }
+      else if (lift.get_position() < -1900){
+        printf("Running climb task\n");
+        climb_task_enabled = true;
+      }
+    }
+
 
     if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
       intake.set_current_limit(2500);
@@ -570,14 +639,13 @@ void opcontrol() {
       ladder_arm.move_velocity(-100);
     }
     else{
-      ladder_arm.brake();
-    }
-
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
+      if (!lift_task_enabled){
+        ladder_arm.brake();
+      }
       
     }
 
-
+  
     
     mogo.button_toggle(master.get_digital(pros::E_CONTROLLER_DIGITAL_B));
     
