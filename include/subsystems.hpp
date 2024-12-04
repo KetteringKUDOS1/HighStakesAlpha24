@@ -23,4 +23,5 @@ inline pros::Motor lift_right_3(-9);
 inline pros::MotorGroup lift({-4, 5, 6, 7, -8, -9}, pros::v5::MotorGears::red); 
 inline pros::adi::DigitalOut dock(1);
 inline pros::adi::DigitalOut platform(2);
-inline ez::Piston mogo('H');
+inline ez::Piston mogo('G');
+inline ez::Piston lift_brake('H');
