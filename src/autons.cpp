@@ -217,7 +217,7 @@ void match_auton(){
 
   pros::delay(5000);
 
-  lift.move_absolute(-2800, 75); 
+  lift.move_absolute(-2700, 75); 
 
   pros::delay(4000);
 
