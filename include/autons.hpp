@@ -17,3 +17,7 @@ void default_constants();
 void tuning();
 void skills();
 void match_auton();
+void thirtyPointSkills();
+void fiftyNineSkills();
+void sixtyTwoSkills();
+void sixtyFiveSkills();

@@ -310,7 +310,11 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-      Auton("Match", match_auton),
+      //Auton("Sixty-Five Skills", sixtyFiveSkills),
+      //Auton("Sixty-Two Skills",sixtyTwoSkills),
+      //Auton(" Fifty-Nine Skills", fiftyNineSkills),
+      //Auton("Thirty Skills", thirtyPointSkills),
+      //Auton("Match", match_auton),
       //Auton("Example Turn\n\nTurn 3 times.", turn_example),
       //Auton("Drive and Turn\n\nDrive forward, turn, come back. ", drive_and_turn),
       //Auton("Drive and Turn\n\nSlow down during drive.", wait_until_change_speed),
