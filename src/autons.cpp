@@ -1,4 +1,5 @@
 #include "main.h"
+#include "pros/motors.h"
 #include "subsystems.hpp"
 
 /////
@@ -21,7 +22,7 @@ void default_constants() {
   chassis.pid_heading_constants_set(11.0, 0.0, 20.0);        // Holds the robot straight while going forward without odom
   chassis.pid_turn_constants_set(3.0, 0.05, 20.0, 15.0);     // Turn in place constants
   chassis.pid_swing_constants_set(6.0, 0.0, 65.0);           // Swing constants
-  chassis.pid_odom_angular_constants_set(6.5, 0.0, 52.5);    // Angular control for odom motions
+  chassis.pid_odom_angular_constants_set(6.5, 0.0, 65.0);    // Angular control for odom motions
   chassis.pid_odom_boomerang_constants_set(5.8, 0.0, 32.5);  // Angular control for boomerang motions
 
   // Exit conditions
@@ -30,7 +31,8 @@ void default_constants() {
   chassis.pid_swing_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 500_ms);
   chassis.pid_drive_exit_condition_set(90_ms, 1_in, 250_ms, 3_in, 500_ms, 500_ms);
   chassis.pid_odom_turn_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 750_ms);
-  chassis.pid_odom_drive_exit_condition_set(90_ms, 1_in, 250_ms, 3_in, 500_ms, 750_ms);
+  // Can increase by increments of 10 only
+  chassis.pid_odom_drive_exit_condition_set(150_ms, 1_in, 250_ms, 3_in, 500_ms, 750_ms);
   chassis.pid_turn_chain_constant_set(3_deg);
   chassis.pid_swing_chain_constant_set(5_deg);
   chassis.pid_drive_chain_constant_set(3_in);
@@ -59,13 +61,13 @@ void tuning(){
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);
   chassis.odom_pose_set({0_in, 0_in, 0_deg});
 
-  chassis.pid_odom_set({{{0_in, 60_in}, fwd, 100}}, // Move forward to dock
+  chassis.pid_odom_set({{{36_in, 0_in}, fwd, 80}}, // Move forward to dock
                        true);
   chassis.pid_wait();
 
   pros::delay(1000);
   
-  chassis.pid_odom_set({{{0_in, 0_in}, rev, 100}}, // Move forward to dock
+  chassis.pid_odom_set({{{0_in, 0_in}, rev, 80}}, // Move forward to dock
                        true);
   chassis.pid_wait();
 }
@@ -155,11 +157,74 @@ void match_auton(){
   chassis.drive_imu_reset();                  // Reset gyro position to 0
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
-  chassis.odom_pose_set({-61.3_in, -24_in, 180_deg});
+  chassis.odom_pose_set({-56.8_in, -24_in, 180_deg});
 
-  chassis.pid_odom_set({{{-61.3_in, -27_in}, fwd, 60}}, // Move forward to dock
+  dock.set_value(true);
+  chassis.pid_odom_set({{{-56.8_in, -27_in}, fwd, 80}}, // Move forward to dock
                        true);
   chassis.pid_wait();
+
+  dock.set_value(false);
+
+  pros::delay(1000);
+
+  chassis.pid_odom_set({{{-52.4_in, -37_in}, fwd, 60}}, // Move to grab stack
+                       true);
+  chassis.pid_wait();
+
+  pros::delay(500);
+  intake.set_current_limit(2500);
+  intake.move_velocity(-200);
+  pros::delay(100);
+
+  lift.set_current_limit_all(2500);
+  lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+  lift.move_absolute(-500, 75);
+
+
+  chassis.pid_odom_set({{{-24_in, -24_in}, fwd, 80}}, // Intake 1st blue platform ring
+                       true);
+  chassis.pid_wait();
+
+  chassis.pid_odom_set({{{-23.5_in, -47_in}, fwd, 80}}, // Get 2nd platform ring
+                       true);
+  chassis.pid_wait(); 
+
+  
+
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-2000, 75); 
+  pros::delay(1000);
+
+  chassis.pid_odom_set({{{-9_in, -32.5_in}, fwd, 80}}, // Move to ladder
+                       true);
+  chassis.pid_wait();
+
+  intake.brake();
+
+
+  chassis.pid_turn_set(45_deg, TURN_SPEED);
+  chassis.pid_wait();
+
+
+
+  platform.set_value(false);
+  pros::delay(2000);
+  ladder_arm.move_relative(500, 100);
+
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-3200, 75); 
+
+  pros::delay(5000);
+
+  lift.move_absolute(-2800, 75); 
+
+  pros::delay(4000);
+
+  lift.move_absolute(-3200, 75); 
+
+
+  //lift_brake.set(false);
 }
 ///
 // Drive Example

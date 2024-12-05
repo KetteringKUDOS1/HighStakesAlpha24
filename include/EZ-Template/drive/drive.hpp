@@ -88,37 +88,41 @@ class Drive {
   /**
    * Left vertical tracking wheel.
    */
-  tracking_wheel* odom_left_tracker;
+  tracking_wheel* odom_tracker_left;
 
   /**
    * Right vertical tracking wheel.
    */
-  tracking_wheel* odom_right_tracker;
+  tracking_wheel* odom_tracker_right;
 
   /**
    * Front horizontal tracking wheel.
    */
-  tracking_wheel* odom_front_tracker;
+  tracking_wheel* odom_tracker_front;
 
   /**
    * Back horizontal tracking wheel.
    */
-  tracking_wheel* odom_back_tracker;
+  tracking_wheel* odom_tracker_back;
 
   /**
    * PID objects.
    */
   PID headingPID;
   PID turnPID;
-  PID forward_drivePID;
   PID leftPID;
   PID rightPID;
+  PID forward_drivePID;
   PID backward_drivePID;
+  PID fwd_rev_drivePID;
   PID swingPID;
   PID forward_swingPID;
   PID backward_swingPID;
+  PID fwd_rev_swingPID;
   PID xyPID;
-  PID aPID;
+  PID current_a_odomPID;
+  PID boomerangPID;
+  PID odom_angularPID;
   PID internal_leftPID;
   PID internal_rightPID;
 
@@ -336,7 +340,7 @@ class Drive {
   /**
    * Sets current mode of drive.
    */
-  void drive_mode_set(e_mode p_mode);
+  void drive_mode_set(e_mode p_mode, bool stop_drive = true);
 
   /**
    * Returns current mode of drive.
@@ -600,7 +604,7 @@ class Drive {
    * \param flip
    *        true means left is positive x, false means right is positive x
    */
-  void odom_x_direction_flip(bool flip = true);
+  void odom_x_flip(bool flip = true);
 
   /**
    * Checks if x axis is flipped.  True means left is positive x, false means right is positive x
@@ -611,14 +615,27 @@ class Drive {
    * Flips the Y axis
    *
    * \param flip
-   *        true means down is positive Y, false means down is positive Y
+   *        true means down is positive Y, false means up is positive Y
    */
-  void odom_y_direction_flip(bool flip = true);
+  void odom_y_flip(bool flip = true);
 
   /**
-   * Checks if x axis is flipped.  True means down is positive Y, false means down is positive Y
+   * Checks if y axis is flipped.  True means down is positive Y, false means up is positive Y
    */
   bool odom_y_direction_get();
+
+  /**
+   * Flips the rotation axis
+   *
+   * \param flip
+   *        true means counterclockwise is positive, false means clockwise is positive
+   */
+  void odom_theta_flip(bool flip = true);
+
+  /**
+   * Checks if the rotation axis is flipped.  True means counterclockwise is positive, false means clockwise is positive
+   */
+  bool odom_theta_direction_get();
 
   /**
    * Sets a new dlead.  Dlead is a proportional value of how much to make the robot curve during boomerang motions.
@@ -2341,6 +2358,14 @@ class Drive {
   void pid_wait_until_index(int index);
 
   /**
+   * Lock the code in a while loop until this point becomes the target
+   *
+   * \param index
+   *        index of your input points, 0 is the first point in the index.
+   */
+  void pid_wait_until_index_started(int index);
+
+  /**
    * Lock the code in a while loop until this point has been passed.
    *
    * \param target
@@ -2349,12 +2374,28 @@ class Drive {
   void pid_wait_until_point(pose target);
 
   /**
+   * Lock the code in a while loop until this point has been passed, with okapi units.
+   *
+   * \param target
+   *        {x, y}  a pose with units for the robot to pass through before the while loop is released
+   */
+  void pid_wait_until_point(united_pose target);
+
+  /**
    * Lock the code in a while loop until this point has been passed.  Wrapper for pid_wait_until_point
    *
    * \param target
    *        {x, y}  a pose for the robot to pass through before the while loop is released
    */
   void pid_wait_until(pose target);
+
+  /**
+   * Lock the code in a while loop until this point has been passed, with okapi units.  Wrapper for pid_wait_until_point
+   *
+   * \param target
+   *        {x, y}  a pose with units for the robot to pass through before the while loop is released
+   */
+  void pid_wait_until(united_pose target);
 
   /**
    * Autonomous interference detection.  Returns true when interfered, and false when nothing happened.
@@ -2738,6 +2779,26 @@ class Drive {
   int pid_turn_min_get();
 
   /**
+   * @brief Set the heading pid constants object
+   *
+   * @param p           kP
+   * @param i           kI
+   * @param d           kD
+   * @param p_start_i   start_I
+   */
+  void pid_odom_angular_constants_set(double p, double i = 0.0, double d = 0.0, double p_start_i = 0.0);
+
+  /**
+   * @brief Set the heading pid constants object
+   *
+   * @param p           kP
+   * @param i           kI
+   * @param d           kD
+   * @param p_start_i   start_I
+   */
+  void pid_odom_boomerang_constants_set(double p, double i = 0.0, double d = 0.0, double p_start_i = 0.0);
+
+  /**
    * Set's constants for odom driving exit conditions.
    *
    * \param p_small_exit_time
@@ -3030,23 +3091,84 @@ class Drive {
    */
   double pid_tuner_increment_start_i_get();
 
+  /**
+   * Enables the full PID tuner with unique fwd/rev constants
+   *
+   * \param enable
+   *        bool, true will enable the full PID tuner, false will use the simplified PID tuner
+   */
+  void pid_tuner_full_enable(bool enable);
+
+  /**
+   * Returns if the full PID tuner with unique fwd/rev constants is enabled.
+   * True means the full PID tuner is enabled, false means the simplified PID tuner is enabled.
+   */
+  bool pid_tuner_full_enabled();
+
   struct const_and_name {
     std::string name = "";
     PID::Constants* consts;
   };
 
   /**
-   * Vector used for PID Tuner
+   * Vector used for a simplified PID Tuner
    */
   std::vector<const_and_name> pid_tuner_pids = {
+      {"Drive PID Constants", &fwd_rev_drivePID.constants},
+      {"Odom Angular PID Constants", &odom_angularPID.constants},
+      {"Boomerang Angular PID Constants", &boomerangPID.constants},
+      {"Heading PID Constants", &headingPID.constants},
+      {"Turn PID Constants", &turnPID.constants},
+      {"Swing PID Constants", &fwd_rev_swingPID.constants}};
+
+  /**
+   * Vector used for the full PID Tuner
+   */
+  std::vector<const_and_name> pid_tuner_full_pids = {
       {"Drive Forward PID Constants", &forward_drivePID.constants},
       {"Drive Backward PID Constants", &backward_drivePID.constants},
+      {"Odom Angular PID Constants", &odom_angularPID.constants},
+      {"Boomerang Angular PID Constants", &boomerangPID.constants},
       {"Heading PID Constants", &headingPID.constants},
       {"Turn PID Constants", &turnPID.constants},
       {"Swing Forward PID Constants", &forward_swingPID.constants},
       {"Swing Backward PID Constants", &backward_swingPID.constants}};
 
+  /**
+   * Sets the max speed for user control
+   *
+   * \param int
+   *        the speed limit
+   */
+  void opcontrol_speed_max_set(int speed);
+
+  /**
+   * Returns the max speed for user control
+   */
+  int opcontrol_speed_max_get();
+
+  /**
+   * Toggles vector scaling for arcade control.  True enables, false disables.
+   *
+   * \param bool
+   *        true enables, false disables
+   */
+  void opcontrol_arcade_scaling(bool enable);
+
+  /**
+   * Returns if vector scaling for arcade control is enabled.  True enables, false disables.
+   */
+  bool opcontrol_arcade_scaling_enabled();
+
+  bool odom_use_left = true;
+  double odom_ime_track_width_left = 0.0;
+  double odom_ime_track_width_right = 0.0;
+
  private:
+  bool is_full_pid_tuner_enabled = false;
+  std::vector<const_and_name>* used_pid_tuner_pids;
+  double opcontrol_speed_max = 127.0;
+  bool arcade_vector_scaling = false;
   // odom privates
   std::vector<odom> pp_movements;
   std::vector<int> injected_pp_index;
@@ -3073,18 +3195,20 @@ class Drive {
   bool current_slew_on = false;
   bool is_odom_turn_bias_enabled = true;
   bool odom_turn_bias_enabled();
-  void odom_turn_bias_set(bool set);
+  void odom_turn_bias_enable(bool set);
   double angle_rad = 0.0;
-  double track_width = 0.0;
+  double global_track_width = 0.0;
   bool odometry_enabled = true;
-  pose odom_target = {0, 0, 0};
-  pose odom_current = {0, 0, 0};
-  pose odom_second_to_last = {0, 0, 0};
-  pose odom_start = {0, 0, 0};
-  pose odom_target_start = {0, 0, 0};
-  pose turn_to_point_target = {0, 0, 0};
+  pose odom_target = {0.0, 0.0, 0.0};
+  pose odom_current = {0.0, 0.0, 0.0};
+  pose odom_second_to_last = {0.0, 0.0, 0.0};
+  pose odom_start = {0.0, 0.0, 0.0};
+  pose odom_target_start = {0.0, 0.0, 0.0};
+  pose turn_to_point_target = {0.0, 0.0, 0.0};
   bool y_flipped = false;
   bool x_flipped = false;
+  bool theta_flipped = false;
+  double flip_angle_target(double target);
   double odom_imu_start = 0.0;
   int past_target = 0;
   double SPACING = 0.5;
@@ -3093,8 +3217,18 @@ class Drive {
   double max_boomerang_distance = 12.0;
   double odom_turn_bias_amount = 1.375;
   drive_directions current_drive_direction = fwd;
-  double h_last = 0, v_last = 0;
-  double last_theta = 0;
+  double h_last = 0.0, t_last = 0.0, l_last = 0.0, r_last = 0.0;
+  pose l_pose{0.0, 0.0, 0.0};
+  pose r_pose{0.0, 0.0, 0.0};
+  pose central_pose{0.0, 0.0, 0.0};
+  double xy_current_fake = 0.0;
+  double xy_last_fake = 0.0;
+  double xy_delta_fake = 0.0;
+  double new_current_fake = 0.0;
+  bool was_odom_just_set = false;
+  std::pair<float, float> decide_vert_sensor(ez::tracking_wheel* tracker, bool is_tracker_enabled, float ime = 0.0, float ime_track = 0.0);
+  pose solve_xy_vert(float p_track_width, float current_t, float delta_vert, float delta_t);
+  pose solve_xy_horiz(float p_track_width, float current_t, float delta_horiz, float delta_t);
   bool was_last_pp_mode_boomerang = false;
   bool global_forward_drive_slew_enabled = false;
   bool global_backward_drive_slew_enabled = false;
@@ -3110,10 +3244,10 @@ class Drive {
   std::vector<odom> set_odoms_direction(std::vector<odom> inputs);
   odom set_odom_direction(odom input);
   pose flip_pose(pose input);
-  bool odom_left_tracker_enabled = false;
-  bool odom_right_tracker_enabled = false;
-  bool odom_front_tracker_enabled = false;
-  bool odom_back_tracker_enabled = false;
+  bool odom_tracker_left_enabled = false;
+  bool odom_tracker_right_enabled = false;
+  bool odom_tracker_front_enabled = false;
+  bool odom_tracker_back_enabled = false;
 
   double chain_target_start = 0.0;
   double chain_sensor_start = 0.0;

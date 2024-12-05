@@ -1,5 +1,6 @@
 #include "main.h"
 #include "EZ-Template/util.hpp"
+#include "autons.hpp"
 #include "pros/misc.h"
 #include "pros/motors.h"
 #include "pros/optical.h"
@@ -309,7 +310,7 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-      Auton("Skills", tuning),
+      Auton("Match", match_auton),
       //Auton("Example Turn\n\nTurn 3 times.", turn_example),
       //Auton("Drive and Turn\n\nDrive forward, turn, come back. ", drive_and_turn),
       //Auton("Drive and Turn\n\nSlow down during drive.", wait_until_change_speed),
@@ -324,15 +325,19 @@ void initialize() {
   ez::as::initialize();
   master.rumble(".");
   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-
-  ladder_arm.move_velocity(-50);
+  lift_brake.set(true);
+  lift.move_relative(-200, 50);
+  pros::delay(500);
+  home_arm();
   pros::delay(200);
   ladder_arm.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
   ladder_arm.brake();
   ladder_arm.tare_position();
-  home_arm();
+  
+  
   dock.set_value(true);
   platform.set_value(true);
+  
 }
 
 /**
@@ -471,8 +476,8 @@ void ez_template_etxras() {
       chassis.drive_brake_set(preference);
     }
 
-    // Blank pages for Odom Debugging
-    if (chassis.odom_enabled()) {
+    // Blank pages for odom debugging
+    if (chassis.odom_enabled() && !chassis.pid_tuner_enabled()) {
       // This is Blank Page 1, it will display X, Y, and Angle
       if (ez::as::page_blank_is_on(0)) {
         screen_print("x: " + std::to_string(chassis.odom_x_get()) +
@@ -483,23 +488,23 @@ void ez_template_etxras() {
       // This is Blank Page 2, it will display every tracking wheel.
       // Make sure the tracking wheels read POSITIVE going forwards or right.
       else if (ez::as::page_blank_is_on(1)) {
-        if (chassis.odom_left_tracker != nullptr)
-          screen_print("left tracker: " + std::to_string(chassis.odom_left_tracker->get()), 1);
+        if (chassis.odom_tracker_left != nullptr)
+          screen_print("left tracker: " + std::to_string(chassis.odom_tracker_left->get()), 1);
         else
           screen_print("no left tracker", 1);
 
-        if (chassis.odom_right_tracker != nullptr)
-          screen_print("right tracker: " + std::to_string(chassis.odom_right_tracker->get()), 2);
+        if (chassis.odom_tracker_right != nullptr)
+          screen_print("right tracker: " + std::to_string(chassis.odom_tracker_right->get()), 2);
         else
           screen_print("no right tracker", 2);
 
-        if (chassis.odom_back_tracker != nullptr)
-          screen_print("back tracker: " + std::to_string(chassis.odom_back_tracker->get()), 3);
+        if (chassis.odom_tracker_back != nullptr)
+          screen_print("back tracker: " + std::to_string(chassis.odom_tracker_back->get()), 3);
         else
           screen_print("no back tracker", 3);
 
-        if (chassis.odom_front_tracker != nullptr)
-          screen_print("front tracker: " + std::to_string(chassis.odom_front_tracker->get()), 4);
+        if (chassis.odom_tracker_front != nullptr)
+          screen_print("front tracker: " + std::to_string(chassis.odom_tracker_front->get()), 4);
         else
           screen_print("no front tracker", 4);
       }
@@ -510,6 +515,10 @@ void ez_template_etxras() {
     // Remove all blank pages when connected to a comp switch
     if (ez::as::page_blank_amount() > 0)
       ez::as::page_blank_remove_all();
+
+    // Disable PID tuner
+    if (chassis.pid_tuner_enabled())
+      chassis.pid_tuner_disable();
   }
 }
 
