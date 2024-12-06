@@ -152,46 +152,53 @@ void skills(){
 }
 ///
 // High Stake and Climb 30 point Skills
-///
+//
 void thirtyPointSkills(){
-  //
-    platform.set_value(true);               // Prepare platform
-    chassis.pid_targets_reset();            // Reset PID targets to 0
-    chassis.drive_imu_reset();              // Reset gyro (IMU) position
-    chassis.drive_sensor_reset();           // Reset drive sensors
-    chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold
-    // Start at the big robot's starting position
-    chassis.odom_pose_set({-54_in, 21_in, 0_deg});  // Big robot's start position
-    chassis.pid_odom_set({{{-54_in, 9_in}, fwd, 60}}, true); // Dock with second robot
-    chassis.pid_wait();
-    // Move to first ring position (-47, -1)
-    chassis.pid_odom_set({{{-47_in, -1_in}, fwd, 60}}, true);  // Move to first ring
-    chassis.pid_wait();
-    
-    // Intake the first ring
-    intake.move_velocity(-200); // Start intaking
-    pros::delay(500);           // Wait for the intake to complete
-    intake.brake();             // Stop the intake
-    // Move to second ring position (-47, -47)
-    chassis.pid_odom_set({{{-47_in, -47_in}, fwd, 60}}, true); // Move to second ring
-    chassis.pid_wait();
-    
-    // Intake the second ring
-    intake.move_velocity(-200); // Start intaking
-    pros::delay(500);           // Wait for the intake to complete
-    intake.brake();             // Stop the intake
-    // Move to third ring position (-24, -24)
-    chassis.pid_odom_set({{{-24_in, -24_in}, fwd, 60}}, true); // Move to third ring
-    chassis.pid_wait();
-    
-    // Intake the third ring
-    intake.move_velocity(-200); // Start intaking
-    pros::delay(500);           // Wait for the intake to complete
-    intake.brake();             // Stop the intake
-    // Move to the climbing position (-8, 25)
-    chassis.pid_odom_set({{{-8_in, 25_in}, fwd, 70}}, true);  // Move to climb position
-    chassis.pid_wait();
+  platform.set_value(true);               // Prepare platform
+  chassis.pid_targets_reset();            // Reset PID targets to 0
+  chassis.drive_imu_reset();              // Reset gyro (IMU) position
+  chassis.drive_sensor_reset();           // Reset drive sensors
+  chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold
+
+  // Start at the 24” robot's starting position
+  chassis.odom_pose_set({-50_in, 33_in, 180_deg});  // 24” robot's start position
+
+  chassis.pid_odom_set({{{-50_in, 29_in}, fwd, 60}}, true); // Dock with second robot
+  chassis.pid_wait();
+  intake.move_velocity(-200); // Begin intaking
+  chassis.pid_odom_set({{{-47_in, 0_in}, fwd, 110}, // First red ring intake
+                          {{-47_in, -47_in}, fwd, 110}, // Second red ring intake
+                          {{32_in, -32_in}, fwd, 70}}, // Line up for 3rd ring 15” claw pickup
+                        true);
+  chassis.pid_wait();
+  intake.brake();
+
+  //15” pick up 3rd ring 
+      pros::delay(500);
+    intake.set_current_limit(2500);
+    intake.move_velocity(-200);
+    pros::delay(100);
+
+    lift.set_current_limit_all(2500);
+    lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    lift.move_absolute(-500, 75);
+
+  //Climbing positions
+  chassis.pid_odom_set({{{0_in, –41_in}, fwd, 70}, // Line up for climb
+                          {{0_in, -38_in}, rev, 70},}, // Go for climb
+
+  // Climb and Place ring on High Stake
+  platform.set_value(false);
+  pros::delay(2000);
+  ladder_arm.move_relative(500, 100); 
+  lift.set_current_limit_all(2500); 
+  lift.move_absolute(-3200, 75);
+  pros::delay(5000); 
+  lift.move_absolute(-2800, 75);
+  pros::delay(4000); 
+  lift.move_absolute(-3200, 75);
 }
+
 void fiftyNineSkills() {
   // Prepare platform
   platform.set_value(true);   
