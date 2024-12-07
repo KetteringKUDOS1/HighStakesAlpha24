@@ -18,6 +18,7 @@ void tuning();
 void skills();
 void match_auton();
 void thirtyPointSkills();
+void fourMobileWithClimb();
 void fiftyNineSkills();
 void sixtyTwoSkills();
 void sixtyFiveSkills();
