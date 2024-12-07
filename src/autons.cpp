@@ -225,30 +225,58 @@ void fourMobileWithClimb(){
   chassis.drive_imu_reset();              // Reset gyro (IMU) position
   chassis.drive_sensor_reset();           // Reset drive sensors
   chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold
-  chassis.odom_pose_set({-61_in, 0_in, 180_deg}); // Starting position
-  chassis.pid_odom_set({{{-61_in, -4_in}, fwd, 60}}, true); // Move forward to dock
-  chassis.pid_wait();
 
   chassis.odom_pose_set({-56.8_in, -24_in, 180_deg});
-
   dock.set_value(true);
   chassis.pid_odom_set({{{-56.8_in, -27_in}, fwd, 80}}, // Move forward to dock
                        true);
   chassis.pid_wait();
 
   dock.set_value(false);
-
+  mogo.set(true);
   pros::delay(1000);
   chassis.pid_odom_set({{{-29_in, -23_in}, fwd, 110}, // First red ring intake
                          {{0_in, -40_in}, fwd, 110}, 
-                        {{-15_in, -45_in}, fwd, 110}, // Second red ring intake
-                        {{-56_in, -58_in}, fwd, 70}}, // Line up for 1st mogo
+                        {{-15_in, -45_in}, rev, 110}, // Second red ring intake
+                        {{-55_in, -57_in}, rev, 70}}, // Line up for 1st mogo
+                       true);
+  chassis.pid_wait();
+  chassis.pid_odom_set({{{-33_in, -44_in}, fwd, 80}}, true); 
+  chassis.pid_wait();
+
+
+
+  intake.move_velocity(-200); 
+
+  chassis.pid_odom_set({{{-47_in, 0_in}, fwd, 110}, 
+                        {{-24_in, 24_in}, fwd, 110}},true); // Second red ring intake)
+  chassis.pid_wait();
+  intake.brake();
+
+  chassis.pid_odom_set({{{9_in, 48_in}, fwd, 110}, 
+                        {{-8_in, 49_in}, rev, 110}, // Second red ring intake
+                        {{-25_in, 49_in}, rev, 70}, // Line up for 1st mogo
+                        {{-53_in, 60_in}, rev, 70}, 
+                        {{-30_in, 15_in}, fwd, 40}},
                        true);
   chassis.pid_wait();
 
+ // platform.set_value(false);
+  pros::delay(2000);
+  ladder_arm.move_relative(500, 100);
+
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-3200, 75); 
+
+  pros::delay(5000);
+
+  lift.move_absolute(-2700, 75); 
+
+  pros::delay(4000);
+
+  lift.move_absolute(-3200, 75); 
+
 }
-
-
 
 
 
