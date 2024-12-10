@@ -164,8 +164,8 @@ void move_arm(int rpm = 100){
     return;
   }
   if (lift.get_position(2) < -3200 && arm_dir == -1 && on_rings){
-    stop_arm();
-    return;
+    //stop_arm();
+    //return;
   }
   // Prevents arm from moving down when below lower threshold
   else if(lift.get_position(2) > -30 && arm_dir == 1){
@@ -255,7 +255,7 @@ void lift_task(){
       printf("Lift Pos 1: %f\n", lift.get_position());
       if (lift.get_position() < -1990){
         printf("Done with lifting 1\n");
-        ladder_arm.move_relative(500, 100);
+        //ladder_arm.move_relative(500, 100);
         pros::delay(500);
         lift_task_enabled = false;
       }
@@ -310,8 +310,9 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
+      Auton("Match", blue_match_auton),
       //Auton("Connor's Skills", skills),
-      Auton("4 Mobile Goals with Climb",fourMobileWithClimb),
+      //Auton("Adriana'Skills ",twoMobilewithclimb),
       //Auton("Sixty-Five Skills", sixtyFiveSkills),
       //Auton("Sixty-Two Skills",sixtyTwoSkills),
       //Auton(" Fifty-Nine Skills", fiftyNineSkills),
@@ -567,11 +568,11 @@ void opcontrol() {
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
   bool mogo_toggle = false;
   bool mogo_pressed = false;
-  platform.set_value(true);
+  //platform.set_value(true);
   
   while (true) {
     // Gives you some extras to make EZ-Template easier
-    ez_template_etxras();
+    //ez_template_etxras();
 
     //chassis.opcontrol_tank();  // Tank control
     chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
@@ -596,7 +597,7 @@ void opcontrol() {
     else{
       if (!lift_task_enabled && !climb_task_enabled){
         
-        lift.set_current_limit_all(200);
+        lift.set_current_limit_all(2500);
         stop_arm();
         chassis.drive_current_limit_set(2500);
       }
@@ -631,10 +632,10 @@ void opcontrol() {
     }
 
     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
-      dock.set_value(true);
+      lift_brake.set(true);
     }
     else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
-      dock.set_value(false);
+      lift_brake.set(false);
     }
 
     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)){
@@ -643,6 +644,7 @@ void opcontrol() {
     }
 
     else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
+      //dock.set_value(false);
       platform.set_value(false);
       on_rings = true;
     }

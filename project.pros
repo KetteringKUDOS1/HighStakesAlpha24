@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "Main",
+    "project_name": "blue match",
     "target": "v5",
     "templates": {
       "EZ-Template": {
@@ -425,7 +425,7 @@
     },
     "upload_options": {
       "description": "making code ez",
-      "slot": 1
+      "slot": 2
     },
     "use_early_access": false
   }
