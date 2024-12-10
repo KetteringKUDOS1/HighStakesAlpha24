@@ -23,3 +23,4 @@ void twoMobilewithclimb();
 void fiftyNineSkills();
 void sixtyTwoSkills();
 void sixtyFiveSkills();
+void fortySevenPointSkills();

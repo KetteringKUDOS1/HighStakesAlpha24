@@ -310,7 +310,8 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-      Auton("Match", blue_match_auton),
+    Auton("Adriana's Monday Skills" ,fortySevenPointSkills),
+      //Auton("Match", blue_match_auton),
       //Auton("Connor's Skills", skills),
       //Auton("Adriana'Skills ",twoMobilewithclimb),
       //Auton("Sixty-Five Skills", sixtyFiveSkills),
