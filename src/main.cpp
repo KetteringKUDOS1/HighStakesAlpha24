@@ -310,7 +310,8 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-    Auton("Adriana's Monday Skills" ,fortySevenPointSkills),
+    Auton("Red AWP Test", red_AWP_match),
+    //Auton("Adriana's Monday Skills" ,fortySevenPointSkills),
       //Auton("Match", blue_match_auton),
       //Auton("Connor's Skills", skills),
       //Auton("Adriana'Skills ",twoMobilewithclimb),
@@ -337,6 +338,8 @@ void initialize() {
   lift.move_relative(-200, 50);
   pros::delay(500);
   home_arm();
+  pros::delay(200);
+  ladder_arm.move_relative(-200, 100);
   pros::delay(200);
   ladder_arm.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
   ladder_arm.brake();
