@@ -85,16 +85,16 @@ void red_AWP_match(){
   chassis.pid_odom_set({{{-56_in, 28_in}, fwd, 60}}, // Move forward to dock
                        true);
   chassis.pid_wait();
-  pros::delay(500);
+  pros::delay(200);
   dock.set_value(false);
-
+  pros::delay(200);
   // Score on mogo
 
   lift.set_current_limit_all(2500);
   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE);
 
   lift.move_absolute(-1800, 60); // Move lift up to score on mogo
-  pros::delay(1500);
+  pros::delay(1000);
 
   chassis.pid_odom_set({{{-52.75_in, 17_in}, fwd, 40}}, // Move forward to mogo
                        true);
@@ -107,7 +107,7 @@ void red_AWP_match(){
 
   lift.move_absolute(-400, 60); // Move lift down to score on mogo
   
-  pros::delay(2000);
+  pros::delay(500);
 
   // Score on alliance stake
 
@@ -122,7 +122,7 @@ void red_AWP_match(){
                        true);
   chassis.pid_wait();
 
-  pros::delay(2000); // Wait to grab
+  pros::delay(1000); // Wait to grab
 
   lift.move_absolute(-1800, 60); // Move lift up to score on alliance stake
   
@@ -134,11 +134,11 @@ void red_AWP_match(){
   chassis.pid_drive_set(0.5, 60); // Move a bit forward to alliance stake
   chassis.pid_wait();
 
-  pros::delay(1000);
+  pros::delay(500);
 
   lift.move_absolute(-1350, 60);
 
-  pros::delay(1000);
+  pros::delay(500);
 
   // Score MoGo in positive corner
   chassis.pid_drive_set(-3, 60); // Move back from alliance stake
@@ -168,8 +168,8 @@ void red_AWP_match(){
 
   lift.move_absolute(-100, 60);
 
-  chassis.pid_odom_set({{{-49_in, -28_in}, fwd, 80},
-                        {{-49_in, -37_in}, fwd, 40}}, // Move to high stake ring stack
+  chassis.pid_odom_set({{{-50_in, -28_in}, fwd, 80},
+                        {{-50_in, -37_in}, fwd, 40}}, // Move to high stake ring stack
                        true);
   chassis.pid_wait();
 
@@ -207,27 +207,33 @@ void red_AWP_match(){
 
   intake.brake();
 
-  pros::delay(10000000);
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-2000, 75); 
 
-  // Grab high stake ring stack
+  chassis.pid_turn_set(45, 70); // Turn to ladder
+  chassis.pid_wait();
+  
 
-  chassis.pid_turn_set(270, 60); // Turn ring stack
+  chassis.pid_odom_set({{{-11_in, -32.5_in}, fwd, 60}}, // Move to ladder
+                       true);
   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-32_in, -47_in}, fwd, 80}}, // Get high stake ring stack
-                       true);
-  chassis.pid_wait(); 
-
-  pros::delay(2000); // Wait to grab ring stack
-
-  chassis.pid_turn_set(90, 60); // Turn to alliance stake
+  chassis.pid_turn_set(45, 70); // Turn to ladder
   chassis.pid_wait();
 
 
+  platform.set_value(false);
+  pros::delay(2000);
+  ladder_arm.move_relative(500, 100);
 
-  chassis.pid_odom_set({{{-23.5_in, -47_in}, fwd, 80}}, // Move back towards the ladder
-                       true);
-  chassis.pid_wait(); 
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-3200, 75); 
+  pros::delay(2000);
+
+  lift.move_absolute(-2800, 75); 
+  pros::delay(500);
+  lift.move_absolute(-3200, 75); 
+
 
 
   
