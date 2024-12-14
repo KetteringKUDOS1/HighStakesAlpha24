@@ -334,7 +334,7 @@ void initialize() {
   ez::as::initialize();
   master.rumble(".");
   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-  lift_brake.set_value(true);
+  lift_brake.set(true);
   lift.move_relative(-200, 50);
   pros::delay(500);
   home_arm();
@@ -636,10 +636,10 @@ void opcontrol() {
     }
 
     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
-      lift_brake.set_value(true);
+      lift_brake.set(true);
     }
     else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
-      lift_brake.set_value(false);
+      lift_brake.set(false);
     }
 
     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)){
