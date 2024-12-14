@@ -323,7 +323,7 @@ void skills(){
     pros::delay(10);
   }
   lift.brake();
-  lift_brake.set(false);
+  lift_brake.set_value(false);
 
 }
 //
@@ -451,7 +451,7 @@ void twoMobilewithclimb(){
   pros::delay(4000);
 
   lift.move_absolute(-3200, 75); 
-  lift_brake.set(false);
+  lift_brake.set_value(false);
 
 }
 
@@ -904,7 +904,7 @@ void red_match_auton(){
   lift.move_absolute(-3300, 75); 
   pros::delay(2000);
 
-  lift_brake.set(false);
+  lift_brake.set_value(false);
 }
 
 void blue_match_auton(){
@@ -985,7 +985,7 @@ void blue_match_auton(){
   lift.move_absolute(-3300, 75); 
   pros::delay(2000);
 
-  lift_brake.set(false);
+  lift_brake.set_value(false);
 }
 
 ///
