@@ -346,7 +346,7 @@ void initialize() {
   ladder_arm.tare_position();
   
   
-  dock.set_value(true);
+  dock.set_value(true); //change me!!!!!!!!! to true
   platform.set_value(true);
   
 }
@@ -648,9 +648,9 @@ void opcontrol() {
     }
 
     else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-      //dock.set_value(false);
-      platform.set_value(false);
-      on_rings = true;
+      dock.set_value(false);
+      //platform.set_value(false);
+      //on_rings = true;
     }
 
     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
@@ -665,8 +665,15 @@ void opcontrol() {
       }
       
     }
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B)){
+      if (mogo.get()){
+        master.rumble(". .");
+      }
+      else{
 
-  
+      }
+    }
+      
     
     mogo.button_toggle(master.get_digital(pros::E_CONTROLLER_DIGITAL_B));
     
