@@ -122,13 +122,13 @@ void red_AWP_match(){
                        true);
   chassis.pid_wait();
 
-  pros::delay(800); // Wait to grab
+  pros::delay(500); // Wait to grab
 
   lift.move_absolute(-1900, 100); // Move lift up to score on alliance stake
   
   pros::delay(700);
 
-  chassis.pid_turn_set(223, 60); // Turn to alliance stake
+  chassis.pid_turn_set(223, 70); // Turn to alliance stake
   chassis.pid_wait();
 
   chassis.pid_drive_set(0.5, 60); // Move a bit forward to alliance stake
@@ -151,17 +151,16 @@ void red_AWP_match(){
  // chassis.pid_drive_set(-3, 80); // Move back from alliance stake
   //chassis.pid_wait();
   
-  chassis.pid_drive_set(-3_in, 60);
+  chassis.pid_drive_set(-7_in, 60); // was -3
   chassis.pid_wait();
-  
-  chassis.pid_odom_set({{{-47.5_in, 17_in}, rev, 80}}, // Move back to line up with mogo
-                       true);
-  chassis.pid_wait();
+
+  //chassis.pid_odom_set({{{-47.5_in, 17_in}, rev, 80}}, // Move back to line up with mogo // uncomment for mostly working
+  //chassis.pid_wait();
 
  // chassis.pid_turn_set(0, 90); // Turn so clamp is facing mogo
   //chassis.pid_wait();
 
-  lift.move_absolute(-100, 60);
+  lift.move_absolute(-100, 80);
 
 //  chassis.pid_odom_set({{{-47.5_in, 6_in}, rev, 80}}, // Move into mogo
   //                     true);
@@ -178,12 +177,12 @@ void red_AWP_match(){
 
   lift.move_absolute(-100, 80);
 
-  chassis.pid_odom_set({{{-50_in, -28_in}, fwd, 80},
-                        {{-50_in, -37_in}, fwd, 40}}, // Move to high stake ring stack
+  chassis.pid_odom_set({{{-49_in, -28_in}, fwd, 80},
+                        {{-49_in, -37_in}, fwd, 40}}, // Move to high stake ring stack
                        true);
   chassis.pid_wait();
 
-  pros::delay(800);
+  pros::delay(700);
 
   //chassis.pid_turn_set(15, 80); // Turn so mogo is facing corner
   //chassis.pid_wait();
@@ -222,22 +221,22 @@ void red_AWP_match(){
   lift.set_current_limit_all(2500);
   lift.move_absolute(-2000, 75); 
 
-  chassis.pid_turn_set(49, 60); // Turn to ladder
+  chassis.pid_turn_set(47, 70); // Turn to ladder
   chassis.pid_wait();
   
-  pros::delay(500);
+  pros::delay(400);
   
 
-  chassis.pid_odom_set({{{-11.5_in, -36_in}, fwd, 60}}, // Move to ladder //11.5,-33
+  chassis.pid_odom_set({{{-13_in, -36_in}, fwd, 60}}, // Move to ladder //11.5,-33 // most recent was -11.5 -36
                        true);
   chassis.pid_wait();
 
-  chassis.pid_drive_set(5.5_in, 60);
+  chassis.pid_drive_set(6.75_in, 60);
   chassis.pid_wait();
 
   intake.brake();
 
-  chassis.pid_turn_set(49, 70); // Turn to ladder
+  chassis.pid_turn_set(47, 70); // Turn to ladder
   chassis.pid_wait();
 
   pros::delay(500);
@@ -249,16 +248,204 @@ void red_AWP_match(){
   lift.move_absolute(-3200, 75); 
   pros::delay(2000);
 
-  lift.move_absolute(-2700, 75); 
+  lift.move_absolute(-2770, 75); 
   pros::delay(500);
   lift.move_absolute(-3200, 75); 
-
+  lift_brake.set(false);
 
 
   
 
 
 }
+
+void blue_AWP_match(){
+
+  // Initialization 
+  platform.set_value(true);
+  chassis.pid_targets_reset();                // Resets PID targets to 0
+  chassis.drive_imu_reset();                  // Reset gyro position to 0
+  chassis.drive_sensor_reset();               // Reset drive sensors to 0
+  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);   // Set motors to hold.  This helps autonomous consistency
+  chassis.odom_pose_set({56_in, 32_in, 180_deg});
+  chassis.pid_odom_set({{{56_in, 28_in}, fwd, 60}}, // Move forward to dock
+                       true);
+  chassis.pid_wait();
+  pros::delay(200);
+  dock.set_value(false);
+  pros::delay(300);
+  // Score on mogo
+
+  lift.set_current_limit_all(2500);
+  lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE);
+
+  lift.move_absolute(-1800, 80); // Move lift up to score on mogo
+  pros::delay(1000);
+
+  chassis.pid_odom_set({{{52.75_in, 17_in}, fwd, 60}}, // Move forward to mogo
+                       true);
+  chassis.pid_wait();
+
+
+  pros::delay(500);
+
+
+
+  lift.move_absolute(-400, 80); // Move lift down to score on mogo
+  
+  pros::delay(500);
+
+  // Score on alliance stake
+
+
+  chassis.pid_odom_set({{{58_in, 26_in}, rev, 80}}, // Move back to line up with ring stack
+                       true);
+  chassis.pid_wait();
+
+  lift.move_absolute(0, 80);
+
+  chassis.pid_odom_set({{{57.5_in, 14.5_in}, fwd, 55}}, //45 // move forward to grab ring stack
+                       true);
+  chassis.pid_wait();
+
+  pros::delay(500); // Wait to grab
+
+  lift.move_absolute(-1900, 100); // Move lift up to score on alliance stake
+  
+  pros::delay(700);
+
+  chassis.pid_turn_set(-223, 70); // Turn to alliance stake
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(0.5, 60); // Move a bit forward to alliance stake
+  chassis.pid_wait();
+
+  pros::delay(500);
+
+  lift.move_absolute(-1350, 80);
+
+  pros::delay(500);
+
+//Go around mogo 
+ 
+  //chassis.pid_odom_set({{{-60_in, -11_in}, fwd, 80}},true);// Move past mogo       //57.5 // caused problems by turning whle 15" is on stake
+  
+  //chassis.pid_wait();
+
+
+  // Score MoGo in positive corner
+ // chassis.pid_drive_set(-3, 80); // Move back from alliance stake
+  //chassis.pid_wait();
+  
+  chassis.pid_drive_set(-7_in, 60); // was -3
+  chassis.pid_wait();
+
+  //chassis.pid_odom_set({{{-47.5_in, 17_in}, rev, 80}}, // Move back to line up with mogo // uncomment for mostly working
+  //chassis.pid_wait();
+
+ // chassis.pid_turn_set(0, 90); // Turn so clamp is facing mogo
+  //chassis.pid_wait();
+
+  lift.move_absolute(-100, 80);
+
+//  chassis.pid_odom_set({{{-47.5_in, 6_in}, rev, 80}}, // Move into mogo
+  //                     true);
+//  chassis.pid_wait();
+
+ // mogo.set(true);
+
+ // pros::delay(500);
+
+//  chassis.pid_turn_set(180, 100); // Turn back 
+  //chassis.pid_wait();
+
+  pros::delay(200);
+
+  lift.move_absolute(-100, 80);
+
+  chassis.pid_odom_set({{{49_in, -28_in}, fwd, 80},
+                        {{49_in, -37_in}, fwd, 40}}, // Move to high stake ring stack
+                       true);
+  chassis.pid_wait();
+
+  pros::delay(700);
+
+  //chassis.pid_turn_set(15, 80); // Turn so mogo is facing corner
+  //chassis.pid_wait();
+
+  // removed for time
+  //chassis.pid_odom_set({{{-53_in, -53_in}, rev, 60}}, // score mogo into corner
+  //                     false);
+  //chassis.pid_wait();
+
+  // pros::delay(500);
+
+  mogo.set(false);
+
+
+  lift.move_absolute(-500, 80);
+  
+  // Intake platform rings
+
+  intake.move_velocity(-150);
+  
+  // skipping first ring with preload
+  //chassis.pid_odom_set({{{-26_in, -25_in}, fwd, 50}}, // Intake 1st blue platform ring
+  //                     true);
+  //chassis.pid_wait();
+
+  //pros::delay(400);
+
+  chassis.pid_odom_set({{{23.5_in, -47_in}, fwd, 80}}, // Get 2nd platform ring
+                       true);
+  chassis.pid_wait(); 
+
+  
+
+  
+
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-2000, 75); 
+
+  chassis.pid_turn_set(-47, 70); // Turn to ladder
+  chassis.pid_wait();
+  
+  pros::delay(400);
+  
+
+  chassis.pid_odom_set({{{13_in, -36_in}, fwd, 60}}, // Move to ladder //11.5,-33 // most recent was -11.5 -36
+                       true);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(6.75_in, 60);
+  chassis.pid_wait();
+
+  intake.brake();
+
+  chassis.pid_turn_set(-47, 70); // Turn to ladder
+  chassis.pid_wait();
+
+  pros::delay(500);
+  platform.set_value(false);
+  pros::delay(1000);
+  ladder_arm.move_relative(500, 100);
+
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-3200, 75); 
+  pros::delay(2000);
+
+  lift.move_absolute(-2770, 75); 
+  pros::delay(500);
+  lift.move_absolute(-3200, 75); 
+  lift_brake.set(false);
+
+
+  
+
+
+}
+
+
 
 void skills(){
   platform.set_value(true);
