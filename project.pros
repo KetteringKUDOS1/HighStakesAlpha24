@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "Blue AWP Test",
+    "project_name": "BLU",
     "target": "v5",
     "templates": {
       "EZ-Template": {

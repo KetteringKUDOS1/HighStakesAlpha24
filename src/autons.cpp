@@ -182,7 +182,7 @@ void red_AWP_match(){
                        true);
   chassis.pid_wait();
 
-  pros::delay(700);
+  pros::delay(400);
 
   //chassis.pid_turn_set(15, 80); // Turn so mogo is facing corner
   //chassis.pid_wait();
@@ -214,10 +214,6 @@ void red_AWP_match(){
                        true);
   chassis.pid_wait(); 
 
-  
-
-  
-
   lift.set_current_limit_all(2500);
   lift.move_absolute(-2000, 75); 
 
@@ -227,7 +223,7 @@ void red_AWP_match(){
   pros::delay(400);
   
 
-  chassis.pid_odom_set({{{-13_in, -36_in}, fwd, 60}}, // Move to ladder //11.5,-33 // most recent was -11.5 -36
+  chassis.pid_odom_set({{{-13.5_in, -36.5_in}, fwd, 60}}, // Move to ladder //-13 and -36
                        true);
   chassis.pid_wait();
 
@@ -251,6 +247,7 @@ void red_AWP_match(){
   lift.move_absolute(-2770, 75); 
   pros::delay(500);
   lift.move_absolute(-3200, 75); 
+  pros::delay(800);
   lift_brake.set(false);
 
 
@@ -260,7 +257,7 @@ void red_AWP_match(){
 }
 
 void blue_AWP_match(){
-
+  
   // Initialization 
   platform.set_value(true);
   chassis.pid_targets_reset();                // Resets PID targets to 0
@@ -368,7 +365,7 @@ void blue_AWP_match(){
                        true);
   chassis.pid_wait();
 
-  pros::delay(700);
+  pros::delay(400);
 
   //chassis.pid_turn_set(15, 80); // Turn so mogo is facing corner
   //chassis.pid_wait();
@@ -413,7 +410,7 @@ void blue_AWP_match(){
   pros::delay(400);
   
 
-  chassis.pid_odom_set({{{13_in, -36_in}, fwd, 60}}, // Move to ladder //11.5,-33 // most recent was -11.5 -36
+  chassis.pid_odom_set({{{14_in, -36_in}, fwd, 60}}, // Move to ladder
                        true);
   chassis.pid_wait();
 
@@ -429,6 +426,7 @@ void blue_AWP_match(){
   platform.set_value(false);
   pros::delay(1000);
   ladder_arm.move_relative(500, 100);
+  ladder_arm.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
 
   lift.set_current_limit_all(2500);
   lift.move_absolute(-3200, 75); 
@@ -437,6 +435,7 @@ void blue_AWP_match(){
   lift.move_absolute(-2770, 75); 
   pros::delay(500);
   lift.move_absolute(-3200, 75); 
+  pros::delay(800);
   lift_brake.set(false);
 
 
@@ -637,21 +636,21 @@ void twoMobilewithclimb(){
                        true);
   chassis.pid_wait();
 
- platform.set_value(false);
-  pros::delay(2000);
-  ladder_arm.move_relative(500, 100);
+//  platform.set_value(false);
+//   pros::delay(2000);
+//   ladder_arm.move_relative(500, 100);
 
-  lift.set_current_limit_all(2500);
-  lift.move_absolute(-3200, 75); 
+//   lift.set_current_limit_all(2500);
+//   lift.move_absolute(-3200, 75); 
 
-  pros::delay(5000);
+//   pros::delay(5000);
 
-  lift.move_absolute(-2700, 75); 
+//   lift.move_absolute(-2700, 75); 
 
-  pros::delay(4000);
+//   pros::delay(4000);
 
-  lift.move_absolute(-3200, 75); 
-  lift_brake.set(false);
+//   lift.move_absolute(-3200, 75); 
+//   lift_brake.set(false);
 
 }
 

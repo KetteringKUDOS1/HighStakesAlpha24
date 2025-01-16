@@ -52,6 +52,7 @@ bool arm_accelerating = false;
 float arm_decel_velocity = 0;
 float arm_accel_velocity = 0;
 bool on_rings = false;
+bool unclimbing = false;
 uint32_t start_time;
 uint32_t end_time;
 uint32_t duration;
@@ -127,7 +128,9 @@ void stop_arm(){
   }
   // Stop the arm if slew is not active or the arm is not moving
   else{
-
+    if (unclimbing){
+      return;
+    }
     lift.brake();
   }
 
@@ -224,7 +227,7 @@ void move_arm(int rpm = 100){
 
 
 void home_arm(){
-  int current_limit = 600;
+  int current_limit = 900;
 
   // Run homing for 0.5 seconds
   // This allows for a consistent homing time and ensures it will exit even if the current limit isnt met
@@ -239,6 +242,7 @@ void home_arm(){
     pros::delay(ez::util::DELAY_TIME);
   }
   lift.brake();
+  lift.tare_position_all();
 
   return;
 
@@ -311,7 +315,7 @@ void initialize() {
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
     //Auton("Red AWP Test", red_AWP_match),
-    Auton("Blue AWP Test", blue_AWP_match),
+   Auton("Blue AWP Test", blue_AWP_match),
     //Auton("Adriana's Monday Skills" ,fortySevenPointSkills),
       //Auton("Match", blue_match_auton),
       //Auton("Connor's Skills", skills),
@@ -406,6 +410,8 @@ void competition_initialize() {
 void autonomous() {
   //lift.move_absolute(-2000, 75);
   //pros::delay(9999999);
+  home_arm();
+
   ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
 
   /*
@@ -573,6 +579,7 @@ void opcontrol() {
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
   bool mogo_toggle = false;
   bool mogo_pressed = false;
+  
   //platform.set_value(true);
   
   while (true) {
@@ -589,6 +596,27 @@ void opcontrol() {
     // . . .
     // Put more user control code here!
     // . . .
+
+
+
+  //Layer 1 Macros/Controls
+    //L2 is Intake
+    //L1 is Outtake
+    //R2 is Lift down
+    //R1 is Lift up
+    //Left Joystick is Forward Back
+    //Right Joystick is Turning 
+    //Up Arrow is Ring platform extend
+    //Left Arrow is Ring platform Retract
+    //Down arrow is AutoClimb
+    //Right arrow is Ladder arm extend
+    //X button is Lock gears
+    //A button is unlock gears
+    //B button Activate 2nd layer
+    //Y button is ladder arm retract  
+
+
+
     if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
       lift.set_current_limit_all(2500);
       lift_task_enabled = false;
@@ -638,8 +666,13 @@ void opcontrol() {
 
     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
       lift_brake.set(true);
+      unclimbing = true;
+      lift.move_relative(-150, 50);
     }
-    else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
+    else{
+      unclimbing = false;
+    }
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
       lift_brake.set(false);
     }
 
@@ -649,9 +682,9 @@ void opcontrol() {
     }
 
     else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-      dock.set_value(false);
-      //platform.set_value(false);
-      //on_rings = true;
+      //dock.set_value(false);
+      platform.set_value(false);
+      on_rings = true;
     }
 
     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
@@ -666,19 +699,28 @@ void opcontrol() {
       }
       
     }
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B)){
-      if (mogo.get()){
-        master.rumble(". .");
-      }
-      else{
 
-      }
-    }
       
-    
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B) && master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
+      dock.set_value(false);
+    }
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B) && master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)){
+      dock.set_value(true);
+    }
     mogo.button_toggle(master.get_digital(pros::E_CONTROLLER_DIGITAL_B));
     
-
+  //Layer 2 Macros/Controls
+    // L2 is Wall Stake 
+    // L1 is MOGO Clamp
+    // R2 is Claw?
+    // R3 is Claw?
+    // Left Joystick is Forward Back
+    // Right Joystick is turning 
+    // Down Arrow is Mogo Grabber  
+    // Right arrow is Drive Safe
+    // X button is Dock
+    // A button is undock
+    // B button is going back to first layer
     
     //master.print(0, 0, "Val: %f", test_rev.get_value());
     
