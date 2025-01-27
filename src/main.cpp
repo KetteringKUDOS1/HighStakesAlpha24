@@ -344,7 +344,7 @@ void initialize() {
   pros::delay(500);
   home_arm();
   pros::delay(200);
-  ladder_arm.move_relative(-200, 100);
+  //ladder_arm.move_relative(-200, 100);
   pros::delay(200);
   ladder_arm.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);
   ladder_arm.brake();
@@ -604,7 +604,7 @@ void opcontrol() {
     // . . .
 
 
-  //Layer 1 Macros/Controls
+    //Layer 1 Macros/Controls
     //L2 is Intake
     //L1 is Outtake
     //R2 is Lift down
@@ -619,265 +619,246 @@ void opcontrol() {
     //A button is unlock gears
     //B button Activate 2nd layer
     //Y button is ladder arm retract  
+  
+  
+    //Layer 2 Macros/Controls - When Holding B
+    // L2 is Wall Stake 
+    // L1 is MOGO Clamp
+    // Left Joystick is Forward Back
+    // Right Joystick is turning 
+    // Down Arrow is Mogo Grabber  
+    // Right arrow is Drive Safe
+    // X button is Dock
+    // A button is undock
 
-  if(control_Layer == 1){
-
-  // Intake Controls (L2 = Intake, L1 = Outtake)
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) 
+    // L2 Button for Layer One and Layer Two
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) 
     {
-        intake.set_current_limit(2500);
-        intake.move_velocity(200); // Intake
-    } else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) 
-    {
-        intake.set_current_limit(2500);
-        intake.move_velocity(-200); // Outtake
-    } else 
-    {
-        intake.brake();
-        intake.set_current_limit(0); // Stop intake
-    }
-    // Lift Controls (R2 = Lift Down, R1 = Lift Up)
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) 
-    {
-        lift.set_current_limit_all(2500);
-        lift.move_velocity(50); // Lift down
-    } else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) 
-    {
-        lift.set_current_limit_all(2500);
-        lift.move_velocity(-50); // Lift up
-    } else 
-    {
-        lift_brake.set(true); // Stop lift
-    }
-    // Ladder Arm Controls (Y = Retract, Right Arrow = Extend)
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) 
-    {
-        ladder_arm.move_velocity(100); // Retract ladder arm
-    } else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)) 
-    {
-        ladder_arm.move_velocity(-100); // Extend ladder arm
-    } else 
-    {
-        ladder_arm.brake(); // Stop ladder arm
-    }
-    // Docking control using Up and Left Arrow
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) 
-    {
-        dock.set_value(false); // Undock if Up Arrow is pressed
-    } 
-    else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)) 
-    {
-        dock.set_value(true); // Dock if Left Arrow is pressed
-    }
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) 
-    {
-      if (lift.get_position() >= -1900) 
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) 
         {
-          printf("Running lift task\n");
-          lift_task_enabled = true;  // Enable the lift task
-          climb_task_enabled = false; // Ensure climb task is disabled
-        } else if (lift.get_position() < -1900) 
+          pros::lcd::print(0, "Wall Stake climb activated");
+          // Wall stake auto climb
+        } 
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2))
         {
-            printf("Running climb task\n");
-            climb_task_enabled = true;  // Enable the climb task
-            lift_task_enabled = false;  // Ensure lift task is disabled
+          pros::lcd::print(0, "Intake activated");
+          intake.set_current_limit(2500);
+          intake.move_velocity(200);
+        }
+        else
+        {
+          intake.brake();
+          intake.set_current_limit(0);
         }
     }
-    // A Button: Unlock gears (using provided function pattern)
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A))
+
+    // L1 Button for Layer One and Layer Two
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) 
     {
-        lift_brake.set(true);  // Engaging the lift brake
-        unclimbing = true;     // Setting unclimbing to true
-        lift.move_relative(-150, 50);  // Move the lift down relative
+        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) 
+        {
+          pros::lcd::print(0, "MOGO Auto Positioning activated");
+          // MOGO Auto Positioning 
+        } 
+        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) 
+        {
+          pros::lcd::print(0, "Outtake activated");
+          intake.set_current_limit(2500);
+          intake.move_velocity(-200);
+        }
+        else
+        {
+          intake.brake();
+          intake.set_current_limit(0);
+        }
+    }
+
+    //R1 Button used only in Layer One
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) 
+    {
+      pros::lcd::print(0, "Lift Up activated");
+      lift.set_current_limit_all(2500);
+      lift_task_enabled = false;
+      move_arm(-50);
     }
     else
     {
-        unclimbing = false;  // Reset unclimbing when A is not pressed
+      if (!lift_task_enabled && !climb_task_enabled)
+      {
+              
+        lift.set_current_limit_all(2500);
+        stop_arm();
+        chassis.drive_current_limit_set(2500);
+      }
     }
-    // X Button: Lock gears (using provided function pattern)
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X))
+
+    //R2 Button used only in Layer One
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) 
     {
-        lift_brake.set(false);  // Disengaging the lift brake
+      pros::lcd::print(0, "Lift Down activated");
+      lift.set_current_limit_all(2500);
+      lift_task_enabled = false;
+      move_arm(50);
+    }   
+    else
+    {
+      if (!lift_task_enabled && !climb_task_enabled)
+      {
+        lift.set_current_limit_all(2500);
+        stop_arm();
+        chassis.drive_current_limit_set(2500);
+      }
     }
-    // Switch to Layer 2 (B = Activate Layer 2)
+
+    //UP Button used only in Layer One        
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)) 
+    {
+      pros::lcd::print(0, "Ring Platform Extended");
+      platform.set_value(false);
+      on_rings = true;
+    }  
+
+    //LEFT Button used only in Layer One    
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)) 
+    {
+      pros::lcd::print(0, "Ring Platform Retracted");
+      platform.set_value(false);
+      on_rings = false;        
+    }  
+
+    //RIGHT Button Layer One and Two 
     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) 
     {
-        control_Layer = 2;
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)) 
+      {
+        pros::lcd::print(0, "Drive Safe activated");
+        // Drive Safe activated - Safely puts the 15" in air when driving around
+      } 
+      else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)) 
+      {
+        pros::lcd::print(0, "Ladder Arm Extended");
+        ladder_arm.move_velocity(100);
+      }
+      else{
+        if (!lift_task_enabled)
+        {
+          ladder_arm.brake();
+        }
+      }
     }
 
-  //Layer 2 Macros/Controls
-  // L2 is Wall Stake 
-  // L1 is MOGO Clamp
-  // R2 is Claw?
-  // R3 is Claw?
-  // Left Joystick is Forward Back
-  // Right Joystick is turning 
-  // Down Arrow is Mogo Grabber  
-  // Right arrow is Drive Safe
-  // X button is Dock
-  // A button is undock
-  // B button is going back to first layer
-if (control_Layer == 2) {
-    // Wall Stake (L2)
-    // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
-    //     // Activate Wall Stake
-    //     wall_stake.set_value(true);
-    // } else {
-    //     wall_stake.set_value(false);  // Deactivate Wall Stake
-    // }
-
-    // // MOGO Clamp (L1)
-    // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-    //     mogo_clamp.set_value(true);  // Activate MOGO clamp
-    // } else {
-    //     mogo_clamp.set_value(false);  // Deactivate MOGO clamp
-    // }
-
-    // // Claw (R2)
-    // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-    //     claw.set_value(true);  // Activate claw (R2)
-    // } else {
-    //     claw.set_value(false);  // Deactivate claw (R2)
-    // }
-
-    // // Mogo Grabber (Down Arrow)
-    // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) {
-    //     mogo_grabber.set_value(true);  // Activate mogo grabber
-    // } else {
-    //     mogo_grabber.set_value(false);  // Deactivate mogo grabber
-    // }
-
-    // // Drive Safe (Right Arrow)
-    // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)) {
-    //     drive.set_drive_mode(DriveMode::SAFER);  // Switch to safer driving mode
-    // } else {
-    //     drive.set_drive_mode(DriveMode::NORMAL);  // Switch to normal driving mode
-    // }
-
-    // Dock (X button)
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X)) {
-        dock.set_value(true);  // Dock the robot when X is pressed
-    }
-
-    // Undock (A button)
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) {
-        dock.set_value(false);  // Undock the robot when A is pressed
-    }
-
-    // Switch to Layer 1 (B button)
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
-        control_Layer = 1;  // Switch to Layer 1 when B is pressed
-    }
-}
+    // DOWN Button Layer One and Two
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) 
+    {
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) 
+      {
+        pros::lcd::print(0, "MOGO Mech activated");
+        mogo.button_toggle(master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN));
+      }
+      else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)) 
+      {
+        pros::lcd::print(0, "Auto Climb Extended");
+        if (lift.get_position() >= -1900)
+        {
+          printf("Running lift task\n");
+          lift_task_enabled = true;
+        }
+        else if (lift.get_position() < -1900)
+        {
+          printf("Running climb task\n");
+          climb_task_enabled = true;
+        }
+      }  
+    }     
 
 
-
-
-
-
-
-
-
-
-//CONNOR'S COntroles 
-    // if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-    //   lift.set_current_limit_all(2500);
-    //   lift_task_enabled = false;
-    //   move_arm(50);
-    // }
-    // else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-    //   lift.set_current_limit_all(2500);
-    //   lift_task_enabled = false;
-    //   move_arm(-50);
-    // }
-    // else{
-    //   if (!lift_task_enabled && !climb_task_enabled){
+// //CONNOR'S Controls
+  //   if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+  //     lift.set_current_limit_all(2500);
+  //     lift_task_enabled = false;
+  //     move_arm(50);
+  //   }
+  //   else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+  //     lift.set_current_limit_all(2500);
+  //     lift_task_enabled = false;
+  //     move_arm(-50);
+  //   }
+  //   else{
+  //     if (!lift_task_enabled && !climb_task_enabled){
         
-    //     lift.set_current_limit_all(2500);
-    //     stop_arm();
-    //     chassis.drive_current_limit_set(2500);
-    //   }
-      
-    // }
+  //       lift.set_current_limit_all(2500);
+  //       stop_arm();
+  //       chassis.drive_current_limit_set(2500);
+  //     }    
+  //   }
+  //   // Macro button
+  //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
+  //     if (lift.get_position() >= -1900){
+  //       printf("Running lift task\n");
+  //       lift_task_enabled = true;
+  //     }
+  //     else if (lift.get_position() < -1900){
+  //       printf("Running climb task\n");
+  //       climb_task_enabled = true;
+  //     }
+  //   }
+  //   if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
+  //     intake.set_current_limit(2500);
+  //     intake.move_velocity(200);
+  //   }
+  //   else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1 )){
+  //     intake.set_current_limit(2500);
+  //     intake.move_velocity(-200);
+  //   }
+  //   else{
+  //     intake.brake();
+  //     intake.set_current_limit(0);
+  //   }
+  //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
+  //     lift_brake.set(true);
+  //     unclimbing = true;
+  //     lift.move_relative(-150, 50);
+  //   }
+  //   else{
+  //     unclimbing = false;
+  //   }
+  //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
+  //     lift_brake.set(false);
+  //   }
+  //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)){
+  //     platform.set_value(true);
+  //     on_rings = false;
+  //   }
+  //   else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
+  //     //dock.set_value(false);
+  //     platform.set_value(false);
+  //     on_rings = true;
+  //   }
 
-    // // Macro button
-    // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
-    //   if (lift.get_position() >= -1900){
-    //     printf("Running lift task\n");
-    //     lift_task_enabled = true;
-    //   }
-    //   else if (lift.get_position() < -1900){
-    //     printf("Running climb task\n");
-    //     climb_task_enabled = true;
-    //   }
-    // }
-
-
-    // if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-    //   intake.set_current_limit(2500);
-    //   intake.move_velocity(200);
-    // }
-    // else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1 )){
-    //   intake.set_current_limit(2500);
-    //   intake.move_velocity(-200);
-    // }
-    // else{
-    //   intake.brake();
-    //   intake.set_current_limit(0);
-      
-    // }
-
-    // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
-    //   lift_brake.set(true);
-    //   unclimbing = true;
-    //   lift.move_relative(-150, 50);
-    // }
-    // else{
-    //   unclimbing = false;
-    // }
-    // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
-    //   lift_brake.set(false);
-    // }
-
-    // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)){
-    //   platform.set_value(true);
-    //   on_rings = false;
-    // }
-
-    // else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-    //   //dock.set_value(false);
-    //   platform.set_value(false);
-    //   on_rings = true;
-    // }
-
-    // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
-    //   ladder_arm.move_velocity(100);
-    // }
-    // else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
-    //   ladder_arm.move_velocity(-100);
-    // }
-    // else{
-    //   if (!lift_task_enabled){
-    //     ladder_arm.brake();
-    //   }
-      
-    // }
-
-      
-    // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B) && master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-    //   dock.set_value(false);
-    // }
-    // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B) && master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)){
-    //   dock.set_value(true);
-    // }
-    // mogo.button_toggle(master.get_digital(pros::E_CONTROLLER_DIGITAL_B));
-   //master.print(0, 0, "Val: %f", test_rev.get_value());
+  //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
+  //     ladder_arm.move_velocity(100);
+  //   }
+  //   else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+  //     ladder_arm.move_velocity(-100);
+  //   }
+  //   else{
+  //     if (!lift_task_enabled){
+  //       ladder_arm.brake();
+  //     }   
+  //   }
+  //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B) && master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
+  //     dock.set_value(false);
+  //   }
+  //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B) && master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)){
+  //     dock.set_value(true);
+  //   }
+  //   mogo.button_toggle(master.get_digital(pros::E_CONTROLLER_DIGITAL_B));
+  // // master.print(0, 0, "Val: %f", test_rev.get_value());
     
-    //master.clear();
-    //printf("Val: %f \n", left_tracker.get_raw());
-    //printf("Pros val: %i\n", test_rev.get_value());
-    //pros::delay(300);
+    master.clear();
+    printf("Val: %f \n", left_tracker.get_raw());
+   // printf("Pros val: %i\n", test_rev.get_value());
+    pros::delay(300);
     pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
-    }
   }
 }
