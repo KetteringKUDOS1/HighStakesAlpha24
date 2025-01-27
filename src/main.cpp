@@ -769,7 +769,52 @@ void opcontrol() {
           climb_task_enabled = true;
         }
       }  
-    }     
+    } 
+
+    // Y Button used only in Layer One    
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)) 
+    {
+      pros::lcd::print(0, "Ladder Arm Retracted");
+        ladder_arm.move_velocity(-100);
+      }
+    else
+    {
+      if (!lift_task_enabled)
+      {
+        ladder_arm.brake();
+      }
+    }
+  
+  //X Button used in Layer One and Layer Two
+  if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) 
+    {
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X)) 
+      {
+        pros::lcd::print(0, "Docking Mech activated");
+        dock.set_value(true);
+      } 
+      else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X)) 
+      {
+        pros::lcd::print(0, "Lock Gears Activated");
+        //Lock Gears
+      }
+    }
+  
+//A Button used in Layer One and Layer Two
+  if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) 
+    {
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) 
+      {
+        pros::lcd::print(0, "Docking Mech disabled");
+        dock.set_value(false);
+      } 
+      else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)) 
+      {
+        pros::lcd::print(0, "Unlock Gears Activated");
+        //UNlock Gears
+      }
+    }
+
 
 
 // //CONNOR'S Controls
