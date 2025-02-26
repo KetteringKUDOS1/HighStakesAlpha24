@@ -76,7 +76,7 @@ void tuning(){
 void red_AWP_match(){
 
   // Initialization 
-  platform.set_value(true);
+  platform.set_value(false); //true
   chassis.pid_targets_reset();                // Resets PID targets to 0
   chassis.drive_imu_reset();                  // Reset gyro position to 0
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
@@ -86,7 +86,7 @@ void red_AWP_match(){
                        true);
   chassis.pid_wait();
   pros::delay(200);
-  dock.set_value(false);
+  // dock.set_value(false); // true did not work
   pros::delay(300);
   // Score on mogo
 
@@ -256,6 +256,65 @@ void red_AWP_match(){
 
 }
 
+
+void testingTues(){
+
+ bool isGearLocked = false;  // Gears are initially unlocked
+  platform.set_value(true);  //false             // Prepare platform
+  chassis.pid_targets_reset();            // Reset PID targets to 0
+  chassis.drive_imu_reset();              // Reset gyro (IMU) position
+  chassis.drive_sensor_reset();           // Reset drive sensors
+  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);  // Set motors to hold
+  lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+  lift.set_current_limit_all(2500);
+  
+  // Startup Position and Docking mech
+  chassis.odom_pose_set({-56_in, -32_in, 0_deg});  // 24” robot's start position  //180
+  chassis.pid_odom_set({{{-56_in, -28_in}, fwd, 60}}, true); // Dock with second robot
+  chassis.pid_wait();
+  pros::delay(200);
+   dock.set_value(false);
+  pros::delay(300);
+
+
+  lift.move_absolute(-1000, 75); //Gets 15" out of the way
+
+  // Intake ON
+  intake.move_velocity(-200); // Begin intaking
+  chassis.pid_odom_set({{{-47_in, 0_in}, fwd, 70}}, true);
+  chassis.pid_wait();
+  chassis.pid_odom_set({{{-24_in, 24_in}, fwd, 70}}, true);
+  chassis.pid_wait();
+  //Intake OFF
+  intake.brake();
+
+  // Turning and going to ladder to climb
+  chassis.pid_turn_set(25_deg, 70);//75 and 25
+  chassis.pid_odom_set({{{-4_in, 36_in}, fwd, 70}}, true); //-5,33
+  chassis.pid_wait();
+  pros::delay(1300);//1000 and 10000
+
+
+
+  // Climbing
+      platform.set_value(false); //true
+      lift.set_current_limit_all(2500);
+      lift.move_absolute(-1000, 75); 
+      printf("Lift Pos 1: %f\n", lift.get_position());
+      if (lift.get_position() < -1990){
+        printf("Done with lifting 1\n");
+        pros::delay(500);
+      }
+      lift.move_absolute(-3300, 75); //-3200
+      pros::delay(500);
+      pros::delay(1200);
+      lift_brake.set(false);  // Lock the brake
+      lift.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);  // Ensure lift motors hold position
+      lift.move_velocity(0);  // Prevent any movement
+
+
+}
+
 void blue_AWP_match(){
   
   // Initialization 
@@ -269,12 +328,12 @@ void blue_AWP_match(){
                        true);
   chassis.pid_wait();
   pros::delay(200);
-  dock.set_value(false);
+  // dock.set_value(false);
   pros::delay(300);
   // Score on mogo
 
   lift.set_current_limit_all(2500);
-  lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE);
+  lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);//Brake
 
   lift.move_absolute(-1800, 80); // Move lift up to score on mogo
   pros::delay(1000);
@@ -459,7 +518,7 @@ void skills(){
   chassis.pid_wait();
 
   pros::delay(500);
-  dock.set_value(false); // Activate docking
+  // dock.set_value(false); // Activate docking
   pros::delay(500);
 
   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
@@ -540,7 +599,7 @@ void thirtyPointSkills(){
   chassis.pid_wait();
 
   pros::delay(500);
-  dock.set_value(false); // Activate docking
+  // dock.set_value(false); // Activate docking
   pros::delay(500);
 
   intake.move_velocity(-200); // Begin intaking
@@ -591,9 +650,6 @@ void thirtyPointSkills(){
   // lift_brake.set(false); // Example: releasing lift brake
 }
 
-//
-//4 mobile goals with climb
-//
 void twoMobilewithclimb(){
   platform.set_value(true);               // Prepare platform
   chassis.pid_targets_reset();            // Reset PID targets to 0
@@ -602,12 +658,12 @@ void twoMobilewithclimb(){
   chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);  // Set motors to hold
 
   chassis.odom_pose_set({-56.8_in, -24_in, 180_deg});
-  dock.set_value(true);
+  // dock.set_value(true);
   chassis.pid_odom_set({{{-56.8_in, -27_in}, fwd, 80}}, // Move forward to dock
                        true);
   chassis.pid_wait();
 
-  dock.set_value(false);
+  // dock.set_value(false);
   mogo.set(true);
     lift.move_absolute(-500, 75); 
 
@@ -667,12 +723,12 @@ void fortySevenPointSkills(){
   chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);  // Set motors to hold
   //Startup Position and Docking mech
     chassis.odom_pose_set({-56_in, -15_in, 180_deg});
-    dock.set_value(true);
+    // dock.set_value(true);
     chassis.pid_odom_set({{{-56_in, -19_in}, fwd, 80}}, // Move forward to dock
                         true);
     chassis.pid_wait();
 
-    dock.set_value(false);
+    // dock.set_value(false);
     mogo.set(true);
     lift.move_absolute(-500, 75); 
 
@@ -751,284 +807,222 @@ void fortySevenPointSkills(){
 
 
 }
-void fiftyNineSkills() {
-    // Prepare platform
-    platform.set_value(true);   
+void stateSkills() {   
     
-    // Reset chassis settings
-    chassis.pid_targets_reset();                
-    chassis.drive_imu_reset();                  
-    chassis.drive_sensor_reset();               
-    chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD); 
 
+  bool isGearLocked = false;  // Gears are initially unlocked
 
-  // Start at the 24” robot's starting position
-  chassis.odom_pose_set({-54_in, -14_in, 180_deg});  // 24” robot's start position
-  chassis.pid_odom_set({{{-54_in, -18_in}, fwd, 60}}, true); // Dock with second robot
-  chassis.pid_wait();
-  //Lining up for 1st ring and picking it up
-  chassis.pid_odom_set({{{-38_in, -36_in}, fwd, 70}}, true);
-  chassis.pid_wait();
-  pros::delay(500);
-    intake.set_current_limit(2500);
-    intake.move_velocity(-200);
-    pros::delay(100);
-    lift.set_current_limit_all(2500);
-    lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-    lift.move_absolute(-500, 75);
-  // First Mobile goal with ring
-  chassis.pid_odom_set({{{47_in, 47_in}, fwd, 70}, 
-                        {{35_in, 47_in}, fwd, 70}}, 
-                        true);
-  //Clamp mech for mobile goal - pick it up
-  //Place ring on mobile goal code
-  chassis.pid_odom_set({{{-53_in, -55_in}, fwd, 70}}, true);
-  //Lining up for 2nd ring and picking it up
-  chassis.pid_odom_set({{{-13_in, -49_in}, fwd, 70}}, true);
-  chassis.pid_wait();
-  pros::delay(500);
-  intake.set_current_limit(2500);
-  intake.move_velocity(-200);
-  pros::delay(100);
-
-  lift.set_current_limit_all(2500);
+  platform.set_value(true);               // Prepare platform
+  chassis.pid_targets_reset();            // Reset PID targets to 0
+  chassis.drive_imu_reset();              // Reset gyro (IMU) position
+  chassis.drive_sensor_reset();           // Reset drive sensors
+  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);  // Set motors to hold
   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-  lift.move_absolute(-500, 75);
-  // Second Mobile goal with ring
-  chassis.pid_odom_set({{{13_in, -31_in}, fwd, 70}}, true);
-  //Clamp mech for mobile goal - pick it up
-  //Place ring on mobile goal code
-  chassis.pid_odom_set({{{34_in, -43_in}, fwd, 70}, // Updated 1st coordinate
-                        {{53_in, -57_in}, fwd, 70}}, // Updated 2nd coordinate
-                        true);
-  //Clamp mech for mobile goal - Drop it in corner
-  chassis.pid_odom_set({{{57_in, -48_in}, fwd, 70}}, true);
-
-  // lining up for 3rd Ring/Stack
-  chassis.pid_odom_set({{{52_in, -37_in}, fwd, 70}}, true);
-  chassis.pid_wait();
-  pros::delay(500);
-  intake.set_current_limit(2500);
-  intake.move_velocity(-200);
-  pros::delay(100);
   lift.set_current_limit_all(2500);
-  lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-  lift.move_absolute(-500, 75);
-  // Third Mobile goal with ring/stack
-  chassis.pid_odom_set({{{47_in, -13_in}, fwd, 70}}, true);
-  //Clamp mech for mobile goal - pick it up
-  //Place ring on mobile goal code
-  chassis.pid_odom_set({{{58_in, 53_in}, fwd, 70}}, true);
-  //Clamp mech for mobile goal - Drop it in corner
-  chassis.pid_odom_set({{{26_in, 58_in}, fwd, 70}}, true);
-  // lining up for 4th Ring
-  chassis.pid_odom_set({{{12_in, 52_in}, fwd, 70}}, true);
+  
+  // Startup Position and Docking mech
+  chassis.odom_pose_set({-56_in, -32_in, 0_deg});  // 24” robot's start position  //180
+  chassis.pid_odom_set({{{-56_in, -28_in}, fwd, 60}}, true); // Dock with second robot
   chassis.pid_wait();
-  pros::delay(500);
-  intake.set_current_limit(2500);
-  intake.move_velocity(-200);
-  pros::delay(100);
-  lift.set_current_limit_all(2500);
-  lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-  lift.move_absolute(-500, 75);
-  // Fourth Mobile goal with ring/stack
-  chassis.pid_odom_set({{{-10_in, 48_in}, fwd, 70}}, true);
-  //Clamp mech for mobile goal - pick it up
-  //Place ring on mobile goal code
-  chassis.pid_odom_set({{{-52_in, 59_in}, fwd, 70}}, true);
-  //Clamp mech for mobile goal - Drop it in corner
-  chassis.pid_odom_set({{{-55_in, 56_in}, fwd, 70}}, true);
+  pros::delay(200);
+  // dock.set_value(false);
+  pros::delay(300);
 
-  intake.move_velocity(-200); // Begin intaking
 
-  chassis.pid_odom_set({{{-47_in, 47_in}, fwd, 110}, // First red ring intake
-                        {{-24_in, 24_in}, fwd, 110}}, // Second red ring intake
+//Example code of the Lock Mech
+  // if (!isGearLocked) {
+  //   lift.move_absolute(-2000, 75); 
+  //   pros::delay(500);
+  // } else {
+  //   lift.move_velocity(0);  // Ensure the lift doesn't move if the gears are locked
+  // }
+
+  // Lining up for 1st ring and picking it up
+  chassis.pid_odom_set({{{-53_in, -18_in}, fwd, 80}}, true); //70
+  chassis.pid_wait();
+  pros::delay(1000); // Waiting for 15" to pick up ring
+
+  lift.move_absolute(-2000, 75); 
+
+
+  // Turning and lining up to put the ring on the alliance stake
+  chassis.pid_turn_set(70_deg, 70);
+  chassis.pid_odom_set({{{-53_in, -4_in}, fwd, 70}}, true);
+  chassis.pid_wait();  
+  //Turns to face Red Alliance Stake
+  chassis.pid_turn_set(-75_deg, 70);
+  pros::delay(1000); //1000
+
+  //Needs to go down by 4 inches max 
+  lift.move_absolute(-1700, 60);
+ 
+  pros::delay(3000); //wait till 15" puts the ring on Alliance stake
+
+
+
+
+  //Turning and going to pick up Second red ring
+  chassis.pid_odom_set({{{-45_in, 0_in}, rev, 70}}, true);
+  chassis.pid_wait();
+  lift.move_absolute(0, 60);  
+
+  chassis.pid_turn_set(-75_deg, 70, ez::shortest); //75
+  chassis.pid_odom_set({{{-30_in, 15_in}, fwd, 70}}, true);
+  chassis.pid_wait();
+  pros::delay(1000); //wait till 15" picks up ring
+
+  //Driving and putting on Wall Stake
+  chassis.pid_odom_set({{{0_in, 45_in}, fwd, 70}}, true);
+  chassis.pid_wait();
+  chassis.pid_turn_set(70_deg, 70); //-70
+  chassis.pid_odom_set({{{0_in, 55_in}, fwd, 70}}, true);
+  chassis.pid_wait();
+  chassis.pid_odom_set({{{0_in, 40_in}, rev, 70}}, true);
+  chassis.pid_wait();
+  pros::delay(3000); //wait till 15" puts the ring on Wall stake
+  chassis.pid_turn_set(100_deg, 70);
+
+  //Driving backwards and putting mogo in Left Red corner
+  chassis.pid_odom_set({{{-7_in, 36_in}, rev, 70}, 
+                        {{-58_in, -58_in}, rev, 70},}, // Push mogo into corner
                         true);
   chassis.pid_wait();
-  intake.brake();
+ 
+ //ATM we have 1 mobile goal in corner, wall stake, alliance stake
 
-  //Climbing positions
-  chassis.pid_odom_set({{{-13_in, 39_in}, fwd, 70}, // Line up for climb
-                          {{-9_in, 34_in}, rev, 70},},true); // Go for climb
 
-  // Climb ( this is code for high stake - take out that code) 
-  platform.set_value(false);
-  pros::delay(2000);
-  ladder_arm.move_relative(500, 100); 
-  lift.set_current_limit_all(2500); 
-  lift.move_absolute(-3200, 75);
-  pros::delay(5000); 
-  lift.move_absolute(-2800, 75);
-  pros::delay(4000); 
-  lift.move_absolute(-3200, 75);
+  //Putting second Mogo In corner 
+  chassis.pid_odom_set({{{6_in, 48_in}, fwd, 70}, 
+                        {{16_in, 34_in}, fwd, 70},
+                        {{55_in,55_in},fwd,70},},// Push mogo into corner
+                        true);
+  chassis.pid_wait();
+
+  //Pushing third Mogo in corner 
+  chassis.pid_odom_set({{{42_in, 17_in}, rev, 70}, 
+                        {{58_in, -51_in}, rev, 70},}, // Push mogo into corner
+                         true);
+  chassis.pid_wait();
+
+  //ATM we have 3 mobile goals in corner, wall stake, alliance stake
+  //if we add climb without highstake then we are at 48 points
+
+  //Intake first and second ring 
+  chassis.pid_turn_set(-70_deg, 70);
+  //Start Intake 
+  chassis.pid_odom_set({{{23_in, -47_in}, fwd, 70},
+                    {{-2_in,-47_in},fwd,70},}, 
+                true);
+  chassis.pid_wait();
+  //Stop intake 
+  chassis.pid_odom_set({{{-9_in, -46_in}, fwd, 70}}, true);
+  chassis.pid_wait();
+
+  //Putting 4th mobile goal in corner 
+  // -53,-57
+  chassis.pid_odom_set({{{-53_in, -57_in}, fwd, 70}}, true);
+  chassis.pid_wait();
+  chassis.pid_odom_set({{{-43_in, -57_in}, fwd, 70}}, true);
+  chassis.pid_wait();
+  chassis.pid_turn_set(70_deg, 70);
+
+  //ATM we have 4 mobile goals in corner, wall stake, alliance stake
+  //if we add climb without highstake then we are at 53 points
+
+
+  //Intake ring  
+  chassis.pid_odom_set({{{-24_in, -24_in}, fwd, 70}}, true);
+  chassis.pid_wait();
+  pros::delay(1000); //wait till 15" picks up ring
+  chassis.pid_turn_set(70_deg, 70);
+
+  chassis.pid_odom_set({{{-13.5_in, -36.5_in}, fwd, 60}}, // Move to ladder //-13 and -36
+                       true);
+  chassis.pid_wait();
+
+  chassis.pid_drive_set(6.75_in, 60);
+  chassis.pid_wait();
+
+  chassis.pid_turn_set(47, 70); // Turn to ladder
+  chassis.pid_wait();
+//Ready for high stake CLimb 
+
+// Climb for Each Corner if cant do high stake
+//   Red Alliance Stake Corner 
+//     (-35,0)
+//       chassis.pid_odom_set({{{-35_in, 0_in}, fwd, 60}},true);
+//       chassis.pid_wait();
+//   Blue Alliance Stake Corner
+//     (35,0)
+//       chassis.pid_odom_set({{{35_in, 0_in}, fwd, 60}},true);
+//       chassis.pid_wait();
+//   Left Wall Stake Corner 
+//     (0,35)
+//       chassis.pid_odom_set({{{0_in, 35_in}, fwd, 60}},true);
+//       chassis.pid_wait();
+//   Right Wall Stake Corner
+//     (0,-35)
+//       chassis.pid_odom_set({{{0_in, -35_in}, fwd, 60}},true);
+//       chassis.pid_wait();
+
+// //Climb At the End --- 5 Seconds 
+      // lift.set_current_limit_all(2500);
+      // lift.move_absolute(-2000, 75); 
+      // printf("Lift Pos 1: %f\n", lift.get_position());
+      // if (lift.get_position() < -1990){
+      //   printf("Done with lifting 1\n");
+      //   pros::delay(500);
+      // }
+      // lift.move_absolute(-3200, 75);
+      // pros::delay(500);
+      // ladder_arm.move_relative(-500, 100);
+      // pros::delay(1200);
+      // lift_brake.set(false); 
+//End Of CLIMBING 
+
+
+
+
+ 
+
+
 }
 
-void sixtyTwoSkills() {
-  // Prepare platform
-  platform.set_value(true);
 
-  // Reset chassis settings
-  chassis.pid_targets_reset();
-  chassis.drive_imu_reset();
-  chassis.drive_sensor_reset();
-  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD); 
 
-  // 1. Place 1st mobile goal on the wall stake (assumed coordinates for wall)
-  chassis.odom_pose_set({-65_in, -65_in, 0_deg}); // Assuming -65, -65 for the wall stake location
-  chassis.pid_odom_set({{{-65_in, -65_in}, fwd, 60}}, true); // Move to wall stake
-  chassis.pid_wait();
 
-  // Place the mobile goal on the wall stake (intake or drop method, if applicable)
-  intake.move_velocity(-200); // Start intaking or place mobile goal on the stake
-  pros::delay(500);           // Wait for the intake process
-  intake.brake();             // Stop the intake or disengage the mobile goal
 
-  // Move to the 1st mobile goal position
-  chassis.pid_odom_set({{{-54_in, -19_in}, fwd, 60}}, true); // Move to first mobile goal
-  chassis.pid_wait();
 
-  // 2. Place 1st mobile goal with ring
-  intake.move_velocity(-200); // Start intaking first ring
-  pros::delay(500);           // Wait for the intake to complete
-  intake.brake();             // Stop intake
 
-  // Move 1st mobile goal to 1st corner
-  chassis.pid_odom_set({{{-54_in, -28_in}, fwd, 60}}, true); // Move to first corner
-  chassis.pid_wait();
 
-  // 3. Place 2nd mobile goal with ring
-  chassis.odom_pose_set({-54_in, -28_in, 0_deg});  // Move to second goal position
-  chassis.pid_odom_set({{{-54_in, -28_in}, fwd, 60}}, true);
-  chassis.pid_wait();
-  intake.move_velocity(-200); // Start intaking second ring
-  pros::delay(500);           // Wait for the intake
-  intake.brake();             // Stop intake
 
-  // Move mobile goal to second corner
-  chassis.pid_odom_set({{{-47_in, -47_in}, fwd, 60}}, true); // Move to second corner
-  chassis.pid_wait();
 
-  // 4. Place 3rd mobile goal with ring
-  chassis.odom_pose_set({-47_in, -47_in, 0_deg});  // Move to third goal position
-  chassis.pid_odom_set({{{-47_in, -47_in}, fwd, 60}}, true);
-  chassis.pid_wait();
-  intake.move_velocity(-200); // Start intaking third ring
-  pros::delay(500);           // Wait for the intake
-  intake.brake();             // Stop intake
 
-  // Move mobile goal to third corner
-  chassis.pid_odom_set({{{-24_in, -48_in}, fwd, 60}}, true); // Move to third corner
-  chassis.pid_wait();
 
-  // 5. Place 4th mobile goal with ring
-  chassis.odom_pose_set({-24_in, -48_in, 0_deg});  // Move to fourth goal position
-  chassis.pid_odom_set({{{-24_in, -48_in}, fwd, 60}}, true);
-  chassis.pid_wait();
-  intake.move_velocity(-200); // Start intaking fourth ring
-  pros::delay(500);           // Wait for the intake
-  intake.brake();             // Stop intake
 
-  // Move mobile goal to fourth corner
-  chassis.pid_odom_set({{{-65_in, -65_in}, fwd, 60}}, true); // Move to fourth corner
-  chassis.pid_wait();
 
-  // 6. Final move to the climbing position (-3, 24)
-  chassis.odom_pose_set({-3_in, 24_in, 0_deg});  // Move to climbing position
-  chassis.pid_odom_set({{{-3_in, 24_in}, fwd, 70}}, true);  // Level 3 climb setup
-  chassis.pid_wait();
 
-  // Start Level 3 climb (e.g., lift robot)
-  platform.set_value(false);   // Assuming platform lowers to help with climb
-  pros::delay(1000);           // Allow climb time
-}
-void sixtyFiveSkills() {
-  // Prepare platform
-  platform.set_value(true);
 
-  // Reset chassis settings
-  chassis.pid_targets_reset();
-  chassis.drive_imu_reset();
-  chassis.drive_sensor_reset();
-  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD); 
 
-  // 1. Place the first ring on the first wall stake (coordinates for wall stake 1)
-  chassis.odom_pose_set({-65_in, -65_in, 0_deg}); // Assuming coordinates (-65, -65) for wall stake 1
-  chassis.pid_odom_set({{{-65_in, -65_in}, fwd, 60}}, true); // Move to first wall stake
-  chassis.pid_wait();
 
-  // Place the first ring on the wall stake
-  intake.move_velocity(-200); // Start intaking first ring
-  pros::delay(500);           // Wait for intake
-  intake.brake();             // Stop intake
 
-  // Move to 1st mobile goal position
-  chassis.pid_odom_set({{{-54_in, -19_in}, fwd, 60}}, true); // Move to first mobile goal
-  chassis.pid_wait();
 
-  // 2. Place the 1st mobile goal with the ring and move it to the 1st corner
-  intake.move_velocity(-200); // Start intaking first ring (if needed for mobile goal)
-  pros::delay(500);           // Wait for intake
-  intake.brake();             // Stop intake
 
-  // Move the mobile goal to the 1st corner
-  chassis.pid_odom_set({{{-54_in, -28_in}, fwd, 60}}, true); // Move to first corner
-  chassis.pid_wait();
 
-  // 3. Place the second ring on the second wall stake
-  chassis.odom_pose_set({-65_in, -65_in, 0_deg}); // Move to second wall stake position
-  chassis.pid_odom_set({{{-47_in, -47_in}, fwd, 60}}, true); // Move to second wall stake
-  chassis.pid_wait();
 
-  // Place the second ring on the second wall stake
-  intake.move_velocity(-200); // Start intaking second ring
-  pros::delay(500);           // Wait for intake
-  intake.brake();             // Stop intake
 
-  // 4. Place the 2nd mobile goal with the ring and move it to the 2nd corner
-  chassis.odom_pose_set({-47_in, -47_in, 0_deg});  // Move to second goal position
-  chassis.pid_odom_set({{{-47_in, -47_in}, fwd, 60}}, true);
-  chassis.pid_wait();
-  intake.move_velocity(-200); // Start intaking second ring (if needed for mobile goal)
-  pros::delay(500);           // Wait for intake
-  intake.brake();             // Stop intake
 
-  // Move mobile goal to second corner
-  chassis.pid_odom_set({{{-24_in, -48_in}, fwd, 60}}, true); // Move to second corner
-  chassis.pid_wait();
 
-  // 5. Place the 3rd mobile goal with the ring and move it to the 3rd corner
-  chassis.odom_pose_set({-24_in, -48_in, 0_deg});  // Move to third goal position
-  chassis.pid_odom_set({{{-24_in, -48_in}, fwd, 60}}, true);
-  chassis.pid_wait();
-  intake.move_velocity(-200); // Start intaking third ring (if needed)
-  pros::delay(500);           // Wait for intake
-  intake.brake();             // Stop intake
 
-  // Move mobile goal to third corner
-  chassis.pid_odom_set({{{-65_in, -65_in}, fwd, 60}}, true); // Move to third corner
-  chassis.pid_wait();
 
-  // 6. Place the 4th mobile goal with the ring and move it to the 4th corner
-  chassis.odom_pose_set({-65_in, -65_in, 0_deg});  // Move to fourth goal position
-  chassis.pid_odom_set({{{-65_in, -65_in}, fwd, 60}}, true);
-  chassis.pid_wait();
-  intake.move_velocity(-200); // Start intaking fourth ring
-  pros::delay(500);           // Wait for intake
-  intake.brake();             // Stop intake
 
-  // Move mobile goal to fourth corner
-  chassis.pid_odom_set({{{0_in, -47_in}, fwd, 60}}, true); // Move to fourth corner (update as per field design)
-  chassis.pid_wait();
 
-  // 7. Final move to the climbing position (-3, 24)
-  chassis.odom_pose_set({-3_in, 24_in, 0_deg});  // Move to climbing position
-  chassis.pid_odom_set({{{-3_in, 24_in}, fwd, 70}}, true);  // Level 3 climb setup
-  chassis.pid_wait();
 
-  // Start Level 3 climb (e.g., lift robot)
-  platform.set_value(false);   // Assuming platform lowers to help with climb
-  pros::delay(1000);           // Allow climb time
-}
+
+
+
+
+
 
 void red_match_auton(){
   platform.set_value(true);
@@ -1038,12 +1032,12 @@ void red_match_auton(){
   chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);   // Set motors to hold.  This helps autonomous consistency
   chassis.odom_pose_set({-56.8_in, -24_in, 180_deg});
 
-  dock.set_value(true);
+  // dock.set_value(true);
   chassis.pid_odom_set({{{-56.8_in, -27_in}, fwd, 80}}, // Move forward to dock
                        true);
   chassis.pid_wait();
 
-  dock.set_value(false);
+  // dock.set_value(false);
 
   pros::delay(1000);
 
@@ -1114,12 +1108,12 @@ void blue_match_auton(){
   chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);   // Set motors to hold.  This helps autonomous consistency
   chassis.odom_pose_set({56.8_in, -24_in, 180_deg});
 
-  dock.set_value(true);
+  // dock.set_value(true);
   chassis.pid_odom_set({{{56.8_in, -27_in}, fwd, 80}}, // Move forward to dock
                        true);
   chassis.pid_wait();
 
-  dock.set_value(false);
+  // dock.set_value(false);
 
   pros::delay(1000);
 

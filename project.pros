@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "Bruh2",
+    "project_name": "today10",
     "target": "v5",
     "templates": {
       "EZ-Template": {
@@ -425,8 +425,8 @@
     },
     "upload_options": {
       "description": "making code ez",
-      "slot": 2,
-      "after": "none"
+      "slot": 1,
+      "after": "screen"
     },
     "use_early_access": false
   }

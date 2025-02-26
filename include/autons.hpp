@@ -15,14 +15,17 @@ void interfered_example();
 
 void default_constants();
 void tuning();
-void skills();
-void red_match_auton();
-void blue_match_auton();
-void thirtyPointSkills();
-void twoMobilewithclimb();
-void fiftyNineSkills();
-void sixtyTwoSkills();
-void sixtyFiveSkills();
+
+// void skills();
+// void red_match_auton();
+// void blue_match_auton();
+// void thirtyPointSkills();
+// void twoMobilewithclimb();
+
+void stateSkills();
+
+void testingTues();
+
 void fortySevenPointSkills();
 void red_AWP_match();
 void blue_AWP_match();
