@@ -299,11 +299,12 @@ void purdueSkills(){
 
    lift.move_absolute(-600, 75);
 
+
    pros::delay(200);
 
 
   // Score 1st mogo 
-   chassis.pid_odom_set({{{-49_in, 56_in}, rev, 70}}, true);
+   chassis.pid_odom_set({{{-53_in, 57_in}, rev, 70}}, true);
    chassis.pid_wait();
 
 
@@ -318,15 +319,52 @@ void purdueSkills(){
    chassis.pid_odom_set({{{17_in, 30_in}, fwd, 70}}, true);
    chassis.pid_wait();
 
-  // Score goal into corner
-   chassis.pid_odom_set({{{45_in, 50_in}, fwd, 70}}, true);
+  // Score 2nd goal into corner
+   chassis.pid_odom_set({{{54_in, 56_in}, fwd, 70}}, true);
+   chassis.pid_wait();
+
+   // Back out of the corner
+   chassis.pid_drive_set(-8_in, 70);
+   chassis.pid_wait();
+   
+   chassis.pid_odom_set({{{40_in, 30_in}, rev, 70}}, true);
+   chassis.pid_wait();
+
+   chassis.pid_odom_set({{{52_in, -10_in}, rev, 70}}, true);
+   chassis.pid_wait();
+
+   chassis.pid_odom_set({{{50_in, -40_in}, rev, 70}}, true);
+   chassis.pid_wait();
+
+  // Score 3rd goal in corner
+   chassis.pid_odom_set({{{58_in, -53_in}, rev, 70}}, true);
+   chassis.pid_wait();
+
+   // Drive out of the corner
+   chassis.pid_drive_set(8_in, 70);
+   chassis.pid_wait();
+
+   chassis.pid_odom_set({{{35_in, -42_in}, fwd, 70}}, true);
    chassis.pid_wait();
 
 
-   pros::delay(1300);
+    // Align with 4th goal
+   chassis.pid_odom_set({{{-2_in, -41_in}, fwd, 70}}, true);
+   chassis.pid_wait();
+
+
+  // Score 4th goal in corner
+   chassis.pid_odom_set({{{-53_in, -58_in}, fwd, 70}}, true);
+   chassis.pid_wait();
+
+   chassis.pid_odom_set({{{2_in, -37_in}, rev, 70}}, true);
+   chassis.pid_wait();
+
+
+   pros::delay(500);
  
  
-  /*
+  
    // Climbing
        platform.set_value(false); //true
        lift.set_current_limit_all(2500);
@@ -336,13 +374,13 @@ void purdueSkills(){
          printf("Done with lifting 1\n");
          pros::delay(500);
        }
-       lift.move_absolute(-3300, 75); //-3200
+       lift.move_absolute(-3400, 75); //-3200
        pros::delay(500);
        pros::delay(1200);
        lift_brake.set(false);  // Lock the brake
        lift.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);  // Ensure lift motors hold position
        lift.move_velocity(0);  // Prevent any movement
- */
+ 
  
  }
 
@@ -470,7 +508,7 @@ void blue_AWP_match(){
 
   pros::delay(500);
 
-//Go around mogo 
+  //Go around mogo 
  
   //chassis.pid_odom_set({{{-60_in, -11_in}, fwd, 80}},true);// Move past mogo       //57.5 // caused problems by turning whle 15" is on stake
   
