@@ -257,6 +257,95 @@ void red_AWP_match(){
 }
 
 
+void purdueSkills(){
+
+  bool isGearLocked = false;  // Gears are initially unlocked
+   platform.set_value(true);  //false             // Prepare platform
+   chassis.pid_targets_reset();            // Reset PID targets to 0
+   chassis.drive_imu_reset();              // Reset gyro (IMU) position
+   chassis.drive_sensor_reset();           // Reset drive sensors
+   chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);  // Set motors to hold
+   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+   lift.set_current_limit_all(2500);
+   
+   // Startup Position and Docking mech
+   chassis.odom_pose_set({-56_in, -32_in, 0_deg});  // 24” robot's start position  //180
+   chassis.pid_odom_set({{{-56_in, -27.5_in}, fwd, 60}}, true); // Dock with second robot
+   chassis.pid_wait();
+   pros::delay(200);
+    dock.set_value(false);
+   pros::delay(300);
+ 
+ 
+   lift.move_absolute(-1000, 75); //Gets 15" out of the way
+ 
+   // Intake ON
+   intake.move_velocity(-200); // Begin intaking
+   chassis.pid_odom_set({{{-47_in, 0_in}, fwd, 70}}, true);
+   
+   chassis.pid_wait();
+   
+   chassis.pid_odom_set({{{-24_in, 24_in}, fwd, 70}}, true);
+   chassis.pid_wait();
+   
+ 
+   // Turning and going to ladder to climb
+   chassis.pid_turn_set(25_deg, 70);//75 and 25
+   chassis.pid_odom_set({{{-6_in, 40_in}, fwd, 70}}, true);
+   chassis.pid_wait();
+
+   //Intake OFF
+   intake.brake();
+
+   lift.move_absolute(-600, 75);
+
+   pros::delay(200);
+
+
+  // Score 1st mogo 
+   chassis.pid_odom_set({{{-49_in, 56_in}, rev, 70}}, true);
+   chassis.pid_wait();
+
+
+   chassis.pid_odom_set({{{-6_in, 40_in}, fwd, 70}}, true);
+   chassis.pid_wait();
+
+   // Line up to mogo
+   chassis.pid_odom_set({{{7_in, 40_in}, fwd, 70}}, true);
+   chassis.pid_wait();
+
+   // Grab the mogo
+   chassis.pid_odom_set({{{17_in, 30_in}, fwd, 70}}, true);
+   chassis.pid_wait();
+
+  // Score goal into corner
+   chassis.pid_odom_set({{{45_in, 50_in}, fwd, 70}}, true);
+   chassis.pid_wait();
+
+
+   pros::delay(1300);
+ 
+ 
+  /*
+   // Climbing
+       platform.set_value(false); //true
+       lift.set_current_limit_all(2500);
+       lift.move_absolute(-1000, 75); 
+       printf("Lift Pos 1: %f\n", lift.get_position());
+       if (lift.get_position() < -1990){
+         printf("Done with lifting 1\n");
+         pros::delay(500);
+       }
+       lift.move_absolute(-3300, 75); //-3200
+       pros::delay(500);
+       pros::delay(1200);
+       lift_brake.set(false);  // Lock the brake
+       lift.set_brake_mode(pros::E_MOTOR_BRAKE_HOLD);  // Ensure lift motors hold position
+       lift.move_velocity(0);  // Prevent any movement
+ */
+ 
+ }
+
 void testingTues(){
 
  bool isGearLocked = false;  // Gears are initially unlocked
@@ -316,7 +405,6 @@ void testingTues(){
 }
 
 void blue_AWP_match(){
-  
   // Initialization 
   platform.set_value(true);
   chassis.pid_targets_reset();                // Resets PID targets to 0

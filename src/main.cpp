@@ -434,7 +434,7 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-     Auton("testingTues",testingTues),
+     Auton("purdue skills",purdueSkills),
     //Auton("Red AWP Test", red_AWP_match),
      // Auton("Blue AWP Test", blue_AWP_match),
       //Auton("Adriana's Monday Skills" ,fortySevenPointSkills),
@@ -467,6 +467,15 @@ void initialize() {
   pros::delay(500);
   home_arm();
   pros::delay(200);
+
+
+  
+
+
+
+
+
+
   //ladder_arm.move_relative(-200, 100);
   pros::delay(200);
   intake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE); //Havent Tried Hold yet
@@ -749,8 +758,8 @@ void opcontrol() {
         intake.move_velocity(0);  // Set velocity to 0 to stop movement
         
         // Set brake mode to HOLD to keep the intake in position and prevent any free movement
-        intake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);  // Hold position
-        
+        intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);  // Hold position
+        intake.brake();
         // Set current limit to 0 to prevent overcurrent draw when stationary
         intake.set_current_limit(0);  // Disable current limit
     }

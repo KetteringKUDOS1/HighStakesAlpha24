@@ -25,6 +25,7 @@ void tuning();
 void stateSkills();
 
 void testingTues();
+void purdueSkills();
 
 void fortySevenPointSkills();
 void red_AWP_match();
