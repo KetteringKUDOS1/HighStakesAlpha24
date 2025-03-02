@@ -355,7 +355,7 @@ void lift_task(){
       }
     }
     if (climb_task_enabled){
-      platform.set_value(true); // False
+      platform.set_value(false);
       on_rings = true;
       lift.set_current_limit_all(2500);
       lift.move_absolute(-3200, 75);
@@ -486,7 +486,7 @@ void initialize() {
   ladder_arm.tare_position();
   
   
-   dock.set_value(true); //change me!!!!!!!!! to true
+   dock.set_value(false); //change me!!!!!!!!! to true
    platform.set_value(false); //true
   
 }
@@ -755,11 +755,12 @@ void opcontrol() {
     }
     else {
         // Stop the intake completely when no button is pressed
-        intake.move_velocity(0);  // Set velocity to 0 to stop movement
+        //intake.move_velocity(0);  // Set velocity to 0 to stop movement
         
         // Set brake mode to HOLD to keep the intake in position and prevent any free movement
         intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);  // Hold position
         intake.brake();
+        pros::delay(10);
         // Set current limit to 0 to prevent overcurrent draw when stationary
         intake.set_current_limit(0);  // Disable current limit
     }
