@@ -150,7 +150,7 @@ void red_AWP_match(){
  // chassis.pid_drive_set(-3, 80); // Move back from alliance stake
   //chassis.pid_wait();
   
-  chassis.pid_drive_set(-7_in, 60); // was -7    //-8
+  chassis.pid_drive_set(- 8_in, 60); // was -7
   chassis.pid_wait();
 
   //chassis.pid_odom_set({{{-47.5_in, 17_in}, rev, 80}}, // Move back to line up with mogo // uncomment for mostly working
