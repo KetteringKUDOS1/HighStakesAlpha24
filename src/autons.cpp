@@ -107,7 +107,7 @@ void red_AWP_match(){
   
   pros::delay(500);
 
-  // Score on alliance stake
+  //Score on alliance stake
 
 
   chassis.pid_odom_set({{{-58_in, 26_in}, rev, 80}}, // Move back to line up with ring stack
@@ -139,6 +139,7 @@ void red_AWP_match(){
 
   pros::delay(500);
 
+
 //Go around mogo 
  
   //chassis.pid_odom_set({{{-60_in, -11_in}, fwd, 80}},true);// Move past mogo       //57.5 // caused problems by turning whle 15" is on stake
@@ -150,7 +151,7 @@ void red_AWP_match(){
  // chassis.pid_drive_set(-3, 80); // Move back from alliance stake
   //chassis.pid_wait();
   
-  chassis.pid_drive_set(- 8_in, 60); // was -7
+  chassis.pid_drive_set(-7_in, 60); // was -7
   chassis.pid_wait();
 
   //chassis.pid_odom_set({{{-47.5_in, 17_in}, rev, 80}}, // Move back to line up with mogo // uncomment for mostly working
