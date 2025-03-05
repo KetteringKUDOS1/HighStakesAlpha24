@@ -76,7 +76,7 @@ void tuning(){
 void red_AWP_match(){
 
   // Initialization 
-  platform.set_value(false); //true
+  platform.set_value(true); //true
   chassis.pid_targets_reset();                // Resets PID targets to 0
   chassis.drive_imu_reset();                  // Reset gyro position to 0
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
@@ -86,7 +86,7 @@ void red_AWP_match(){
                        true);
   chassis.pid_wait();
   pros::delay(200);
-  // dock.set_value(false); // true did not work
+  dock.set_value(false); // true did not work
   pros::delay(300);
   // Score on mogo
 
@@ -103,9 +103,7 @@ void red_AWP_match(){
 
   pros::delay(500);
 
-
-
-  lift.move_absolute(-400, 80); // Move lift down to score on mogo
+  lift.move_absolute(-650, 80); // Move lift down to score on mogo -400
   
   pros::delay(500);
 
@@ -117,6 +115,7 @@ void red_AWP_match(){
   chassis.pid_wait();
 
   lift.move_absolute(0, 80);
+
 
   chassis.pid_odom_set({{{-57.5_in, 14.5_in}, fwd, 55}}, //45 // move forward to grab ring stack
                        true);
@@ -151,7 +150,7 @@ void red_AWP_match(){
  // chassis.pid_drive_set(-3, 80); // Move back from alliance stake
   //chassis.pid_wait();
   
-  chassis.pid_drive_set(-7_in, 60); // was -3
+  chassis.pid_drive_set(- 8_in, 60); // was -7
   chassis.pid_wait();
 
   //chassis.pid_odom_set({{{-47.5_in, 17_in}, rev, 80}}, // Move back to line up with mogo // uncomment for mostly working
@@ -197,7 +196,7 @@ void red_AWP_match(){
   mogo.set(false);
 
 
-  lift.move_absolute(-500, 80);
+  lift.move_absolute(-600, 80); //-500
   
   // Intake platform rings
 
@@ -235,10 +234,13 @@ void red_AWP_match(){
   chassis.pid_turn_set(47, 70); // Turn to ladder
   chassis.pid_wait();
 
+  chassis.pid_drive_set(-1_in, 70);
+  chassis.pid_wait();
+
   pros::delay(500);
   platform.set_value(false);
   pros::delay(1000);
-  ladder_arm.move_relative(500, 100);
+  ladder_arm.move_relative(-500, 100);
 
   lift.set_current_limit_all(2500);
   lift.move_absolute(-3200, 75); 
@@ -246,14 +248,9 @@ void red_AWP_match(){
 
   lift.move_absolute(-2770, 75); 
   pros::delay(500);
-  lift.move_absolute(-3200, 75); 
+  lift.move_absolute(-3400, 75);  //-3200
   pros::delay(800);
   lift_brake.set(false);
-
-
-  
-
-
 }
 
 
@@ -273,7 +270,7 @@ void purdueSkills(){
    chassis.pid_odom_set({{{-56_in, -27.5_in}, fwd, 60}}, true); // Dock with second robot
    chassis.pid_wait();
    pros::delay(200);
-    dock.set_value(false);
+   dock.set_value(false);
    pros::delay(300);
  
  
@@ -362,8 +359,6 @@ void purdueSkills(){
 
 
    pros::delay(500);
- 
- 
   
    // Climbing
        platform.set_value(false); //true

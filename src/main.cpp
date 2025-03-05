@@ -346,7 +346,7 @@ void lift_task(){
   while (true){
     if (lift_task_enabled){
       lift.set_current_limit_all(2500);
-      lift.move_absolute(-2000, 75); 
+      lift.move_absolute(-2000, 75); //2000
       printf("Lift Pos 1: %f\n", lift.get_position());
       if (lift.get_position() < -1990){
         printf("Done with lifting 1\n");
@@ -358,7 +358,7 @@ void lift_task(){
       platform.set_value(false);
       on_rings = true;
       lift.set_current_limit_all(2500);
-      lift.move_absolute(-3200, 75);
+      lift.move_absolute(-5000, 75); //3200
       ladder_arm.move_relative(-500, 100);
       printf("Lift Pos 2: %f\n", lift.get_position());
       if (lift.get_position() < -3190){
@@ -367,31 +367,21 @@ void lift_task(){
       }
     }
 
-    if (driveSafe_task_enabled){
-      lift.set_current_limit_all(2500);
-      lift.move_absolute(-1000, 60); 
-      printf("Lift Pos 1: %f\n", lift.get_position());
-      if (lift.get_position() < -1290){ //1990
-        printf("Drive Safe Secured 1\n");
-        pros::delay(500);
-        driveSafe_task_enabled = false;
-      }
-    }
     if(deClimb_task_enabled){
       driveSafe_task_enabled = false;
       climb_task_enabled = false;
       //Ladder Arm In 
       ladder_arm.move_velocity(300);
+      pros::delay(500);
+
       //Unlock Gears
       lift_brake.set(true);
-
+      lift.set_current_limit_all(2500);
       //Bring Robot straight to the ground
-      lift.move_absolute(1800, 60); 
-      if (lift.get_position() < -1790){
-        printf("Drive Safe Secured 1\n");
-        pros::delay(500);
-        deClimb_task_enabled = false;
-      }
+      lift.move_absolute(-1800, 60); 
+      pros::delay(500);
+      deClimb_task_enabled = false;
+      
     }
 
 
@@ -434,8 +424,8 @@ void initialize() {
 
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
-     Auton("purdue skills",purdueSkills),
-    //Auton("Red AWP Test", red_AWP_match),
+     //Auton("purdue skills",purdueSkills),
+    Auton("Red AWP Test", red_AWP_match),
      // Auton("Blue AWP Test", blue_AWP_match),
       //Auton("Adriana's Monday Skills" ,fortySevenPointSkills),
       //Auton("Match", blue_match_auton),
@@ -458,27 +448,21 @@ void initialize() {
   // Initialize chassis and auton selector
   chassis.initialize();
   ez::as::initialize();
+
   master.rumble(".");
+  platform.set_value(true); // driver was true    auton was false
   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
   
   lift_brake.set(true);
-  lift.move_relative(-200, 50); 
+  lift.move_relative(-50, 50); //200
 
   pros::delay(500);
   home_arm();
   pros::delay(200);
 
-
-  
-
-
-
-
-
-
   //ladder_arm.move_relative(-200, 100);
   pros::delay(200);
-  intake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE); //Havent Tried Hold yet
+  intake.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE); 
 
 
   ladder_arm.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
@@ -486,8 +470,8 @@ void initialize() {
   ladder_arm.tare_position();
   
   
-   dock.set_value(false); //change me!!!!!!!!! to true
-   platform.set_value(false); //true
+   dock.set_value(true); //driver is false auton is true 
+   
   
 }
 
@@ -714,7 +698,10 @@ void opcontrol() {
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
   bool mogo_toggle = false;
   bool mogo_pressed = false;
-
+  dock.set_value(true);
+  chassis.pid_drive_set(3_in, 70);
+   chassis.pid_wait();
+   dock.set_value(false);
   // bool dock_toggle = false;
   // bool dock_pressed = false;
 
@@ -764,86 +751,44 @@ void opcontrol() {
         // Set current limit to 0 to prevent overcurrent draw when stationary
         intake.set_current_limit(0);  // Disable current limit
     }
+    // Lift Down (R2)
+    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+        if (!isGearLocked) {  // Only move down if gears are unlocked
+            lift.set_current_limit_all(2500);
+            lift_task_enabled = false;
+            // Set brake mode to COAST when moving down for smoother motion
+            lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+            move_arm(50);  // Smooth movement down
+        }
+        else {  // Gears are locked, do not move the lift
+            lift.move_velocity(0);  // Stop the lift
+        }
+    }
 
-
-
-            // Lift Down (R2)
-            if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-                if (!isGearLocked) {  // Only move down if gears are unlocked
-                    lift.set_current_limit_all(2500);
-                    lift_task_enabled = false;
-                    // Set brake mode to COAST when moving down for smoother motion
-                    lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
-                    move_arm(50);  // Smooth movement down
-                }
-                else {  // Gears are locked, do not move the lift
-                    lift.move_velocity(0);  // Stop the lift
-                }
-            }
-
-            // Lift up (R1)
-            else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-                if (!isGearLocked) {  // Only move up if gears are unlocked
-                    lift.set_current_limit_all(2500);
-                    lift_task_enabled = false;
-                    // Set brake mode to COAST when moving up for smoother motion
-                    lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
-                    move_arm(-50);  // Smooth movement up
-                }
-                else {  // Gears are locked, do not move the lift
-                    lift.move_velocity(0);  // Stop the lift
-                }
-            }
-            else {
-                // When no buttons are pressed, hold the arm in place
-                if (!lift_task_enabled && !climb_task_enabled) {
-                    lift.set_current_limit_all(2500);
-                    stop_arm();
-                    chassis.drive_current_limit_set(2500);
-                }
-                
-                // Set brake mode to HOLD to keep the arm in place
-                lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-            }
-
-
-
-
-
-    // //Lift Down (R2)
-    // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
-    //     lift.set_current_limit_all(2500);
-    //     lift_task_enabled = false;
-    //     // Set brake mode to COAST when moving down for smoother motion
-    //     lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
-    //     move_arm(50);  // Smooth movement down
-    // }
-    // // Lift up (R1)
-    // else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
-    //   if(isGearLocked == false){
-    //     lift.set_current_limit_all(2500);
-    //     lift_task_enabled = false;
-    //     // Set brake mode to COAST when moving up for smoother motion
-    //     lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
-    //     move_arm(-50);  // Smooth movement up
-    //   }
-    //   else{ // Should Disable Lift Mech
-    //     lift.move_velocity(0);
-    //   }
-    // }
-    // else {
-    //     // When no buttons are pressed, hold the arm in place
-    //     if (!lift_task_enabled && !climb_task_enabled) {
-    //         lift.set_current_limit_all(2500);
-    //         stop_arm();
-    //         chassis.drive_current_limit_set(2500);
-    //     }
+    // Lift up (R1)
+    else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+        if (!isGearLocked) {  // Only move up if gears are unlocked
+            lift.set_current_limit_all(2500);
+            lift_task_enabled = false;
+            // Set brake mode to COAST when moving up for smoother motion
+            lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
+            move_arm(-50);  // Smooth movement up
+        }
+        else {  // Gears are locked, do not move the lift
+            lift.move_velocity(0);  // Stop the lift
+        }
+    }
+    else {
+        // When no buttons are pressed, hold the arm in place
+        if (!lift_task_enabled && !climb_task_enabled) {
+            lift.set_current_limit_all(-2500);
+            stop_arm();
+            chassis.drive_current_limit_set(2500);
+        }
         
-    //     // Set brake mode to HOLD to keep the arm in place
-    //     lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-    // }
-
-
+        // Set brake mode to HOLD to keep the arm in place
+        lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    }
       // Ring platform down (UP Arrow)
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
         platform.set_value(false);
@@ -904,25 +849,27 @@ void opcontrol() {
       //DeCLimb (R2)
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
         deClimb_task_enabled = true;
+         isGearLocked = false;
         }
 
       //Mobile goal grabber (Down ARROW)
         mogo.button_toggle(master.get_digital(pros::E_CONTROLLER_DIGITAL_B)&&(master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)));
 
-      // Drive safe (L2 Arrow)
+      // Drive safe (L1)
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
-          driveSafe_task_enabled = true;
+        lift.set_current_limit_all(2500);
+        lift.move_absolute(-1000, 60); 
       }
-
-      // dock.button_toggle(master.get_digital(pros::E_CONTROLLER_DIGITAL_B)&&(master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)));
-
-
       // ALL stakes height (L2)
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-        if (lift.get_position() >= -1900){
-          printf("Running lift task\n");
-          lift_task_enabled = true;
-        }
+          lift.set_current_limit_all(2500);
+          lift.move_absolute(-2000, 75); 
+      }
+      else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
+              dock.set_value(false);
+      }
+      else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)){
+              dock.set_value(true);
       }
     }
   }
