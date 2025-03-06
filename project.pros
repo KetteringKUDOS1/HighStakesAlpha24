@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "RED AWP",
+    "project_name": "BLUE AWP",
     "target": "v5",
     "templates": {
       "EZ-Template": {
@@ -425,7 +425,7 @@
     },
     "upload_options": {
       "description": "making code ez",
-      "slot": 1,
+      "slot": 2,
       "after": "screen"
     },
     "use_early_access": false

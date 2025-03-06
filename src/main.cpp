@@ -425,8 +425,8 @@ void initialize() {
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
      //Auton("purdue skills",purdueSkills),
-    Auton("Red AWP Test", red_AWP_match),
-     // Auton("Blue AWP Test", blue_AWP_match),
+     //Auton("Red AWP Test", red_AWP_match),
+      Auton("Blue AWP Test", blue_AWP_match),
       //Auton("Adriana's Monday Skills" ,fortySevenPointSkills),
       //Auton("Match", blue_match_auton),
       //Auton("Connor's Skills", skills),
@@ -468,8 +468,7 @@ void initialize() {
   ladder_arm.set_brake_mode(pros::E_MOTOR_BRAKE_BRAKE);
   ladder_arm.brake();
   ladder_arm.tare_position();
-  
-  
+
    dock.set_value(true); //driver is false auton is true 
    
   
