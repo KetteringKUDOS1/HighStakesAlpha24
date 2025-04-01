@@ -371,16 +371,21 @@ void lift_task(){
     if(deClimb_task_enabled){
       driveSafe_task_enabled = false;
       climb_task_enabled = false;
+
       //Ladder Arm In 
-      ladder_arm.move_velocity(300);
-      pros::delay(500);
+      ladder_arm.move_absolute(0, 100);
 
       //Unlock Gears
       lift_brake.set(true);
       lift.set_current_limit_all(2500);
+
       //Bring Robot straight to the ground
-      lift.move_absolute(-1800, 60); 
+      lift.move_absolute(-1700, 75); //-2000
       pros::delay(500);
+      //Platform lowers so we can touch ground
+      platform.set_value(true);
+      on_rings = false;
+
       deClimb_task_enabled = false;
       
     }
@@ -426,8 +431,8 @@ void initialize() {
   // Autonomous Selector using LLEMU
   ez::as::auton_selector.autons_add({
      //Auton("purdue skills",purdueSkills),
-     //Auton("Red AWP Test", red_AWP_match),
-      Auton("Blue AWP Test", blue_AWP_match),
+     Auton("Red AWP Test", red_AWP_match),
+    //Auton("Blue AWP Test", blue_AWP_match),
       //Auton("Adriana's Monday Skills" ,fortySevenPointSkills),
       //Auton("Match", blue_match_auton),
       //Auton("Connor's Skills", skills),
@@ -697,7 +702,10 @@ void opcontrol() {
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
   bool mogo_toggle = false;
   bool mogo_pressed = false;
-
+  //dock.set_value(true);
+  //chassis.pid_drive_set(3_in, 70);
+   //chassis.pid_wait();
+   //dock.set_value(false);
   // bool dock_toggle = false;
   // bool dock_pressed = false;
 
@@ -720,9 +728,6 @@ void opcontrol() {
     // . . .
     // Put more user control code here!
     // . . .
-
-
-
     // First Layer Controls
     if (!master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
     
@@ -739,7 +744,6 @@ void opcontrol() {
     else {
         // Stop the intake completely when no button is pressed
         //intake.move_velocity(0);  // Set velocity to 0 to stop movement
-        
         // Set brake mode to HOLD to keep the intake in position and prevent any free movement
         intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);  // Hold position
         intake.brake();
@@ -749,8 +753,8 @@ void opcontrol() {
     }
     // Lift Down (R2)
     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)) {
+      lift.set_current_limit_all(2500);
         if (!isGearLocked) {  // Only move down if gears are unlocked
-            lift.set_current_limit_all(2500);
             lift_task_enabled = false;
             // Set brake mode to COAST when moving down for smoother motion
             lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
@@ -763,8 +767,8 @@ void opcontrol() {
 
     // Lift up (R1)
     else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)) {
+      lift.set_current_limit_all(2500);
         if (!isGearLocked) {  // Only move up if gears are unlocked
-            lift.set_current_limit_all(2500);
             lift_task_enabled = false;
             // Set brake mode to COAST when moving up for smoother motion
             lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);

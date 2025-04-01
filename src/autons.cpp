@@ -241,7 +241,7 @@ void red_AWP_match(){
   pros::delay(500);
   platform.set_value(false);
   pros::delay(1000);
-  ladder_arm.move_relative(-500, 100);
+  ladder_arm.move_relative(-900, 100); //-900
 
   lift.set_current_limit_all(2500);
   lift.move_absolute(-3200, 75); 
@@ -249,7 +249,7 @@ void red_AWP_match(){
 
   lift.move_absolute(-2770, 75); 
   pros::delay(500);
-  lift.move_absolute(-3400, 75);  //-3200
+  lift.move_absolute(-3700, 75);  //-3400
   pros::delay(800);
   lift_brake.set(false);
 }
@@ -387,13 +387,14 @@ void blue_AWP_match(){
 
     //pros::delay(400);
 
+
+//Intake 2nd ring to go climb
   chassis.pid_odom_set({{{23.5_in, -47_in}, fwd, 80}}, // Get 2nd platform ring
                        true);
   chassis.pid_wait(); 
 
-  
 
-  
+//Blue Auton CLimb
 
   lift.set_current_limit_all(2500);
   lift.move_absolute(-2000, 75); 
@@ -402,7 +403,6 @@ void blue_AWP_match(){
   chassis.pid_wait();
   
   pros::delay(400);
-  
 
   chassis.pid_odom_set({{{14_in, -36_in}, fwd, 60}}, // Move to ladder
                        true);
@@ -413,14 +413,17 @@ void blue_AWP_match(){
 
   intake.brake();
 
+
   chassis.pid_turn_set(-47, 70); // Turn to ladder
   chassis.pid_wait();
 
+  chassis.pid_drive_set(-1_in, 70); 
+  chassis.pid_wait();
+ 
   pros::delay(500);
   platform.set_value(false);
   pros::delay(1000);
-  ladder_arm.move_relative(500, 100);
-  ladder_arm.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+  ladder_arm.move_relative(-800, 100);
 
   lift.set_current_limit_all(2500);
   lift.move_absolute(-3200, 75); 
@@ -428,12 +431,9 @@ void blue_AWP_match(){
 
   lift.move_absolute(-2770, 75); 
   pros::delay(500);
-  lift.move_absolute(-3200, 75); 
+  lift.move_absolute(-3400, 75);  //-3200
   pros::delay(800);
   lift_brake.set(false);
-
-
-  
 
 
 }
@@ -539,7 +539,7 @@ void purdueSkills(){
    chassis.pid_odom_set({{{-53_in, -58_in}, fwd, 70}}, true);
    chassis.pid_wait();
 
-   chassis.pid_odom_set({{{2_in, -37_in}, rev, 70}}, true);
+   chassis.pid_odom_set({{{2_in, -40_in}, rev, 70}}, true);  //-37
    chassis.pid_wait();
 
 
