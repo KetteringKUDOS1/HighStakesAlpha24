@@ -17,8 +17,6 @@ ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
     {11,-12,13,-14},    // Left Chassis Ports (negative port will reverse it!)
     {20,-19,18,-17},    // Right Chassis Ports (negative port will reverse it!)
-    
-
     10,      // IMU Port
     3.25,  // Wheel Diameter (Remember, 4" wheels without screw holes are ac4tually 4.125!)
     360);   // Wheel RPM
@@ -30,7 +28,7 @@ ez::Drive chassis(
  ez::tracking_wheel left_tracker({-'E', -'F'}, 2.75, 4.7);  // ADI Encoders plugged into a Smart port
 //ez::tracking_wheel horiz_tracker(1, 2.75, 4.0);             // Rotation sensors
 
-//pros::Link radio_transmitter(21, "link_testing", pros::E_LINK_TRANSMITTER);
+
 
 // Set arm motors to hold when braking, preventing back driving
 // WARNING: 
@@ -38,9 +36,9 @@ ez::Drive chassis(
 // they will draw a lot of current and overheat
 
 
-// Slew configuration
-bool arm_slew_active = false;
+// Slew configuration\
 
+bool arm_slew_active = false;
 int arm_dir = 0;
 bool arm_moving = false;
 bool arm_decelerating = false;
@@ -124,87 +122,90 @@ void stop_arm() {
 
 
 //CONNORS VERSION
-// void stop_arm(){
-//   // Prevents arm from moving up when above the upper threshold
-//   lift.set_current_limit(200);
-//   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE); //Brake 
-//   lift.set_current_limit(200);
+  // void stop_arm(){
+  //   // Prevents arm from moving up when above the upper threshold
+  //   lift.set_current_limit(200);
+  //   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE); //Brake 
+  //   lift.set_current_limit(200);
 
-//   if (lift.get_position(2) < -3400){
-//     lift.brake();
+  //   if (lift.get_position(2) < -3400){
+  //     lift.brake();
 
-//     return;
-//   }
-//   // Prevents arm from moving down when below lower threshold
-//   else if(lift.get_position(2)> -30 && arm_dir == 1){
-//     //lift.brake();
+  //     return;
+  //   }
+  //   // Prevents arm from moving down when below lower threshold
+  //   else if(lift.get_position(2)> -30 && arm_dir == 1){
+  //     //lift.brake();
 
-//     return;
-//   }
+  //     return;
+  //   }
 
-//   // Check if the arm is moving and if we have slew enabled
-//   // Slew is the process of slowly accelerating/decelerating
-//   if (arm_moving && arm_slew_active){
-//     // Configure variables if the arm is beginning to decelerate
-//     if (arm_decelerating == false){
-//       arm_decelerating = true;
-//       arm_decel_velocity = lift.get_actual_velocity(2);
-//       // Initialize start time to be slightly smaller than end time to reduce initial acceleration
-//       start_time = end_time - 1;
-//     }
-//     // Record time to get how long since last function call
-//     end_time = pros::millis();
+  //   // Check if the arm is moving and if we have slew enabled
+  //   // Slew is the process of slowly accelerating/decelerating
+  //   if (arm_moving && arm_slew_active){
+  //     // Configure variables if the arm is beginning to decelerate
+  //     if (arm_decelerating == false){
+  //       arm_decelerating = true;
+  //       arm_decel_velocity = lift.get_actual_velocity(2);
+  //       // Initialize start time to be slightly smaller than end time to reduce initial acceleration
+  //       start_time = end_time - 1;
+  //     }
+  //     // Record time to get how long since last function call
+  //     end_time = pros::millis();
 
-//     // Calculate time elapsed since last time function was called
-//     duration = end_time - start_time;
+  //     // Calculate time elapsed since last time function was called
+  //     duration = end_time - start_time;
 
-//     // Set it to zero and stop decelerating if velocity is under 30
-//     if (abs(arm_decel_velocity) < 30){
-//       arm_decel_velocity = 0;
-//       arm_decelerating = false;
-//       arm_moving = false;
-//       lift.brake();
+  //     // Set it to zero and stop decelerating if velocity is under 30
+  //     if (abs(arm_decel_velocity) < 30){
+  //       arm_decel_velocity = 0;
+  //       arm_decelerating = false;
+  //       arm_moving = false;
+  //       lift.brake();
 
-//     }
+  //     }
 
-//     // Fix velocity to maximum RPM if rpm is above the max
-//     if (abs(arm_decel_velocity) > 200){
-//       arm_decel_velocity = 200;
-//     }
-//     // Extract arm direction, -1 for down, 1 for up
-//     arm_dir = arm_decel_velocity/abs(arm_decel_velocity);
+  //     // Fix velocity to maximum RPM if rpm is above the max
+  //     if (abs(arm_decel_velocity) > 200){
+  //       arm_decel_velocity = 200;
+  //     }
+  //     // Extract arm direction, -1 for down, 1 for up
+  //     arm_dir = arm_decel_velocity/abs(arm_decel_velocity);
 
-//     // Decrease velocity by ~~660 RPM per second
-//     arm_decel_velocity -= 20.0*arm_dir*(duration/30.0);
+  //     // Decrease velocity by ~~660 RPM per second
+  //     arm_decel_velocity -= 20.0*arm_dir*(duration/30.0);
 
-//     // Debug print statements
-//     printf("Vel: %f\n", arm_decel_velocity);
-//     //printf("Duration: %d\n", (duration));
-//     //printf("Calc: %f\n", (duration/30.0));
-//     //printf("Change: %f\n", 20.0*arm_dir*(duration/30.0));
-//     printf("Pos: %f\n", lift.get_position(2));
+  //     // Debug print statements
+  //     printf("Vel: %f\n", arm_decel_velocity);
+  //     //printf("Duration: %d\n", (duration));
+  //     //printf("Calc: %f\n", (duration/30.0));
+  //     //printf("Change: %f\n", 20.0*arm_dir*(duration/30.0));
+  //     printf("Pos: %f\n", lift.get_position(2));
 
-//     // Move the arm at the calculated deceleration velocity  
-//     lift.move_velocity(arm_decel_velocity);
+  //     // Move the arm at the calculated deceleration velocity  
+  //     lift.move_velocity(arm_decel_velocity);
 
-//     // Record time to get how long since last function call
-//     start_time = pros::millis();
-//   }
-//   // Stop the arm if slew is not active or the arm is not moving
-//   else{
-//     if (unclimbing){
-//       return;
-//     }
-//     lift.brake();
-//   }
+  //     // Record time to get how long since last function call
+  //     start_time = pros::millis();
+  //   }
+  //   // Stop the arm if slew is not active or the arm is not moving
+  //   else{
+  //     if (unclimbing){
+  //       return;
+  //     }
+  //     lift.brake();
+  //   }
 
-// }
+  // }
 
 
 //Version 2
 int target_rpm = 0;
 int current_rpm = 0;
 int rpm_increment = 10;  // Adjust this value for smoother or faster transitions
+
+
+// DOUBLE CHECK IF THIS IS NECESSARY
 
 void move_arm(int target_rpm) {
     // Gradually ramp to the target RPM for smoother movement
@@ -226,92 +227,92 @@ void move_arm(int target_rpm) {
 
 
 //Connors Version
-// Move the DR4B arm at the desired RPM
-// void move_arm(int rpm = 100){
-//   // Debug statement
-  
-//   //lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD); //Brake
-//   // Save motors when lift is fully lowered
-//   // Otherwise set motors to hold
-//   if (lift.get_position(2) > 0){
+  // Move the DR4B arm at the desired RPM
+  // void move_arm(int rpm = 100){
+  //   // Debug statement
     
-//     //lift.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-//   }
-//   else{
-//     //lift.set_current_limit_all(2500);
-//     // lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-//   }
+  //   //lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD); //Brake
+  //   // Save motors when lift is fully lowered
+  //   // Otherwise set motors to hold
+  //   if (lift.get_position(2) > 0){
+      
+  //     //lift.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+  //   }
+  //   else{
+  //     //lift.set_current_limit_all(2500);
+  //     // lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+  //   }
 
-//   // Extract most recent direction moved. -1 for down, 1 for up
-//   arm_dir = rpm/abs(rpm);
+  //   // Extract most recent direction moved. -1 for down, 1 for up
+  //   arm_dir = rpm/abs(rpm);
 
-//   // Debug print statements
-//   //printf("Direction: %i\n", dir);
-//   //printf("Current: %i\n", lift_left_2.get_current_draw());
+  //   // Debug print statements
+  //   //printf("Direction: %i\n", dir);
+  //   //printf("Current: %i\n", lift_left_2.get_current_draw());
 
-//   // Prevents arm from moving up when above the upper threshold
-//   if (lift.get_position(2) < -2000 && arm_dir == -1 && !on_rings){
-//     stop_arm();
-//     return;
-//   }
-//   if (lift.get_position(2) < -3200 && arm_dir == -1 && on_rings){
-//     //stop_arm();
-//     //return;
-//   }
-//   // Prevents arm from moving down when below lower threshold
-//   else if(lift.get_position(2) > -30 && arm_dir == 1){
-//     //stop_arm();
-//     return;
-//   }
+  //   // Prevents arm from moving up when above the upper threshold
+  //   if (lift.get_position(2) < -2000 && arm_dir == -1 && !on_rings){
+  //     stop_arm();
+  //     return;
+  //   }
+  //   if (lift.get_position(2) < -3200 && arm_dir == -1 && on_rings){
+  //     //stop_arm();
+  //     //return;
+  //   }
+  //   // Prevents arm from moving down when below lower threshold
+  //   else if(lift.get_position(2) > -30 && arm_dir == 1){
+  //     //stop_arm();
+  //     return;
+  //   }
 
-//   // Debug print statement
-//   //printf("Position: %f\n",lift_left_2.get_position());
-  
+  //   // Debug print statement
+  //   //printf("Position: %f\n",lift_left_2.get_position());
+    
 
-//   /// Configure variables if the arm is beginning to accelerate and slew is active
-//   // Slew is the process of slowly accelerating/decelerating
-//   if (arm_moving == false && arm_slew_active){
-//     arm_accelerating = true;
-//     // Initialize start time to be slightly smaller than end time to reduce initial acceleration
-//     start_time = end_time - 1;
-//     arm_accel_velocity = 0;
-//   }
+  //   /// Configure variables if the arm is beginning to accelerate and slew is active
+  //   // Slew is the process of slowly accelerating/decelerating
+  //   if (arm_moving == false && arm_slew_active){
+  //     arm_accelerating = true;
+  //     // Initialize start time to be slightly smaller than end time to reduce initial acceleration
+  //     start_time = end_time - 1;
+  //     arm_accel_velocity = 0;
+  //   }
 
-//   arm_moving = true;
+  //   arm_moving = true;
 
-//   // Record time to get how long since last function call
-//   end_time = pros::millis();
+  //   // Record time to get how long since last function call
+  //   end_time = pros::millis();
 
-//   // Calculate time elapsed since last time function was called
-//   duration = end_time - start_time;
+  //   // Calculate time elapsed since last time function was called
+  //   duration = end_time - start_time;
 
 
-//   if (arm_accelerating){
-//     // Increase the acceleration velocity if it is under the desired RPM
-//     if (abs(arm_accel_velocity) < abs(rpm)){
-//       // Increase velocity by ~660 RPM per second
-//       arm_accel_velocity += 20 * arm_dir * (duration/30.0);
-//     }
+  //   if (arm_accelerating){
+  //     // Increase the acceleration velocity if it is under the desired RPM
+  //     if (abs(arm_accel_velocity) < abs(rpm)){
+  //       // Increase velocity by ~660 RPM per second
+  //       arm_accel_velocity += 20 * arm_dir * (duration/30.0);
+  //     }
 
-//     // Catch if arm velocity is exceeding the desired RPM
-//     else if (abs(arm_accel_velocity) > abs(rpm)){
-//       // Fix velocity to the desired RPM
-//       arm_accel_velocity = rpm;
+  //     // Catch if arm velocity is exceeding the desired RPM
+  //     else if (abs(arm_accel_velocity) > abs(rpm)){
+  //       // Fix velocity to the desired RPM
+  //       arm_accel_velocity = rpm;
 
-//       // Stop accelerating
-//       arm_accelerating = false;
-//     }
-//     // Change RPM to use calculated velocity instead
-//     rpm = arm_accel_velocity;
-//   }
+  //       // Stop accelerating
+  //       arm_accelerating = false;
+  //     }
+  //     // Change RPM to use calculated velocity instead
+  //     rpm = arm_accel_velocity;
+  //   }
 
-//   // Move the lift motors at the desired RPM
-//   printf("MOVING ARM at: %d\n", rpm);
-//   lift.move_velocity(rpm);
+  //   // Move the lift motors at the desired RPM
+  //   printf("MOVING ARM at: %d\n", rpm);
+  //   lift.move_velocity(rpm);
 
-//   // Record time
-//   start_time = pros::millis();
-// }
+  //   // Record time
+  //   start_time = pros::millis();
+  // }
 
 
 void home_arm(){
@@ -319,7 +320,7 @@ void home_arm(){
 
   // Run homing for 0.5 seconds
   // This allows for a consistent homing time and ensures it will exit even if the current limit isnt met
-  for(int i = 0; i < 50; i++){
+  for(int i = 0; i < 50; i++){ //TODO: SHORTEN THE LOOPS FOR AUTON, NOT INITIALIZE
     if (lift.get_current_draw() < current_limit){
       lift.move(40);
     }
@@ -456,7 +457,7 @@ void initialize() {
   lift_brake.set(true);
   lift.move_relative(-50, 50); //200
 
-  pros::delay(500);
+  pros::delay(500); // TODO: SHORTEN DELAY
   home_arm();
   pros::delay(200);
 
@@ -469,9 +470,8 @@ void initialize() {
   ladder_arm.brake();
   ladder_arm.tare_position();
 
-   dock.set_value(true); //driver is false auton is true 
-   
   
+  dock.set_value(true); //driver is false auton is true 
 }
 
 /**
@@ -511,7 +511,7 @@ void competition_initialize() {
 
   ez::slew lift_slew;
 
- void arm_slew_auto(int target){
+ void arm_slew_auto(int target){ // CAN BE DELETED
 
     lift_slew.constants_set(200, 10);
     lift_slew.initialize(true, 150, target, lift.get_position(2));
@@ -533,56 +533,56 @@ void autonomous() {
   ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
 
   /*
-  chassis.pid_targets_reset();                // Resets PID targets to 0
-  chassis.drive_imu_reset();                  // Reset gyro position to 0
-  chassis.drive_sensor_reset();               // Reset drive sensors to 0
-  chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
-  chassis.odom_pose_set({0_in, 0_in, 0_deg});
-  chassis.drive_width_set(15.3_in);  // Measure this with a tape measure
-  lift.tare_position(2);  // Resets lift position
+    chassis.pid_targets_reset();                // Resets PID targets to 0
+    chassis.drive_imu_reset();                  // Reset gyro position to 0
+    chassis.drive_sensor_reset();               // Reset drive sensors to 0
+    chassis.drive_brake_set(MOTOR_BRAKE_HOLD);  // Set motors to hold.  This helps autonomous consistency
+    chassis.odom_pose_set({0_in, 0_in, 0_deg});
+    chassis.drive_width_set(15.3_in);  // Measure this with a tape measure
+    lift.tare_position(2);  // Resets lift position
 
-  
-  chassis.pid_odom_set({{{0_in, 4_in}, fwd, 40}}, // Move forward to dock
-                       true);
-  chassis.pid_wait();
+    
+    chassis.pid_odom_set({{{0_in, 4_in}, fwd, 40}}, // Move forward to dock
+                        true);
+    chassis.pid_wait();
 
-  pros::delay(500);
-  dock.set_value(true); // Activate docking
-  pros::delay(500);
+    pros::delay(500);
+    dock.set_value(true); // Activate docking
+    pros::delay(500);
 
-  lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD); // Change arm to hold position when stopped
+    lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD); // Change arm to hold position when stopped
 
-  move_arm(-100); // Move arm up to bring 15" off the ground
-  pros::delay(300);
-  lift.brake();
+    move_arm(-100); // Move arm up to bring 15" off the ground
+    pros::delay(300);
+    lift.brake();
 
-  pros::delay(300);
+    pros::delay(300);
 
-  intake.move_velocity(-200); // Begin intaking
+    intake.move_velocity(-200); // Begin intaking
 
-  chassis.pid_odom_set({{{-12_in, 30_in}, fwd, 110}, // Move to intake first ring
-                        {{-12_in, 36_in}, fwd, 110}, // Avoid ladder
-                        {{-37_in, 53_in}, fwd, 80}}, // Move to intake second ring
-                       true);
-  chassis.pid_wait();
+    chassis.pid_odom_set({{{-12_in, 30_in}, fwd, 110}, // Move to intake first ring
+                          {{-12_in, 36_in}, fwd, 110}, // Avoid ladder
+                          {{-37_in, 53_in}, fwd, 80}}, // Move to intake second ring
+                        true);
+    chassis.pid_wait();
 
-  pros::delay(500);
-  intake.brake(); // Stop intaking
+    pros::delay(500);
+    intake.brake(); // Stop intaking
 
-  move_arm(100); // Move arm down to bring 15" to the ground
-  pros::delay(300);
-  lift.brake();
+    move_arm(100); // Move arm down to bring 15" to the ground
+    pros::delay(300);
+    lift.brake();
 
-  chassis.pid_odom_set({{{-23_in, 69_in}, fwd, 110}}, // Move to third ring
-                       true);
-  chassis.pid_wait();
+    chassis.pid_odom_set({{{-23_in, 69_in}, fwd, 110}}, // Move to third ring
+                        true);
+    chassis.pid_wait();
 
-  pros::delay(2000); // Wait for 15" to grab it
+    pros::delay(2000); // Wait for 15" to grab it
 
-  chassis.pid_odom_set({{{-52_in, 50_in}, fwd, 110}}, // Move towards ladder
-                       true);
-  chassis.pid_wait();
-  */
+    chassis.pid_odom_set({{{-52_in, 50_in}, fwd, 110}}, // Move towards ladder
+                        true);
+    chassis.pid_wait();
+    */
   
 }
 
@@ -697,15 +697,12 @@ void opcontrol() {
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
   bool mogo_toggle = false;
   bool mogo_pressed = false;
-  dock.set_value(true);
-  chassis.pid_drive_set(3_in, 70);
-   chassis.pid_wait();
-   dock.set_value(false);
+
   // bool dock_toggle = false;
   // bool dock_pressed = false;
 
 
- isGearLocked = false;
+  isGearLocked = false;
 
   pros::Controller master(pros::E_CONTROLLER_MASTER);
   
