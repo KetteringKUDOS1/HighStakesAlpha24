@@ -75,8 +75,12 @@ void tuning(){
 
 void red_AWP_match(){
 
+
+  // FOR WORLDS GET RID OF PRELOAD USAGE
+
+
   // Initialization 
-  platform.set_value(true); //true
+  platform.set_value(true); 
   chassis.pid_targets_reset();                // Resets PID targets to 0
   chassis.drive_imu_reset();                  // Reset gyro position to 0
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
@@ -86,7 +90,7 @@ void red_AWP_match(){
                        true);
   chassis.pid_wait();
   pros::delay(200);
-  dock.set_value(false); // true did not work
+  dock.set_value(false);
   pros::delay(300);
   // Score on mogo
 
