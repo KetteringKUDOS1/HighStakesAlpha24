@@ -429,11 +429,19 @@ void initialize() {
   // These are already defaulted to these buttons, but you can change the left/right curve buttons here!
   // chassis.opcontrol_curve_buttons_left_set(pros::E_CONTROLLER_DIGITAL_LEFT, pros::E_CONTROLLER_DIGITAL_RIGHT);  // If using tank, only the left side is used.
   // chassis.opcontrol_curve_buttons_right_set(pros::E_CONTROLLER_DIGITAL_Y, pros::E_CONTROLLER_DIGITAL_A);
-
   // Autonomous Selector using LLEMU
+
+
+
+
+
+  //NEED TO GO THRU AUTON SELCTIOSN TO GET RID OF SOME
+
   ez::as::auton_selector.autons_add({
+    //Auton("tuning",tuning),
+    Auton("testTune",testTune),
      //Auton("purdue skills",purdueSkills),
-     Auton("Red AWP Test", red_AWP_match),
+    // Auton("Red AWP Test", red_AWP_match),
     //Auton("Blue AWP Test", blue_AWP_match),
       //Auton("Adriana's Monday Skills" ,fortySevenPointSkills),
       //Auton("Match", blue_match_auton),
@@ -478,7 +486,7 @@ void initialize() {
   ladder_arm.tare_position();
 
   
-  dock.set_value(true); //driver is false auton is true 
+  //dock.set_value(true); //driver is false auton is true 
 }
 
 /**

@@ -19,9 +19,18 @@ const int SWING_SPEED = 110;
 void default_constants() {
   // P, I, D, and Start I
   // https://ez-robotics.github.io/EZ-Template/tutorials/tuning_constants
-  chassis.pid_drive_constants_set(20.0, 0.0, 100.0);         // Fwd/rev constants, used for odom and non odom motions
+
+  //chassis.pid_drive_constants_set(20.0, 0.0, 100.0);  //d was 12
+  chassis.pid_drive_constants_set(7.0, 0.0, 4.0);        // Fwd/rev constants, used for odom and non odom motions
+
+
+  // 3/4 under with d = 6
+  // 1/2 under with d = 4
+  // want to test 3
   chassis.pid_heading_constants_set(11.0, 0.0, 20.0);        // Holds the robot straight while going forward without odom
-  chassis.pid_turn_constants_set(3.0, 0.05, 20.0, 15.0);     // Turn in place constants
+  
+  //chassis.pid_turn_constants_set(3.0, 0.05, 20.0, 15.0);     // Turn in place constants
+  chassis.pid_turn_constants_set(5.0, 0.02, 1.5, 2.0); 
   chassis.pid_swing_constants_set(6.0, 0.0, 65.0);           // Swing constants
   chassis.pid_odom_angular_constants_set(6.5, 0.0, 65.0);    // Angular control for odom motions
   chassis.pid_odom_boomerang_constants_set(5.8, 0.0, 32.5);  // Angular control for boomerang motions
@@ -30,7 +39,16 @@ void default_constants() {
   // https://ez-robotics.github.io/EZ-Template/tutorials/tuning_exit_conditions
   chassis.pid_turn_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 500_ms);
   chassis.pid_swing_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 500_ms);
-  chassis.pid_drive_exit_condition_set(90_ms, 1_in, 250_ms, 3_in, 500_ms, 500_ms);
+
+  // chassis.pid_drive_exit_condition_set(90_ms, 1_in, 250_ms, 3_in, 500_ms, 500_ms);
+  //chassis.pid_drive_exit_condition_set(200_ms, 1.5_in, 400_ms, 3.5_in, 1000_ms, 1000_ms);
+  chassis.pid_drive_exit_condition_set(50_ms, 6_in, 150_ms, 8_in, 1000_ms, 1000_ms);
+
+
+
+
+
+
   chassis.pid_odom_turn_exit_condition_set(150_ms, 3_deg, 250_ms, 7_deg, 500_ms, 750_ms, false);
   // Can increase by increments of 10 only
   chassis.pid_odom_drive_exit_condition_set(150_ms, 1_in, 250_ms, 3_in, 500_ms, 750_ms, false);
@@ -55,6 +73,44 @@ void default_constants() {
   chassis.pid_angle_behavior_set(ez::shortest);  // Changes the default behavior for turning, this defaults it to the shortest path there
 }
 
+void testTune(){
+  chassis.pid_targets_reset();                
+
+  chassis.drive_imu_reset();                  
+  pros::delay(500);                           // Give the IMU time to calibrate
+
+  chassis.drive_sensor_reset();               
+  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_COAST); 
+
+  chassis.odom_pose_set({0_in, 0_in, 0_deg});
+
+  lift.move_absolute(-300, 60); 
+  chassis.pid_wait();
+
+  // Move 40 inches forward
+  chassis.pid_drive_set(48_in, 120); // Drive 40 inches forward at 50% speed
+  chassis.pid_wait(); // Wait for the movement to complete
+    
+  // // Turn 90 degrees
+  // chassis.pid_turn_set(90, 120); // Turn 90 degrees at 60% speed
+  // chassis.pid_wait(); // Wait for the turn to complete
+    
+  // // Turn 180 degrees 
+  // chassis.pid_turn_set(180, 120); // Turn 180 degrees at 60% speed
+  // chassis.pid_wait(); // Wait for the turn to complete
+
+  // chassis.pid_drive_set(40_in, 120); // Drive 40 inches forward at 60% speed
+  // chassis.pid_wait(); // Wait for the movement to complete
+
+  // chassis.pid_turn_set(180, 120); // Turn 180 degrees at 60% speed
+  // chassis.pid_wait(); // Wait for the turn to complete
+
+  // chassis.pid_drive_set(1_in, 120); // Drive 40 inches forward at 60% speed
+  // chassis.pid_wait(); // Wait for the movement to complete
+
+
+}
+ 
 void tuning(){
   chassis.pid_targets_reset();                // Resets PID targets to 0
   chassis.drive_imu_reset();                  // Reset gyro position to 0
@@ -63,12 +119,6 @@ void tuning(){
   chassis.odom_pose_set({0_in, 0_in, 0_deg});
 
   chassis.pid_odom_set({{{36_in, 0_in}, fwd, 80}}, // Move forward to dock
-                       true);
-  chassis.pid_wait();
-
-  pros::delay(1000);
-  
-  chassis.pid_odom_set({{{0_in, 0_in}, rev, 80}}, // Move forward to dock
                        true);
   chassis.pid_wait();
 }
