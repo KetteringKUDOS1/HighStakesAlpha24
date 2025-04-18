@@ -1,6 +1,9 @@
 #include "main.h"
 #include "EZ-Template/util.hpp"
 #include "autons.hpp"
+#include "pros/device.hpp"
+#include "pros/imu.h"
+#include "pros/imu.hpp"
 #include "pros/misc.h"
 #include "pros/motors.h"
 #include "pros/optical.h"
@@ -544,6 +547,11 @@ void autonomous() {
   //lift.move_absolute(-2000, 75);
   //pros::delay(9999999);
   home_arm();
+  //master.print(0,0,"%lf",chassis.odom_theta_get());
+
+  for (int i = 0; i < 100 - 1; i++) {
+  master.print(0,0,"%lf",chassis.odom_theta_get());
+  }
 
   ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
 
@@ -727,8 +735,9 @@ void opcontrol() {
   while (true) {
     // Gives you some extras to make EZ-Template easier
     // ez_template_etxras();
-
-    //chassis.opcontrol_tank();  // Tank control
+  master.print(0,0,"%lf",chassis.odom_theta_get());
+ 
+     //chassis.opcontrol_tank();  // Tank control
     chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
     // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
     // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
