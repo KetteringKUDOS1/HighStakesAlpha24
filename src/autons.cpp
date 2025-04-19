@@ -21,25 +21,25 @@ void default_constants() {
   // https://ez-robotics.github.io/EZ-Template/tutorials/tuning_constants
 
   //chassis.pid_drive_constants_set(20.0, 0.0, 100.0);  //d was 12
-  chassis.pid_drive_constants_set(9.5, 1.5, 1.2);        // Fwd/rev constants, used for odom and non odom motions
-  chassis.pid_heading_constants_set(15.0, 0.0, 20.0);        // Holds the robot straight while going forward without odom
+  chassis.pid_drive_constants_set(5, 0,0.0);        // Fwd/rev constants, used for odom and non odom motions
+  chassis.pid_heading_constants_set(7.0, 0.0, 20.0);        // Holds the robot straight while going forward without odom
   
   //chassis.pid_turn_constants_set(3.0, 0.05, 20.0, 15.0);     // Turn in place constants
 
-  chassis.pid_turn_constants_set(14, 0.02, 7, 5); 
-  chassis.pid_swing_constants_set(6.0, 0.0, 65.0);           // Swing constants
+  chassis.pid_turn_constants_set(25, 0.0000000001, 140, 0.05);
+  chassis.pid_swing_constants_set(20, 0.8, 5);           // Swing constants
   chassis.pid_odom_angular_constants_set(6.5, 0.0, 65.0);    // Angular control for odom motions
   chassis.pid_odom_boomerang_constants_set(5.8, 0.0, 32.5);  // Angular control for boomerang motions
 
   // Exit conditions
   // https://ez-robotics.github.io/EZ-Template/tutorials/tuning_exit_conditions
-  chassis.pid_turn_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 500_ms);
+  chassis.pid_turn_exit_condition_set(90_ms, 1_deg, 250_ms, 7_deg, 500_ms, 500_ms);
 
   chassis.pid_swing_exit_condition_set(90_ms, 3_deg, 250_ms, 7_deg, 500_ms, 500_ms);
 
   // chassis.pid_drive_exit_condition_set(90_ms, 1_in, 250_ms, 3_in, 500_ms, 500_ms);
   //chassis.pid_drive_exit_condition_set(200_ms, 1.5_in, 400_ms, 3.5_in, 1000_ms, 1000_ms);
-  chassis.pid_drive_exit_condition_set(50_ms, 6_in, 150_ms, 8_in, 1000_ms, 1000_ms);
+  chassis.pid_drive_exit_condition_set(50_ms, 1_in, 150_ms, 8_in, 1000_ms, 1000_ms);
 
   chassis.pid_odom_turn_exit_condition_set(150_ms, 3_deg, 250_ms, 7_deg, 500_ms, 750_ms, false);
   // Can increase by increments of 10 only
@@ -66,6 +66,8 @@ void default_constants() {
 }
 
 void testTune(){
+  lift.move_absolute(-380, DRIVE_SPEED); 
+  chassis.pid_wait();
   chassis.pid_targets_reset();                
 
   chassis.drive_imu_reset();                  
@@ -76,8 +78,30 @@ void testTune(){
 
   chassis.odom_pose_set({0_in, 0_in, 0_deg});
 
-  lift.move_absolute(-375, 60); 
-  chassis.pid_wait();
+  
+   chassis.pid_drive_set(105_in, DRIVE_SPEED); // Drive 40 inches forward at 50% speed
+   chassis.pid_wait();
+
+  pros::delay(1000);
+
+   chassis.pid_turn_set(90, 120); 
+   chassis.pid_wait();
+
+   chassis.pid_drive_set(100, DRIVE_SPEED);
+   chassis.pid_wait();
+
+
+   chassis.pid_turn_set(180, 120); 
+   chassis.pid_wait();
+
+   chassis.pid_drive_set(100, DRIVE_SPEED);
+   chassis.pid_wait();
+
+   chassis.pid_turn_set(270, 120); 
+   chassis.pid_wait();
+
+   chassis.pid_drive_set(100, DRIVE_SPEED);
+   chassis.pid_wait();
 
   // // Move 40 inches forward
   // chassis.pid_drive_set(49_in, 120); // Drive 40 inches forward at 50% speed
@@ -93,18 +117,6 @@ void testTune(){
   // // // Turn 90 degrees
   // chassis.pid_turn_set(90, 120); 
   // chassis.pid_wait(); // Wait for the turn to complete
-
- chassis.pid_swing_set(ez::LEFT_SWING, 0_deg, SWING_SPEED, 45);
-  chassis.pid_wait();
-
-  chassis.pid_swing_set(ez::RIGHT_SWING, 45_deg, SWING_SPEED, 45);
-  chassis.pid_wait();
-
-  chassis.pid_swing_set(ez::RIGHT_SWING, 0_deg, SWING_SPEED, 45);
-  chassis.pid_wait();
-
-  chassis.pid_swing_set(ez::LEFT_SWING, 45_deg, SWING_SPEED, 45);
-  chassis.pid_wait();
 }
  
 void tuning(){
