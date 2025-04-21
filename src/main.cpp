@@ -550,9 +550,9 @@ void autonomous() {
   home_arm();
   //master.print(0,0,"%lf",chassis.odom_theta_get());
 
-  for (int i = 0; i < 100 - 1; i++) {
-  master.print(0,0,"%lf",chassis.odom_theta_get());
-  }
+ /* for (int i = 0; i < 100 - 1; i++) {
+  master.print(0,0,"%lf",chassis.get_value(degrees));
+  }*/
 
   ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
 
