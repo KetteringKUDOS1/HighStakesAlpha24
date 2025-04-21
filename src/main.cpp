@@ -443,9 +443,9 @@ void initialize() {
 
   ez::as::auton_selector.autons_add({
     //Auton("tuning",tuning),
-    Auton("testTune",testTune),
+    //Auton("testTune",testTune),
      //Auton("purdue skills",purdueSkills),
-    // Auton("Red AWP Test", red_AWP_match),
+     Auton("Red AWP Test", red_AWP_match),
     //Auton("Blue AWP Test", blue_AWP_match),
       //Auton("Adriana's Monday Skills" ,fortySevenPointSkills),
       //Auton("Match", blue_match_auton),

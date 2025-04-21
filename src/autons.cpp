@@ -28,7 +28,7 @@ void default_constants() {
 
   chassis.pid_turn_constants_set(25, 0.0000000001, 140, 0.05);
   chassis.pid_swing_constants_set(20, 0, 5);           // Swing constants
-  chassis.pid_odom_angular_constants_set(17, 0, 0);    // Angular control for odom motions
+  chassis.pid_odom_angular_constants_set(27, 0, 45);    // Angular control for odom motions
 
   chassis.pid_odom_boomerang_constants_set(5.8, 0.0, 32.5);  // Angular control for boomerang motions
 
@@ -44,7 +44,8 @@ void default_constants() {
 
   chassis.pid_odom_turn_exit_condition_set(150_ms, 3_deg, 250_ms, 7_deg, 500_ms, 750_ms, false);
   // Can increase by increments of 10 only
-  chassis.pid_odom_drive_exit_condition_set(150_ms, 0_in, 250_ms, 0_in, 500_ms, 750_ms, false);
+  chassis.pid_odom_drive_exit_condition_set(100_ms, 2_in, 250_ms, 3_in, 500_ms, 500_ms, false);
+
   chassis.pid_turn_chain_constant_set(3_deg);
   chassis.pid_swing_chain_constant_set(5_deg);
   chassis.pid_drive_chain_constant_set(3_in);
@@ -67,21 +68,19 @@ void default_constants() {
 }
 
 void testTune(){
+  chassis.pid_targets_reset();                // Resets PID targets to 0
+  chassis.drive_imu_reset();                  // Reset gyro position to 0
+  chassis.drive_sensor_reset();               // Reset drive sensors to 0
+  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);   // Set motors to hold.  This helps autonomous consistency
+  chassis.odom_pose_set({-56_in, 6_in, 180_deg});
   lift.move_absolute(-380, DRIVE_SPEED); 
   chassis.pid_wait();
-  chassis.pid_targets_reset();                
-
-  chassis.drive_imu_reset();                  
-  pros::delay(500);                           // Give the IMU time to calibrate
-
-  chassis.drive_sensor_reset();               
-  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_COAST); 
   //odom needs to be 2 inches more forward to be accurate
 
 
-  chassis.pid_drive_set(105_in, 120); // was -7
+  chassis.pid_odom_set({{{-56_in, -16_in}, fwd, 120}}, // Move forward to dock
+                       true);
   chassis.pid_wait();
-
   // // Mtestve 40 inches forward
   // chassis.pid_drive_set(49_in, 120); // Drive 40 inches forward at 50% speed
   // chassis.pid_wait(); // Wait for the movement to complete
@@ -151,14 +150,14 @@ void red_AWP_match(){
   //Score on alliance stake
 
 
-  chassis.pid_odom_set({{{-58_in, 26_in}, rev, 80}}, // Move back to line up with ring stack
+  chassis.pid_odom_set({{{-58_in, 26_in}, rev, 120}}, // Move back to line up with ring stack
                        true);
   chassis.pid_wait();
 
   lift.move_absolute(0, 80);
 
 
-  chassis.pid_odom_set({{{-57.5_in, 14.5_in}, fwd, 55}}, //45 // move forward to grab ring stack
+  chassis.pid_odom_set({{{-57.5_in, 14.5_in}, fwd, 120}}, //45 // move forward to grab ring stack
                        true);
   chassis.pid_wait();
 
@@ -168,10 +167,10 @@ void red_AWP_match(){
   
   pros::delay(700);
 
-  chassis.pid_turn_set(223, 70); // Turn to alliance stake
+  chassis.pid_turn_set(223, 120); // Turn to alliance stake
   chassis.pid_wait();
 
-  chassis.pid_drive_set(0.5, 60); // Move a bit forward to alliance stake
+  chassis.pid_drive_set(0.5, 120); // Move a bit forward to alliance stake
   chassis.pid_wait();
 
   pros::delay(500);
@@ -192,7 +191,7 @@ void red_AWP_match(){
  // chassis.pid_drive_set(-3, 80); // Move back from alliance stake
   //chassis.pid_wait();
   
-  chassis.pid_drive_set(-7_in, 60); // was -7
+  chassis.pid_drive_set(-7_in, 120); // was -7
   chassis.pid_wait();
 
     //chassis.pid_odom_set({{{-47.5_in, 17_in}, rev, 80}}, // Move back to line up with mogo // uncomment for mostly working
@@ -218,8 +217,8 @@ void red_AWP_match(){
 
   lift.move_absolute(-100, 80);
 
-  chassis.pid_odom_set({{{-49_in, -28_in}, fwd, 80},
-                        {{-49_in, -37_in}, fwd, 40}}, // Move to high stake ring stack
+  chassis.pid_odom_set({{{-49_in, -28_in}, fwd, 120},
+                        {{-49_in, -37_in}, fwd, 120}}, // Move to high stake ring stack
                        true);
   chassis.pid_wait();
 
@@ -251,32 +250,32 @@ void red_AWP_match(){
 
   //pros::delay(400);
 
-  chassis.pid_odom_set({{{-23.5_in, -47_in}, fwd, 80}}, // Get 2nd platform ring
+  chassis.pid_odom_set({{{-23.5_in, -47_in}, fwd, 120}}, // Get 2nd platform ring
                        true);
   chassis.pid_wait(); 
 
   lift.set_current_limit_all(2500);
   lift.move_absolute(-2000, 75); 
 
-  chassis.pid_turn_set(47, 70); // Turn to ladder
+  chassis.pid_turn_set(47, 120); // Turn to ladder
   chassis.pid_wait();
   
   pros::delay(400);
   
 
-  chassis.pid_odom_set({{{-13.5_in, -36.5_in}, fwd, 60}}, // Move to ladder //-13 and -36
+  chassis.pid_odom_set({{{-13.5_in, -36.5_in}, fwd, 120}}, // Move to ladder //-13 and -36
                        true);
   chassis.pid_wait();
 
-  chassis.pid_drive_set(6.75_in, 60);
+  chassis.pid_drive_set(6.75_in, 120);
   chassis.pid_wait();
 
   intake.brake();
 
-  chassis.pid_turn_set(47, 70); // Turn to ladder
+  chassis.pid_turn_set(47, 120); // Turn to ladder
   chassis.pid_wait();
 
-  chassis.pid_drive_set(-1_in, 70);
+  chassis.pid_drive_set(-1_in, 120);
   chassis.pid_wait();
 
   pros::delay(500);
@@ -1142,49 +1141,7 @@ void stateSkills() {
         // lift_brake.set(false); 
   //End Of CLIMBING 
 
-
-
-
- 
-
-
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void red_match_auton(){
   platform.set_value(true);
@@ -1203,7 +1160,7 @@ void red_match_auton(){
 
   pros::delay(1000);
 
-  chassis.pid_odom_set({{{-52.4_in, -37_in}, fwd, 60}}, // Move to grab stack
+  chassis.pid_odom_set({{{-52.4_in, -37_in}, fwd, 120}}, // Move to grab stack
                        true);
   chassis.pid_wait();
 
@@ -1217,11 +1174,11 @@ void red_match_auton(){
   lift.move_absolute(-500, 75);
 
 
-  chassis.pid_odom_set({{{-24_in, -24_in}, fwd, 80}}, // Intake 1st blue platform ring
+  chassis.pid_odom_set({{{-24_in, -24_in}, fwd, 120}}, // Intake 1st blue platform ring
                        true);
   chassis.pid_wait();
 
-  chassis.pid_odom_set({{{-23.5_in, -47_in}, fwd, 80}}, // Get 2nd platform ring
+  chassis.pid_odom_set({{{-23.5_in, -47_in}, fwd, 120}}, // Get 2nd platform ring
                        true);
   chassis.pid_wait(); 
 
@@ -1231,7 +1188,7 @@ void red_match_auton(){
   lift.move_absolute(-2000, 75); 
   pros::delay(1000);
 
-  chassis.pid_odom_set({{{-7_in, -30.5_in}, fwd, 80}}, // Move to ladder
+  chassis.pid_odom_set({{{-7_in, -30.5_in}, fwd, 120}}, // Move to ladder
                        true);
   chassis.pid_wait();
 
