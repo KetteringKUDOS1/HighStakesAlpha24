@@ -87,21 +87,6 @@ void testTune(){
    chassis.pid_turn_set(90, 120); 
    chassis.pid_wait();
 
-   chassis.pid_drive_set(100, DRIVE_SPEED);
-   chassis.pid_wait();
-
-
-   chassis.pid_turn_set(180, 120); 
-   chassis.pid_wait();
-
-   chassis.pid_drive_set(100, DRIVE_SPEED);
-   chassis.pid_wait();
-
-   chassis.pid_turn_set(270, 120); 
-   chassis.pid_wait();
-
-   chassis.pid_drive_set(100, DRIVE_SPEED);
-   chassis.pid_wait();
 
   // // Move 40 inches forward
   // chassis.pid_drive_set(49_in, 120); // Drive 40 inches forward at 50% speed
