@@ -324,7 +324,7 @@ void home_arm(){
 
   // Run homing for 0.5 seconds
   // This allows for a consistent homing time and ensures it will exit even if the current limit isnt met
-  for(int i = 0; i < 100; i++){ //TODO: SHORTEN THE LOOPS FOR AUTON, NOT INITIALIZE
+  for(int i = 0; i < 50; i++){ //TODO: SHORTEN THE LOOPS FOR AUTON, NOT INITIALIZE
     if (lift.get_current_draw() < current_limit){
     //move_arm(40);
     lift.move(40);
