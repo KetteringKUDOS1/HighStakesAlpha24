@@ -127,6 +127,9 @@ void level_One_Red_Match(){
 
 
 //Initlize and dock
+mogo.set(true);
+pros::delay(10000); 
+
 chassis.pid_targets_reset();                // Resets PID targets to 0
 chassis.drive_imu_reset();                  // Reset gyro position to 0
 chassis.drive_sensor_reset();               // Reset drive sensors to 0
@@ -149,27 +152,31 @@ chassis.pid_wait();
 pros::delay(2000);
 
 // Move backwards to mogo
-chassis.pid_odom_set({{{-37_in, -10_in}, rev, 120}}, 
+chassis.pid_odom_set({{{-43_in, -10_in}, rev, 120}}, 
                       false);
 chassis.pid_wait();
 
+
 //Mogo Mech is Used
-//MOGO CODE
+mogo.set(false);
+pros::delay(500);
 
 // Raise 15" so we can intake the platform rings
-lift.move_absolute(-800, 80); 
+lift.move_absolute(-600, 80); 
 pros::delay(1000);
 
-// //Intake Blue Alone Ring
-// //Intake Rings On Code
-// chassis.pid_odom_set({{{-27_in, -19_in}, fwd, 120}}, 
-//                       false);
-// chassis.pid_wait();
+//Intake Rings On Code
+intake.move_velocity(-150);
+
+//Intake Blue Alone Ring
+chassis.pid_odom_set({{{-23_in, -23_in}, fwd, 120}}, 
+                      false);
+chassis.pid_wait();
 
 // //Intake Blue Bottom Stack Ring
-// chassis.pid_odom_set({{{-23.5_in, -47_in}, fwd, 120}}, 
-//                       false);
-// chassis.pid_wait(); 
+ chassis.pid_odom_set({{{-23.5_in, -47_in}, fwd, 120}},                       
+              false);
+ chassis.pid_wait(); 
 
 //  // Turn and Line up for climb
 //  // Tier 3 climb buddy + platform
