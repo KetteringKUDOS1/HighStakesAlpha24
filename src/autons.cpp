@@ -28,8 +28,10 @@ void default_constants() {
 
   chassis.pid_turn_constants_set(25, 0.0000000001, 140, 0.05);
   chassis.pid_swing_constants_set(20, 0, 5);           // Swing constants
-  chassis.pid_odom_angular_constants_set(27, 0, 45);    // Angular control for odom motions
 
+  chassis.pid_odom_angular_constants_set(12, 0, 45);    // Angular control for odom motions
+//7
+//17 shakes
   chassis.pid_odom_boomerang_constants_set(5.8, 0.0, 32.5);  // Angular control for boomerang motions
 
   // Exit conditions
@@ -44,7 +46,7 @@ void default_constants() {
 
   chassis.pid_odom_turn_exit_condition_set(150_ms, 3_deg, 250_ms, 7_deg, 500_ms, 750_ms, false);
   // Can increase by increments of 10 only
-  chassis.pid_odom_drive_exit_condition_set(100_ms, 2_in, 250_ms, 3_in, 500_ms, 500_ms, false);
+   chassis.pid_odom_drive_exit_condition_set(100_ms, 2_in, 250_ms, 3_in, 500_ms, 500_ms, false);
 
   chassis.pid_turn_chain_constant_set(3_deg);
   chassis.pid_swing_chain_constant_set(5_deg);
@@ -59,8 +61,8 @@ void default_constants() {
   // The amount that turns are prioritized over driving in odom motions
   // - if you have tracking wheels, you can run this higher.  1.0 is the max
   chassis.odom_turn_bias_set(0.9);
-
-  chassis.odom_look_ahead_set(7_in);           // This is how far ahead in the path the robot looks at
+//7
+  chassis.odom_look_ahead_set(20_in);           // This is how far ahead in the path the robot looks at
   chassis.odom_boomerang_distance_set(16_in);  // This sets the maximum distance away from target that the carrot point can be
   chassis.odom_boomerang_dlead_set(0.625);     // This handles how aggressive the end of boomerang motions are
 
@@ -71,16 +73,20 @@ void testTune(){
   chassis.pid_targets_reset();                // Resets PID targets to 0
   chassis.drive_imu_reset();                  // Reset gyro position to 0
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
+
   chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);   // Set motors to hold.  This helps autonomous consistency
-  chassis.odom_pose_set({-56_in, 6_in, 180_deg});
+  chassis.odom_pose_set({-56_in, 32_in, 180_deg});
   lift.move_absolute(-380, DRIVE_SPEED); 
   chassis.pid_wait();
   //odom needs to be 2 inches more forward to be accurate
 
 
-  chassis.pid_odom_set({{{-56_in, -16_in}, fwd, 120}}, // Move forward to dock
-                       true);
+  chassis.pid_odom_set({{{-56_in, -32_in}, fwd, 127}}, 
+                       false);
+                       //Slewe was True
   chassis.pid_wait();
+
+
   // // Mtestve 40 inches forward
   // chassis.pid_drive_set(49_in, 120); // Drive 40 inches forward at 50% speed
   // chassis.pid_wait(); // Wait for the movement to complete
@@ -108,6 +114,121 @@ void tuning(){
                        true);
   chassis.pid_wait();
 }
+
+
+void level_One_Red_Match(){
+ // Grab MOGO Mech 
+ // Intake Blue Alone Ring 
+ // Intake Stack Ring
+ // Grab Stake for Claw 
+ // Turn and Line up for climb
+ // Tier 3 climb buddy + platform
+ // High Stake
+
+
+//Initlize and dock
+chassis.pid_targets_reset();                // Resets PID targets to 0
+chassis.drive_imu_reset();                  // Reset gyro position to 0
+chassis.drive_sensor_reset();               // Reset drive sensors to 0
+chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);   // Set motors to hold.  This helps autonomous consistency
+chassis.odom_pose_set({-51_in, -14_in, 180_deg});
+
+chassis.pid_odom_set({{{-51_in, -20_in}, fwd, 60}}, // Move forward to dock
+                      true);
+chassis.pid_wait();
+pros::delay(200);
+dock.set_value(false);
+pros::delay(300); 
+
+//Go forward for Claw 
+chassis.pid_odom_set({{{-47_in, -33_in}, fwd, 120}},
+                      false);
+chassis.pid_wait();
+
+// 15" Grabs Rings
+pros::delay(2000);
+
+// Move backwards to mogo
+chassis.pid_odom_set({{{-37_in, -10_in}, rev, 120}}, 
+                      false);
+chassis.pid_wait();
+
+//Mogo Mech is Used
+//MOGO CODE
+
+// Raise 15" so we can intake the platform rings
+lift.move_absolute(-800, 80); 
+pros::delay(1000);
+
+// //Intake Blue Alone Ring
+// //Intake Rings On Code
+// chassis.pid_odom_set({{{-27_in, -19_in}, fwd, 120}}, 
+//                       false);
+// chassis.pid_wait();
+
+// //Intake Blue Bottom Stack Ring
+// chassis.pid_odom_set({{{-23.5_in, -47_in}, fwd, 120}}, 
+//                       false);
+// chassis.pid_wait(); 
+
+//  // Turn and Line up for climb
+//  // Tier 3 climb buddy + platform
+//  // High Stake
+
+// lift.set_current_limit_all(2500);
+// lift.move_absolute(-2000, 75);
+  
+// //Turning to ladder
+// chassis.pid_turn_set(47, 120); 
+// chassis.pid_wait();
+
+// pros::delay(400);
+
+
+// chassis.pid_odom_set({{{-13.5_in, -36.5_in}, fwd, 120}},
+//                       false);
+// chassis.pid_wait();
+
+// chassis.pid_drive_set(6.75_in, 120);
+// chassis.pid_wait();
+
+// intake.brake();
+
+// chassis.pid_turn_set(47, 120); // Turn to ladder
+// chassis.pid_wait();
+
+// chassis.pid_drive_set(-1_in, 120);
+// chassis.pid_wait();
+
+// pros::delay(500);
+// platform.set_value(false);
+// pros::delay(1000);
+// ladder_arm.move_relative(-900, 100); //-900
+
+// lift.set_current_limit_all(2500);
+// lift.move_absolute(-3200, 75); 
+// pros::delay(2000);
+
+// lift.move_absolute(-2770, 75); 
+// pros::delay(500);
+// lift.move_absolute(-3700, 75);  //-3400
+// pros::delay(800);
+// lift_brake.set(false);
+}
+
+void level_One_Blue_Match(){
+ // Grab Stake for Claw 
+ // Reverse
+ // Grab MOGO Mech 
+ // Intake Blue Alone Ring 
+ // Intake Stack Ring
+ // Grab Stake for Claw 
+ // Turn and Line up for climb
+ // Tier 3 climb buddy + platform
+ // High Stake
+
+}
+
 
 void red_AWP_match(){
 

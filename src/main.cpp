@@ -113,14 +113,14 @@ void stop_arm() {
     start_time = pros::millis();
   }
   // If slew is not active, simply stop the arm
-  else {
-    if (unclimbing) {
-      return;  // Do nothing if unclimbing flag is set
-    }
-    // Keep brake mode as HOLD and stop the arm if no movement is happening
-    lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);  // Make sure the arm doesn't move if no button pressed
-    lift.move_velocity(0); // Actually stop the arm movement
-  }
+  // else {
+  //   if (unclimbing) {
+  //     return;  // Do nothing if unclimbing flag is set
+  //   }
+  //   // Keep brake mode as HOLD and stop the arm if no movement is happening
+  //   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);  // Make sure the arm doesn't move if no button pressed
+  //   lift.move_velocity(0); // Actually stop the arm movement
+  // }
 }
 
 
@@ -320,13 +320,14 @@ void move_arm(int target_rpm) {
 
 
 void home_arm(){
-  int current_limit = 900;
+  int current_limit = 1800;
 
   // Run homing for 0.5 seconds
   // This allows for a consistent homing time and ensures it will exit even if the current limit isnt met
-  for(int i = 0; i < 50; i++){ //TODO: SHORTEN THE LOOPS FOR AUTON, NOT INITIALIZE
+  for(int i = 0; i < 100; i++){ //TODO: SHORTEN THE LOOPS FOR AUTON, NOT INITIALIZE
     if (lift.get_current_draw() < current_limit){
-      lift.move(40);
+    //move_arm(40);
+    lift.move(40);
     }
     else{
       lift.brake();
@@ -442,11 +443,12 @@ void initialize() {
   //NEED TO GO THRU AUTON SELCTIOSN TO GET RID OF SOME
 
   ez::as::auton_selector.autons_add({
+    Auton("Level 1 Red Match", level_One_Red_Match),
     //Auton("tuning",tuning),
     //Auton("testTune",testTune),
-     //Auton("purdue skills",purdueSkills),
-     Auton("Red AWP Test", red_AWP_match),
-    //Auton("Blue AWP Test", blue_AWP_match),
+    //Auton("purdue skills",purdueSkills),
+     //Auton("Red AWP Test", red_AWP_match),
+      //Auton("Blue AWP Test", blue_AWP_match),
       //Auton("Adriana's Monday Skills" ,fortySevenPointSkills),
       //Auton("Match", blue_match_auton),
       //Auton("Connor's Skills", skills),
@@ -490,7 +492,7 @@ void initialize() {
   ladder_arm.tare_position();
 
   
-  //dock.set_value(true); //driver is false auton is true 
+  dock.set_value(true); //driver is false auton is true 
 }
 
 /**

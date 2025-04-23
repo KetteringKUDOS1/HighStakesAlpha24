@@ -21,12 +21,22 @@ inline pros::Motor lift_right_1(7);     //Gear down down for Lift Down
 inline pros::Motor lift_right_2(-8);    //Gear down up  for Lift Down 
 inline pros::Motor lift_right_3(-9);    // Gear goes up for Lift DOWN
 */
-inline pros::MotorGroup lift({-3, 5, 6, 7, -8,- 9}, pros::v5::MotorGears::red); 
+inline pros::MotorGroup lift({5, 6,-8,-9}, pros::v5::MotorGears::red); 
 inline pros::adi::DigitalOut dock(8);
 inline pros::adi::DigitalOut platform(2);
 inline ez::Piston mogo('G');
 
 inline ez::Piston lift_brake('A');
+
+// Motor Lift Group 
+// 5 is center left 
+// -3 top left ----- isnt plugged in
+// 6 is bottom left
+// 7 top right ---- is not plugged in 
+// -8 center right
+// -9 bottom right 
+
+
 
 
 //  inline ez::Piston dock('H');
