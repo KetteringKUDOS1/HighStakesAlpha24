@@ -128,8 +128,6 @@ void level_One_Red_Match(){
 
 //Initlize and dock
 mogo.set(true);
-pros::delay(10000); 
-
 chassis.pid_targets_reset();                // Resets PID targets to 0
 chassis.drive_imu_reset();                  // Reset gyro position to 0
 chassis.drive_sensor_reset();               // Reset drive sensors to 0
@@ -143,69 +141,74 @@ pros::delay(200);
 dock.set_value(false);
 pros::delay(300); 
 
+lift.set_current_limit_all(2500);
+lift.move_absolute(-90, 75);
+
 //Go forward for Claw 
-chassis.pid_odom_set({{{-47_in, -33_in}, fwd, 120}},
+chassis.pid_odom_set({{{-46_in, -33_in}, fwd, 120}},
                       false);
 chassis.pid_wait();
+
 
 // 15" Grabs Rings
 pros::delay(2000);
 
+// Raise 15" so we can intake the platform rings
+lift.move_absolute(-800, 80);  //-600
+pros::delay(1000);
+
 // Move backwards to mogo
-chassis.pid_odom_set({{{-43_in, -10_in}, rev, 120}}, 
-                      false);
+chassis.pid_odom_set({{{-43_in, -5_in}, rev, 120}}, 
+                      false);   //-8
 chassis.pid_wait();
 
 
 //Mogo Mech is Used
+pros::delay(1000);   //2000
 mogo.set(false);
-pros::delay(500);
-
-// Raise 15" so we can intake the platform rings
-lift.move_absolute(-600, 80); 
 pros::delay(1000);
+
 
 //Intake Rings On Code
 intake.move_velocity(-150);
 
 //Intake Blue Alone Ring
-chassis.pid_odom_set({{{-23_in, -23_in}, fwd, 120}}, 
-                      false);
+chassis.pid_odom_set({{{-11_in, -25_in}, fwd, 120}}, 
+                      false);   //-13, -23
 chassis.pid_wait();
 
+pros::delay(1000); //2000
+
 // //Intake Blue Bottom Stack Ring
- chassis.pid_odom_set({{{-23.5_in, -47_in}, fwd, 120}},                       
+ chassis.pid_odom_set({{{-18_in, -47_in}, fwd, 120}},                       
               false);
  chassis.pid_wait(); 
 
-//  // Turn and Line up for climb
-//  // Tier 3 climb buddy + platform
-//  // High Stake
 
-// lift.set_current_limit_all(2500);
-// lift.move_absolute(-2000, 75);
+pros::delay(2000);
+
+ // Turn and Line up for climb
+ // Tier 3 climb buddy + platform
+ // High Stake
+
+lift.set_current_limit_all(2500);
+lift.move_absolute(-2000, 75);
   
-// //Turning to ladder
-// chassis.pid_turn_set(47, 120); 
-// chassis.pid_wait();
-
-// pros::delay(400);
 
 
-// chassis.pid_odom_set({{{-13.5_in, -36.5_in}, fwd, 120}},
-//                       false);
-// chassis.pid_wait();
+chassis.pid_odom_set({{{-10_in, -37_in}, fwd, 120}},
+                      false);
+chassis.pid_wait();   //13, 32
 
-// chassis.pid_drive_set(6.75_in, 120);
-// chassis.pid_wait();
 
-// intake.brake();
 
-// chassis.pid_turn_set(47, 120); // Turn to ladder
-// chassis.pid_wait();
+pros::delay(2000);
 
-// chassis.pid_drive_set(-1_in, 120);
-// chassis.pid_wait();
+chassis.pid_drive_set(20.5_in, 120);
+chassis.pid_wait(); //13.5
+
+intake.brake();
+
 
 // pros::delay(500);
 // platform.set_value(false);
