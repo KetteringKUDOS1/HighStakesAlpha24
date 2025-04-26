@@ -54,220 +54,12 @@ uint32_t start_time;
 uint32_t end_time;
 uint32_t duration;
 
-// Stop all arm motors using configured brake mode
-
-// === Stop Arm Function ===
-void stop_arm() {
-    lift.set_current_limit(200);
-    lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-
-    if (lift.get_position(2) > -30 && arm_dir == 1) return;       // Near bottom, trying to go down
-    if (lift.get_position(2) < -3400 && arm_dir == -1) return;    // Near top, trying to go up
-
-    if (arm_moving && arm_slew_active) {
-        if (!arm_decelerating) {
-            arm_decelerating = true;
-            arm_decel_velocity = lift.get_actual_velocity(2);
-            start_time = pros::millis();
-        }
-
-        end_time = pros::millis();
-        duration = end_time - start_time;
-
-        if (abs(arm_decel_velocity) < 30) {
-            arm_decel_velocity = 0;
-            arm_decelerating = false;
-            arm_moving = false;
-            lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-            return;
-        }
-
-        if (abs(arm_decel_velocity) > 200) {
-            arm_decel_velocity = 200;
-        }
-
-        arm_dir = arm_decel_velocity / abs(arm_decel_velocity);
-        arm_decel_velocity -= 20.0 * arm_dir * (duration / 30.0);
-        lift.move_velocity(arm_decel_velocity);
-
-        start_time = pros::millis();
-    }
-}
-
-
-// //Version Two - Working
-// void stop_arm() {
-//   // Set the current limit to prevent excessive current draw when stopping.
-//   lift.set_current_limit(200);
-
-//   // Set brake mode to HOLD to keep the arm in place only if needed.
-//   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD); // Hold the arm in position
-
-//   // Prevents arm from moving down when below the lower threshold
-//   if (lift.get_position(2) > -30 && arm_dir == 1) {
-//     // Arm is near the bottom and trying to move down, stop movement and don't brake
-//     return;
-//   }
-
-//   // Prevents arm from moving up when above the upper threshold
-//   if (lift.get_position(2) < -3400 && arm_dir == -1) {
-//     // Arm is near the upper limit and trying to move up, stop movement
-//     return;
-//   }
-
-//   // If the arm is moving and slew is enabled, handle the deceleration
-//   if (arm_moving && arm_slew_active) {
-//     // Configure variables for deceleration
-//     if (!arm_decelerating) {
-//       arm_decelerating = true;
-//       arm_decel_velocity = lift.get_actual_velocity(2);  // Get current velocity
-//       start_time = end_time - 1;  // Small start time offset to avoid high initial acceleration
-//     }
-
-//     // Record time and calculate duration since last update
-//     end_time = pros::millis();
-//     duration = end_time - start_time;
-
-//     // If velocity is under 30, stop decelerating and stop the arm
-//     if (abs(arm_decel_velocity) < 30) {
-//       arm_decel_velocity = 0;
-//       arm_decelerating = false;
-//       arm_moving = false;
-//       lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);  // Hold position when done moving
-//     }
-
-//     // Limit velocity to a maximum value if it exceeds max RPM
-//     if (abs(arm_decel_velocity) > 200) {
-//       arm_decel_velocity = 200;
-//     }
-
-//     // Calculate direction and decrease velocity for smooth deceleration
-//     arm_dir = arm_decel_velocity / abs(arm_decel_velocity);
-//     arm_decel_velocity -= 20.0 * arm_dir * (duration / 30.0);  // Apply deceleration
-
-//     // Move the arm at the calculated deceleration velocity
-//     lift.move_velocity(arm_decel_velocity);
-
-//     // Update start time for the next loop
-//     start_time = pros::millis();
-//   }
-//   // If slew is not active, simply stop the arm
-//   // else {
-//   //   if (unclimbing) {
-//   //     return;  // Do nothing if unclimbing flag is set
-//   //   }
-//   //   // Keep brake mode as HOLD and stop the arm if no movement is happening
-//   //   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);  // Make sure the arm doesn't move if no button pressed
-//   //   lift.move_velocity(0); // Actually stop the arm movement
-//   // }
-// }
-
-
-//CONNORS VERSION
-  // void stop_arm(){
-  //   // Prevents arm from moving up when above the upper threshold
-  //   lift.set_current_limit(200);
-  //   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_BRAKE); //Brake 
-  //   lift.set_current_limit(200);
-
-  //   if (lift.get_position(2) < -3400){
-  //     lift.brake();
-
-  //     return;
-  //   }
-  //   // Prevents arm from moving down when below lower threshold
-  //   else if(lift.get_position(2)> -30 && arm_dir == 1){
-  //     //lift.brake();
-
-  //     return;
-  //   }
-
-  //   // Check if the arm is moving and if we have slew enabled
-  //   // Slew is the process of slowly accelerating/decelerating
-  //   if (arm_moving && arm_slew_active){
-  //     // Configure variables if the arm is beginning to decelerate
-  //     if (arm_decelerating == false){
-  //       arm_decelerating = true;
-  //       arm_decel_velocity = lift.get_actual_velocity(2);
-  //       // Initialize start time to be slightly smaller than end time to reduce initial acceleration
-  //       start_time = end_time - 1;
-  //     }
-  //     // Record time to get how long since last function call
-  //     end_time = pros::millis();
-
-  //     // Calculate time elapsed since last time function was called
-  //     duration = end_time - start_time;
-
-  //     // Set it to zero and stop decelerating if velocity is under 30
-  //     if (abs(arm_decel_velocity) < 30){
-  //       arm_decel_velocity = 0;
-  //       arm_decelerating = false;
-  //       arm_moving = false;
-  //       lift.brake();
-
-  //     }
-
-  //     // Fix velocity to maximum RPM if rpm is above the max
-  //     if (abs(arm_decel_velocity) > 200){
-  //       arm_decel_velocity = 200;
-  //     }
-  //     // Extract arm direction, -1 for down, 1 for up
-  //     arm_dir = arm_decel_velocity/abs(arm_decel_velocity);
-
-  //     // Decrease velocity by ~~660 RPM per second
-  //     arm_decel_velocity -= 20.0*arm_dir*(duration/30.0);
-
-  //     // Debug print statements
-  //     printf("Vel: %f\n", arm_decel_velocity);
-  //     //printf("Duration: %d\n", (duration));
-  //     //printf("Calc: %f\n", (duration/30.0));
-  //     //printf("Change: %f\n", 20.0*arm_dir*(duration/30.0));
-  //     printf("Pos: %f\n", lift.get_position(2));
-
-  //     // Move the arm at the calculated deceleration velocity  
-  //     lift.move_velocity(arm_decel_velocity);
-
-  //     // Record time to get how long since last function call
-  //     start_time = pros::millis();
-  //   }
-  //   // Stop the arm if slew is not active or the arm is not moving
-  //   else{
-  //     if (unclimbing){
-  //       return;
-  //     }
-  //     lift.brake();
-  //   }
-
-  // }
-
-
-//Version 2
 int target_rpm = 0;
 int current_rpm = 0;
 int rpm_increment = 10;  // Adjust this value for smoother or faster transitions
 
 
-// DOUBLE CHECK IF THIS IS NECESSARY
-
-// void move_arm(int target_rpm) {
-//     // Gradually ramp to the target RPM for smoother movement
-//     static int current_rpm = 0;
-//     int ramp_rate = 5;  // Ramp rate for smooth acceleration and deceleration
-
-//     // Gradually adjust the RPM towards the target
-//     if (current_rpm < target_rpm) {
-//         current_rpm += ramp_rate;
-//         if (current_rpm > target_rpm) current_rpm = target_rpm; // Don't exceed target
-//     } else if (current_rpm > target_rpm) {
-//         current_rpm -= ramp_rate;
-//         if (current_rpm < target_rpm) current_rpm = target_rpm; // Don't go below target
-//     }
-
-//     // Set motor velocity to the current smooth RPM
-//     lift.move_velocity(current_rpm);
-
-// }
-// === Move Arm Function ===
+//Move Arm Function 
 void move_arm(int target_rpm) {
     arm_moving = true;
     arm_slew_active = true;
@@ -276,96 +68,7 @@ void move_arm(int target_rpm) {
     lift.move_velocity(target_rpm);
 }
 
-
-//Connors Version
-  // Move the DR4B arm at the desired RPM
-  // void move_arm(int rpm = 100){
-  //   // Debug statement
-    
-  //   //lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD); //Brake
-  //   // Save motors when lift is fully lowered
-  //   // Otherwise set motors to hold
-  //   if (lift.get_position(2) > 0){
-      
-  //     //lift.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-  //   }
-  //   else{
-  //     //lift.set_current_limit_all(2500);
-  //     // lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-  //   }
-
-  //   // Extract most recent direction moved. -1 for down, 1 for up
-  //   arm_dir = rpm/abs(rpm);
-
-  //   // Debug print statements
-  //   //printf("Direction: %i\n", dir);
-  //   //printf("Current: %i\n", lift_left_2.get_current_draw());
-
-  //   // Prevents arm from moving up when above the upper threshold
-  //   if (lift.get_position(2) < -2000 && arm_dir == -1 && !on_rings){
-  //     stop_arm();
-  //     return;
-  //   }
-  //   if (lift.get_position(2) < -3200 && arm_dir == -1 && on_rings){
-  //     //stop_arm();
-  //     //return;
-  //   }
-  //   // Prevents arm from moving down when below lower threshold
-  //   else if(lift.get_position(2) > -30 && arm_dir == 1){
-  //     //stop_arm();
-  //     return;
-  //   }
-
-  //   // Debug print statement
-  //   //printf("Position: %f\n",lift_left_2.get_position());
-    
-
-  //   /// Configure variables if the arm is beginning to accelerate and slew is active
-  //   // Slew is the process of slowly accelerating/decelerating
-  //   if (arm_moving == false && arm_slew_active){
-  //     arm_accelerating = true;
-  //     // Initialize start time to be slightly smaller than end time to reduce initial acceleration
-  //     start_time = end_time - 1;
-  //     arm_accel_velocity = 0;
-  //   }
-
-  //   arm_moving = true;
-
-  //   // Record time to get how long since last function call
-  //   end_time = pros::millis();
-
-  //   // Calculate time elapsed since last time function was called
-  //   duration = end_time - start_time;
-
-
-  //   if (arm_accelerating){
-  //     // Increase the acceleration velocity if it is under the desired RPM
-  //     if (abs(arm_accel_velocity) < abs(rpm)){
-  //       // Increase velocity by ~660 RPM per second
-  //       arm_accel_velocity += 20 * arm_dir * (duration/30.0);
-  //     }
-
-  //     // Catch if arm velocity is exceeding the desired RPM
-  //     else if (abs(arm_accel_velocity) > abs(rpm)){
-  //       // Fix velocity to the desired RPM
-  //       arm_accel_velocity = rpm;
-
-  //       // Stop accelerating
-  //       arm_accelerating = false;
-  //     }
-  //     // Change RPM to use calculated velocity instead
-  //     rpm = arm_accel_velocity;
-  //   }
-
-  //   // Move the lift motors at the desired RPM
-  //   printf("MOVING ARM at: %d\n", rpm);
-  //   lift.move_velocity(rpm);
-
-  //   // Record time
-  //   start_time = pros::millis();
-  // }
-
-
+//Home Arm to the Floor
 void home_arm(){
   int current_limit = 1800;
 
@@ -394,6 +97,27 @@ bool climb_task_enabled = false;
 bool driveSafe_task_enabled = false;
 bool deClimb_task_enabled = false;
 
+void deClimb() {
+  driveSafe_task_enabled = false;
+  climb_task_enabled = false;
+  if(deClimb_task_enabled == true){
+    lift.move_relative(-150, 120);
+    ladder_arm.move_absolute(0, 100);   // Connor and Nathan wanted this in OpControl
+    
+    pros::delay(300);
+
+    lift_brake.set(true);
+    lift.set_current_limit_all(2500);
+
+    lift.move_absolute(90, 120);
+    pros::delay(500);
+
+    platform.set_value(true);
+    on_rings = false;
+  }
+  deClimb_task_enabled = false;
+}
+
 void lift_task(){
   pros::delay(2000);
   while (true){
@@ -419,33 +143,6 @@ void lift_task(){
         climb_task_enabled = false;
       }
     }
-
-    if(deClimb_task_enabled){
-      driveSafe_task_enabled = false;
-      climb_task_enabled = false;
-      lift.move_absolute(-3800,80);
-
-      //Ladder Arm In 
-      ladder_arm.move_absolute(0, 100); //TODO: ADD TO DRIVER INITIALIZE
-
-      //Unlock Gears
-      lift_brake.set(true);
-      lift.set_current_limit_all(2500);
-
-      // lift.move_relative(-150, 50); TODO: TEST THIS CODE BY UNCOMMENTING. THIS IS TO UNBIND 
-
-      //Bring Robot straight to the ground
-      lift.move_absolute(-1700, 75); //TODO CHANGE TO ZERO AND TEST WITH GAMMA 15
-      pros::delay(500);
-      //Platform lowers so we can touch ground
-      platform.set_value(true);
-      on_rings = false;
-
-      deClimb_task_enabled = false;
-      
-    }
-
-
     pros::delay(ez::util::DELAY_TIME);
   }
 }
@@ -492,20 +189,13 @@ void initialize() {
 
   ez::as::auton_selector.autons_add({
     Auton("Level 1 Red Match", level_One_Red_Match),
-    //Auton("tuning",tuning),
-    //Auton("testTune",testTune),
-    //Auton("purdue skills",purdueSkills),
-     //Auton("Red AWP Test", red_AWP_match),
+      //Auton("tuning",tuning),
+      //Auton("testTune",testTune),
+      //Auton("purdue skills",purdueSkills),
+      //Auton("Red AWP Test", red_AWP_match),
       //Auton("Blue AWP Test", blue_AWP_match),
-      //Auton("Adriana's Monday Skills" ,fortySevenPointSkills),
-      //Auton("Match", blue_match_auton),
-      //Auton("Connor's Skills", skills),
-      //Auton("Adriana'Skills ",twoMobilewithclimb),
-      //Auton("Sixty-Five Skills", sixtyFiveSkills),
-      //Auton("Sixty-Two Skills",sixtyTwoSkills),
-      //Auton(" Fifty-Nine Skills", stateSkills),
-      //Auton("Thirty Skills", thirtyPointSkills),
-      //Auton("Match", match_auton),
+
+      // PROS EXAMPLES
       //Auton("Example Turn\n\nTurn 3 times.", turn_example),
       //Auton("Drive and Turn\n\nDrive forward, turn, come back. ", drive_and_turn),
       //Auton("Drive and Turn\n\nSlow down during drive.", wait_until_change_speed),
@@ -579,19 +269,6 @@ void competition_initialize() {
  */
 
   ez::slew lift_slew;
-
- void arm_slew_auto(int target){ // CAN BE DELETED
-
-    lift_slew.constants_set(200, 10);
-    lift_slew.initialize(true, 150, target, lift.get_position(2));
-    int rpm;
-    while(lift.get_position(2) > target){
-      rpm = lift_slew.iterate(lift.get_position(2));
-      lift.move_velocity(rpm);
-      pros::delay(10);
-    }
- }
-
 
 
 void autonomous() {
@@ -748,9 +425,12 @@ void ez_template_etxras() {
 
 
 
-int climb_status = 0;
-bool isGearLocked = true;
+// Driver Control Code
+  int climb_status = 0;
+  bool isGearLocked = true;
+  bool isLadderArmOut = true;
 void opcontrol() {
+
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
   bool mogo_toggle = false;
@@ -761,18 +441,17 @@ void opcontrol() {
   //dock.set_value(false);
   // bool dock_toggle = false;
   // bool dock_pressed = false;
-
-
- isGearLocked = false;
+  isGearLocked = false;
+  isLadderArmOut = false;
 
   pros::Controller master(pros::E_CONTROLLER_MASTER);
   
   while (true) {
     // Gives you some extras to make EZ-Template easier
     // ez_template_etxras();
-  master.print(0,0,"%lf",chassis.odom_theta_get());
+    master.print(0,0,"%lf",chassis.odom_theta_get());
  
-     //chassis.opcontrol_tank();  // Tank control
+    //chassis.opcontrol_tank();  // Tank control
     chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
     // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
     // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
@@ -782,70 +461,60 @@ void opcontrol() {
 
     // First Layer Controls
     if (!master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
-    
-    //DeCLimb (X)
+      //DeCLimb (X)
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
-        
-        deClimb_task_enabled = true;
+        lift_brake.set(true);
         isGearLocked = false;
+        deClimb_task_enabled = true;
+        deClimb();
       }
-
-    //UP Arrow needs to be Ladder arm retract so inwards
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
-      {
+      //UP Arrow needs to be Ladder arm retract so inwards
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
+        ladder_arm.set_current_limit(2000);
         ladder_arm.move_velocity(100);
       }else{
-        if (!lift_task_enabled)
-        {
+        if (!lift_task_enabled){
+          ladder_arm.set_current_limit(0);
           ladder_arm.brake();
         }    
       }
-
-   // Intake rings (A)
+      // Intake rings (A)
       if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) { 
         if (abs(intake.get_target_velocity()) < 1){
           intake.set_current_limit(2500);
           intake.move_velocity(-200);
-        }
-        else{
-                    // Set brake mode to HOLD to keep the intake in position and prevent any free movement
-        intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);  // Hold position
-        intake.brake();
-        pros::delay(10);
-        // Set current limit to 0 to prevent overcurrent draw when stationary
-        intake.set_current_limit(0);  // Disable current limit
-        }
-      }
-
-      // Outtake rings (Left2)
-      if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
-          if (abs(intake.get_target_velocity()) < 1){
-            intake.set_current_limit(2500);
-            intake.move_velocity(200);
-          }
-          else{
-                      // Set brake mode to HOLD to keep the intake in position and prevent any free movement
-          intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);  // Hold position
+        }else{
+          intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST); 
           intake.brake();
           pros::delay(10);
           // Set current limit to 0 to prevent overcurrent draw when stationary
           intake.set_current_limit(0);  // Disable current limit
-          }
+        }
       }
-
-    // Ring platform down (RIGHT Arrow)
+      // Outtake rings (Left2)
+      if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
+        if (abs(intake.get_target_velocity()) < 1){
+          intake.set_current_limit(2500);
+          intake.move_velocity(200);
+        }else{
+          intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+          intake.brake();
+          pros::delay(10);
+          // Set current limit to 0 to prevent overcurrent draw when stationary
+          intake.set_current_limit(0); 
+        }
+      }
+      // Ring platform down (RIGHT Arrow)
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
         platform.set_value(false);
         on_rings = false;
       }
-
-    // Ring platform up (Y)
-      else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
+      // Ring platform up (Y)
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
         platform.set_value(true);
         on_rings = true;
       }
-
-    // Auto Climb (DOWN Arrow)
+      // Auto Climb (DOWN Arrow)
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
         if (lift.get_position() >= -1900){
           printf("Running lift task\n");
@@ -856,412 +525,90 @@ void opcontrol() {
           climb_task_enabled = true;
         }
       }
-
-    // Mogo Rectract is R2 which means Mogo UP
+      // Mogo Rectract is R2 which means Mogo UP
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
         mogo.set(true);
       }
       // Mogo Extend is R1 which means Mogo Down
-      else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
         mogo.set(false);
       }
-
-    //Lift Down (L2)
+      //Lift Down (L2)
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
         lift.set_current_limit_all(2500);
         lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
         if (!isGearLocked) { 
           lift.move_velocity(70);
-        }
-        else{
+        }else{
           lift.move_velocity(0);
         }
       }
-
 
       // Lift up (L1)
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
         lift.set_current_limit_all(2500);
         lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-              lift_task_enabled = false;
-              // Set brake mode to COAST when moving up for smoother motion
-              move_arm(-70);  // Smooth movement up
+        lift_task_enabled = false;
+        move_arm(-70); 
       }
       if(!master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)&& !master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-            // When no buttons are pressed, hold the arm in place
-          lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-          if (!lift_task_enabled && !climb_task_enabled) {
-              lift.brake();
-              chassis.drive_current_limit_set(2500);
-          }
+        // When no buttons are pressed, hold the arm in place
+        lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+        if (!lift_task_enabled && !climb_task_enabled) {
+          lift.brake();
+          chassis.drive_current_limit_set(2500);
+        }
       } 
-    }
-    // Second Layer (when holding B)
-    else {
-
-    // L2 needs to be floor height of the DR4B 
+    }else {       // Second Layer (when holding B)
+      // L2 needs to be floor height of the DR4B 
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-      lift.set_current_limit_all(2500);
-      lift.move_absolute(-100, 80); 
-      //master.rumble(".");
+        if(isLadderArmOut == false){
+          if(isGearLocked){
+            lift.set_current_limit_all(2500);
+            lift.move_absolute(-800, 80);  //-600
+          }
+        }else{
+          if(isGearLocked == false){
+            lift.set_current_limit_all(2500);
+            lift.move_absolute(-100, 80); 
+          }
+        }
       }
-
-    // Y  needs to be the ratchet extends so Unlock 
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
-      {
+      // Y  needs to be the ratchet extends so Unlock 
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
         lift_brake.set(true);
+        isGearLocked = false;
         unclimbing = true;
         lift.move_relative(-150, 50);
+      }else{
+          unclimbing = false;
       }
-      else
-      {
-        unclimbing = false;
-      }
-
-    // RIGHT needs to be the ratchet Retracts so Lock 
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
-      {
+      // RIGHT needs to be the ratchet Retracts so Lock 
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+        isGearLocked = true;
         lift_brake.set(false);
       }
-
-  // X needs to be Dock 
+      // X needs to be Dock 
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
-              dock.set_value(false);
+        dock.set_value(false);
       }
-
-  // A needs to be UnDock
+      // A needs to be UnDock
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
-              dock.set_value(true);
+        dock.set_value(true);
       }
-
-    // UP needs to be ladder arm extend so outwards
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
-      {
+      // UP needs to be ladder arm extend so outwards
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
+        ladder_arm.set_current_limit(2000);
         ladder_arm.move_velocity(-100);
+        isLadderArmOut = true;
       }else{
         if (!lift_task_enabled)
         {
+          ladder_arm.set_current_limit(0);
           ladder_arm.brake();
         }    
       }
-
     }
-
-      // Purdue Controls
-
-
-
-      // Both Layer Controls
-
-    // // MoGo Up (L1)
-    // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
-    //   mogo.set(true);
-    // }
-    // //MoGo Down (L2)
-    // else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-    //   mogo.set(false);
-    // }
-
-    // // Lift Down (R2)
-    // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
-    //   lift.set_current_limit_all(2500);
-    //     if (!isGearLocked) {  // Only move down if gears are unlocked
-    //         lift_task_enabled = false;
-    //         // Set brake mode to COAST when moving down for smoother motion
-    //         lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
-
-    //         // Stop arm at drive safe height on layer 1
-    //         if (!master.get_digital(pros::E_CONTROLLER_DIGITAL_B) && lift.get_position() < -500){
-    //           move_arm(50);
-    //         }
-    //         // Allow arm to go to floor on layer 2
-    //         if(master.get_digital(pros::E_CONTROLLER_DIGITAL_B)){
-    //           move_arm(50);
-    //         }
-    //           // Smooth movement down
-    //     }
-    //     else {  // Gears are locked, do not move the lift
-    //         lift.move_velocity(0);  // Stop the lift
-    //     }
-    // }
-
-    // // Lift up (R1)
-    // else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-    //   lift.set_current_limit_all(2500);
-    //     if (!isGearLocked) {  // Only move up if gears are unlocked
-    //         lift_task_enabled = false;
-    //         // Set brake mode to COAST when moving up for smoother motion
-    //         lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_COAST);
-    //         move_arm(-50);  // Smooth movement up
-    //     }
-    //     else {  // Gears are locked, do not move the lift
-    //         lift.move_velocity(0);  // Stop the lift
-    //     }
-    // }
-    // else {
-    //     // When no buttons are pressed, hold the arm in place
-    //     if (!lift_task_enabled && !climb_task_enabled) {
-    //         lift.set_current_limit_all(-2500); //TODO: CHANGE TO POSITIVE?
-    //         stop_arm();
-    //         chassis.drive_current_limit_set(2500);
-    //     }
-        
-    //     // Set brake mode to HOLD to keep the arm in place
-    //     lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-    // }
-
-//  First Layer
-    // if (!master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
-    
-    //   // Intake rings (A)
-    //   if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) { 
-    //     if (abs(intake.get_target_velocity()) < 1){
-    //       intake.set_current_limit(2500);
-    //       intake.move_velocity(-200);
-    //     }
-    //     else{
-    //                 // Set brake mode to HOLD to keep the intake in position and prevent any free movement
-    //     intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);  // Hold position
-    //     intake.brake();
-    //     pros::delay(10);
-    //     // Set current limit to 0 to prevent overcurrent draw when stationary
-    //     intake.set_current_limit(0);  // Disable current limit
-    //     }
-    //   }
-    //   // Outtake rings (Left2)
-    //   if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
-    //       if (abs(intake.get_target_velocity()) < 1){
-    //         intake.set_current_limit(2500);
-    //         intake.move_velocity(200);
-    //       }
-    //       else{
-    //                   // Set brake mode to HOLD to keep the intake in position and prevent any free movement
-    //       intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);  // Hold position
-    //       intake.brake();
-    //       pros::delay(10);
-    //       // Set current limit to 0 to prevent overcurrent draw when stationary
-    //       intake.set_current_limit(0);  // Disable current limit
-    //       }
-            
-    //   }
-
-
-    //     // Ring platform down (RIGHT Arrow)
-    //     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
-    //       platform.set_value(false);
-    //       on_rings = false;
-    //     }
-    //     // Ring platform up (Y)
-    //     else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
-    //       platform.set_value(true);
-    //       on_rings = true;
-    //     }
-
-    //     // Auto Climb (DOWN Arrow)
-    //     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
-    //       if (lift.get_position() >= -1900){
-    //         printf("Running lift task\n");
-    //         lift_task_enabled = true;
-    //       }
-    //       else if (lift.get_position() < -1900){
-    //         printf("Running climb task\n");
-    //         climb_task_enabled = true;
-    //       }
-    //     }
-
-    //     // Ladder arm Retract (UP)
-    //     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-    //       ladder_arm.move_velocity(100);
-    //     }
-    //     else{
-    //       if (!lift_task_enabled){
-    //         ladder_arm.brake();
-    //       }    
-    //     }
-
-    //     //DeCLimb (X)
-    //   if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
-    //     deClimb_task_enabled = true;
-    //      isGearLocked = false;
-    //     }
-// Second Layer
-      // // Ladder arm extend (Y)
-      // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
-      //   ladder_arm.move_velocity(-100);
-      // }
-      // else{
-      //   if (!lift_task_enabled){
-      //     ladder_arm.brake();
-      //   }    
-      // }
-
-      // // Lock ratchet (Left)
-      // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)){
-      //   lift_brake.set(false);
-      //   isGearLocked = true;
-      // }
-
-      // // Unlock gears (Up)
-      // if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-      //   lift_brake.set(true);
-      //   unclimbing = true;
-      //   lift.move_relative(-150, 50);
-      //   isGearLocked = false;
-      // }
-      // else{
-      //   unclimbing = false;
-      // }
-      
-      
-
-      // //Mobile goal grabber (Down ARROW)
-      //   //mogo.button_toggle(master.get_digital(pros::E_CONTROLLER_DIGITAL_B)&&(master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)));
-
-      // // Drive safe (L1)
-      // if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)){
-      //   lift.set_current_limit_all(2500);
-      //   lift.move_absolute(-1000, 60); 
-      // }
-      // // ALL stakes height (L2)
-      // if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-      //     lift.set_current_limit_all(2500);
-      //     lift.move_absolute(-2000, 75); 
-      // }
-      // else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-      //         dock.set_value(false);
-      // }
-      // else if(master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)){
-      //         dock.set_value(true);
-      // }
-    
+    //pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
 }
-
-
-//Connors Controls - END
-// void opcontrol() {
-//   // This is preference to what you like to drive on
-//   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
-//   bool mogo_toggle = false;
-//   bool mogo_pressed = false;
-  
-//   pros::Controller master(pros::E_CONTROLLER_MASTER);
-  
-//   while (true) {
-//     // Gives you some extras to make EZ-Template easier
-//     //ez_template_etxras();
-
-//     //chassis.opcontrol_tank();  // Tank control
-//     chassis.opcontrol_arcade_standard(ez::SPLIT);   // Standard split arcade
-//     // chassis.opcontrol_arcade_standard(ez::SINGLE);  // Standard single arcade
-//     // chassis.opcontrol_arcade_flipped(ez::SPLIT);    // Flipped split arcade
-//     // chassis.opcontrol_arcade_flipped(ez::SINGLE);   // Flipped single arcade
-    
-//     //printf("DT Motor Amps: %2.f", chassis.drive_mA_left());
-//     // . . .
-//     // Put more user control code here!
-//     // . . .
-
-
-// //CONNOR'S Controls
-
-//     if(master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-//       lift.set_current_limit_all(2500);
-//       lift_task_enabled = false;
-//       move_arm(50);
-//     }
-//     else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-//       lift.set_current_limit_all(2500);
-//       lift_task_enabled = false;
-//       move_arm(-50);
-//     }
-//     else{
-//       if (!lift_task_enabled && !climb_task_enabled){
-        
-//         lift.set_current_limit_all(2500);
-//         stop_arm();
-//         chassis.drive_current_limit_set(2500);
-//       }    
-//     }
-//     // Macro button
-//     //AutoClimb Button
-//     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
-//       if (lift.get_position() >= -1900){
-//         printf("Running lift task\n");
-//         lift_task_enabled = true;
-//       }
-//       else if (lift.get_position() < -1900){
-//         printf("Running climb task\n");
-//         climb_task_enabled = true;
-//       }
-//     }
-
-//     //Intakes stay on??? 
-//     if(master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){ 
-//       intake.set_current_limit(2500);
-//       intake.move_velocity(200);
-//     }
-//     else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1 )){
-//       intake.set_current_limit(2500);
-//       intake.move_velocity(-200);
-//     }
-//     else{
-//       intake.brake();
-//       intake.set_current_limit(0);
-//     }
-
-//     //Unlocks gears - Working
-//     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
-//       lift_brake.set(true);
-//       unclimbing = true;
-//       lift.move_relative(-150, 50);
-//     }
-//     else{
-//       unclimbing = false;
-//     }
-//     //X Locks Gears - Working
-//     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
-//       lift_brake.set(false);
-//     }
-//     //Working for Up and Left
-//     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)){
-//       platform.set_value(true);
-//       on_rings = false;
-//     }
-//     else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-//       //dock.set_value(false);
-//       platform.set_value(false);
-//       on_rings = true;
-//     }
-//     // Working for Y and Right 
-//     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
-//       ladder_arm.move_velocity(100);
-//     }
-//     else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
-//       ladder_arm.move_velocity(-100);
-//     }
-//     else{
-//       if (!lift_task_enabled){
-//         ladder_arm.brake();
-//       }   
-//     }
-
-
-//     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B) && master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-//       dock.set_value(false);
-//     }
-//     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_B) && master.get_digital(pros::E_CONTROLLER_DIGITAL_LEFT)){
-//       dock.set_value(true);
-//     }
-//     //Working 
-//     mogo.button_toggle(master.get_digital(pros::E_CONTROLLER_DIGITAL_B));
-  // // master.print(0, 0, "Val: %f", test_rev.get_value());
-    
-    //master.clear();
-   // printf("Val: %f \n", left_tracker.get_raw());
-   // printf("Pros val: %i\n", test_rev.get_value());
-
-   
-    //pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
-//  }
-//}

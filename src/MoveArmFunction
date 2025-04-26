@@ -1,0 +1,108 @@
+// DOUBLE CHECK IF THIS IS NECESSARY
+
+// void move_arm(int target_rpm) {
+//     // Gradually ramp to the target RPM for smoother movement
+//     static int current_rpm = 0;
+//     int ramp_rate = 5;  // Ramp rate for smooth acceleration and deceleration
+
+//     // Gradually adjust the RPM towards the target
+//     if (current_rpm < target_rpm) {
+//         current_rpm += ramp_rate;
+//         if (current_rpm > target_rpm) current_rpm = target_rpm; // Don't exceed target
+//     } else if (current_rpm > target_rpm) {
+//         current_rpm -= ramp_rate;
+//         if (current_rpm < target_rpm) current_rpm = target_rpm; // Don't go below target
+//     }
+
+//     // Set motor velocity to the current smooth RPM
+//     lift.move_velocity(current_rpm);
+
+// }
+
+//Connors Version
+  // Move the DR4B arm at the desired RPM
+  // void move_arm(int rpm = 100){
+  //   // Debug statement
+    
+  //   //lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD); //Brake
+  //   // Save motors when lift is fully lowered
+  //   // Otherwise set motors to hold
+  //   if (lift.get_position(2) > 0){
+      
+  //     //lift.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+  //   }
+  //   else{
+  //     //lift.set_current_limit_all(2500);
+  //     // lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+  //   }
+
+  //   // Extract most recent direction moved. -1 for down, 1 for up
+  //   arm_dir = rpm/abs(rpm);
+
+  //   // Debug print statements
+  //   //printf("Direction: %i\n", dir);
+  //   //printf("Current: %i\n", lift_left_2.get_current_draw());
+
+  //   // Prevents arm from moving up when above the upper threshold
+  //   if (lift.get_position(2) < -2000 && arm_dir == -1 && !on_rings){
+  //     stop_arm();
+  //     return;
+  //   }
+  //   if (lift.get_position(2) < -3200 && arm_dir == -1 && on_rings){
+  //     //stop_arm();
+  //     //return;
+  //   }
+  //   // Prevents arm from moving down when below lower threshold
+  //   else if(lift.get_position(2) > -30 && arm_dir == 1){
+  //     //stop_arm();
+  //     return;
+  //   }
+
+  //   // Debug print statement
+  //   //printf("Position: %f\n",lift_left_2.get_position());
+    
+
+  //   /// Configure variables if the arm is beginning to accelerate and slew is active
+  //   // Slew is the process of slowly accelerating/decelerating
+  //   if (arm_moving == false && arm_slew_active){
+  //     arm_accelerating = true;
+  //     // Initialize start time to be slightly smaller than end time to reduce initial acceleration
+  //     start_time = end_time - 1;
+  //     arm_accel_velocity = 0;
+  //   }
+
+  //   arm_moving = true;
+
+  //   // Record time to get how long since last function call
+  //   end_time = pros::millis();
+
+  //   // Calculate time elapsed since last time function was called
+  //   duration = end_time - start_time;
+
+
+  //   if (arm_accelerating){
+  //     // Increase the acceleration velocity if it is under the desired RPM
+  //     if (abs(arm_accel_velocity) < abs(rpm)){
+  //       // Increase velocity by ~660 RPM per second
+  //       arm_accel_velocity += 20 * arm_dir * (duration/30.0);
+  //     }
+
+  //     // Catch if arm velocity is exceeding the desired RPM
+  //     else if (abs(arm_accel_velocity) > abs(rpm)){
+  //       // Fix velocity to the desired RPM
+  //       arm_accel_velocity = rpm;
+
+  //       // Stop accelerating
+  //       arm_accelerating = false;
+  //     }
+  //     // Change RPM to use calculated velocity instead
+  //     rpm = arm_accel_velocity;
+  //   }
+
+  //   // Move the lift motors at the desired RPM
+  //   printf("MOVING ARM at: %d\n", rpm);
+  //   lift.move_velocity(rpm);
+
+  //   // Record time
+  //   start_time = pros::millis();
+  // }

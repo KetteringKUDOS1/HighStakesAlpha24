@@ -21,11 +21,11 @@ void level_One_Blue_Match();
 void level_One_Red_Match();
 
 
-// void skills();
-// void red_match_auton();
-// void blue_match_auton();
-// void thirtyPointSkills();
-// void twoMobilewithclimb();
+void skills();
+void red_match_auton();
+void blue_match_auton();
+void thirtyPointSkills();
+void twoMobilewithclimb();
 
 void stateSkills();
 
