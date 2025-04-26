@@ -83,7 +83,6 @@ void testTune(){
 
   chassis.pid_odom_set({{{-56_in, -32_in}, fwd, 127}}, 
                        false);
-                       //Slewe was True
   chassis.pid_wait();
 
 
@@ -157,92 +156,92 @@ void level_One_Red_Match(){
   pros::delay(2000);
 
   // Raise 15" so we can intake the platform rings
-  lift.move_absolute(-800, 80);  //-600
-  pros::delay(1000);
+  lift.move_absolute(-800, 80);
 
   // Move backwards to mogo
-  chassis.pid_odom_set({{{-43_in, -5_in}, rev, 120}}, 
-                        false); 
+  chassis.pid_odom_set({{{-43_in, -5_in}, rev, 120}},
+                        false);
   chassis.pid_wait();
 
-  //Ladder Arm Extend
-  pros::delay(500);
-  ladder_arm.set_current_limit(2000);
-  ladder_arm.move_relative(-900, 100); 
-  pros::delay(500);
-
-  //1 Second Wait
-  pros::delay(1000);
+  //2 Second Wait
+  pros::delay(1500); //2000
 
   //Mogo Mech is Used
   mogo.set(false);
 
-  //1 Second Wait
-  pros::delay(1000);
+  //Delay 
+  pros::delay(500);
 
   //Intake Rings On Code
-  intake.move_velocity(-150);
+  intake.move_velocity(-200);
 
   //Intake Blue Alone Ring
-  chassis.pid_odom_set({{{-11_in, -25_in}, fwd, 120}}, 
-                        false);   //-13, -23
+  chassis.pid_odom_set({{{-10_in, -26_in}, fwd, 70}}, 
+                        false);
   chassis.pid_wait();
 
-  //2 Second Wait
-  pros::delay(1000); //2000
+  //Wait 
+  pros::delay(1200);  //1500
 
   //Intake Blue Bottom Stack Ring
-  chassis.pid_odom_set({{{-18_in, -48_in}, fwd, 120}},                       
-              false);   //y=-47
+  chassis.pid_odom_set({{{-18_in, -47_in}, fwd, 70}},
+              false);
   chassis.pid_wait(); 
 
-  //2 Second Wait
-  pros::delay(2000);
+  //Wait
+  pros::delay(1700); //2000
 
-  // Turn and Line up for climb + Tier 3 climb buddy + platform + High Stake
-
-  chassis.pid_drive_set(-5_in, 120);
+  //Driving backwards from the rings 
+  chassis.pid_drive_set(-7_in, 120); 
   chassis.pid_wait();
 
-  //5 Second Wait
-  pros::delay(3000);
+  //Ladder Arm Extend
+  ladder_arm.set_current_limit(2000);
+  ladder_arm.move_relative(-900, 100); 
+
+  // Delay between driving backwards and turning to ladder
+  pros::delay(1700); //2000
 
   lift.set_current_limit_all(2500);
   lift.move_absolute(-2000, 75);
 
   //Driving to Ladder
-  chassis.pid_odom_set({{{-10_in, -36_in}, fwd, 120}},
-                        false);
+  chassis.pid_odom_set({{{-10_in, -35.25_in}, fwd, 120}},
+                        false); 
   chassis.pid_wait(); 
 
-  //2 Second Wait
-  pros::delay(4000);
+  // delay bettween driving to the ladder and getting super close to the corner of the ladder
+  pros::delay(2500);  //4000
+  chassis.pid_drive_set(13_in, 120);
+  chassis.pid_wait();//11.5
 
-  chassis.pid_drive_set(11_in, 120);
-  chassis.pid_wait();
-
+  //Delay between driving and lifting 
   pros::delay(2000);
 
-  //Intake + Platform + Ladder Arm Extend
+  //Intake and Ladder Arm Stopping
   intake.brake();
-  pros::delay(5000);
-
   intake.set_current_limit(0);
   ladder_arm.set_current_limit(0);
+
+  //Platform sets so ontop of rings 
   platform.set_value(false);
 
-  //Raising Lift
+  //Raising Lift to max height of the lift 
   lift.set_current_limit_all(2500);
-
   lift.move_absolute(-3700, 90); 
-  pros::delay(5000);
+
+  //Delay between lift movements
+  pros::delay(4000);
 
   //Move lift to score on High Stake
-  lift.move_absolute(-3300, 50); 
-  pros::delay(5000);
+  lift.move_absolute(-3200, 50); //-3300
 
-  lift.move_absolute(-3600, 50); 
-  pros::delay(5000);
+  //Delay between lift movements
+  pros::delay(2000);
+  lift.move_absolute(-3600, 50);
+
+  //Delay between lift moving down and the ratchet locking
+  pros::delay(1100);
 
   //Ratchet Engaged
   lift_brake.set(false);

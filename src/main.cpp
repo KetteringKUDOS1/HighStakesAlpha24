@@ -100,10 +100,7 @@ bool deClimb_task_enabled = false;
 void deClimb() {
   driveSafe_task_enabled = false;
   climb_task_enabled = false;
-  if(deClimb_task_enabled == true){
-    lift.move_relative(-150, 120);
-    ladder_arm.move_absolute(0, 100);   // Connor and Nathan wanted this in OpControl
-    
+  if(deClimb_task_enabled == true){    
     pros::delay(300);
 
     lift_brake.set(true);
@@ -180,8 +177,6 @@ void initialize() {
   // chassis.opcontrol_curve_buttons_left_set(pros::E_CONTROLLER_DIGITAL_LEFT, pros::E_CONTROLLER_DIGITAL_RIGHT);  // If using tank, only the left side is used.
   // chassis.opcontrol_curve_buttons_right_set(pros::E_CONTROLLER_DIGITAL_Y, pros::E_CONTROLLER_DIGITAL_A);
   // Autonomous Selector using LLEMU
-
-
 
 
 
@@ -441,9 +436,11 @@ void opcontrol() {
   //dock.set_value(false);
   // bool dock_toggle = false;
   // bool dock_pressed = false;
+  
   isGearLocked = false;
-  isLadderArmOut = false;
-
+  lift.move_relative(-150, 120);
+  // ladder_arm.move_absolute(0, 100);   // Connor and Nathan wanted this in OpControl
+  // isLadderArmOut = false;
   pros::Controller master(pros::E_CONTROLLER_MASTER);
   
   while (true) {
@@ -465,8 +462,10 @@ void opcontrol() {
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
         lift_brake.set(true);
         isGearLocked = false;
-        deClimb_task_enabled = true;
-        deClimb();
+        if(isLadderArmOut){
+          deClimb_task_enabled = true;
+          deClimb();
+        }
       }
       //UP Arrow needs to be Ladder arm retract so inwards
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
@@ -562,15 +561,12 @@ void opcontrol() {
     }else {       // Second Layer (when holding B)
       // L2 needs to be floor height of the DR4B 
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-        if(isLadderArmOut == false){
-          if(isGearLocked){
-            lift.set_current_limit_all(2500);
-            lift.move_absolute(-800, 80);  //-600
-          }
+          if(isGearLocked == true){
+            lift.brake();
         }else{
           if(isGearLocked == false){
-            lift.set_current_limit_all(2500);
-            lift.move_absolute(-100, 80); 
+              lift.set_current_limit_all(2500);
+              lift.move_absolute(90, 80); 
           }
         }
       }
@@ -600,7 +596,6 @@ void opcontrol() {
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
         ladder_arm.set_current_limit(2000);
         ladder_arm.move_velocity(-100);
-        isLadderArmOut = true;
       }else{
         if (!lift_task_enabled)
         {
