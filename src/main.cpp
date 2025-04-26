@@ -423,6 +423,7 @@ void lift_task(){
     if(deClimb_task_enabled){
       driveSafe_task_enabled = false;
       climb_task_enabled = false;
+      lift.move_absolute(-3800,80);
 
       //Ladder Arm In 
       ladder_arm.move_absolute(0, 100); //TODO: ADD TO DRIVER INITIALIZE
@@ -782,23 +783,23 @@ void opcontrol() {
     // First Layer Controls
     if (!master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
     
-
     //DeCLimb (X)
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
+        
         deClimb_task_enabled = true;
         isGearLocked = false;
       }
 
     //UP Arrow needs to be Ladder arm retract so inwards
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
-    {
-      ladder_arm.move_velocity(100);
-    }else{
-      if (!lift_task_enabled)
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
       {
-        ladder_arm.brake();
-      }    
-    }
+        ladder_arm.move_velocity(100);
+      }else{
+        if (!lift_task_enabled)
+        {
+          ladder_arm.brake();
+        }    
+      }
 
    // Intake rings (A)
       if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) { 
@@ -815,6 +816,7 @@ void opcontrol() {
         intake.set_current_limit(0);  // Disable current limit
         }
       }
+
       // Outtake rings (Left2)
       if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
           if (abs(intake.get_target_velocity()) < 1){
@@ -829,131 +831,119 @@ void opcontrol() {
           // Set current limit to 0 to prevent overcurrent draw when stationary
           intake.set_current_limit(0);  // Disable current limit
           }
-            
+      }
+
+    // Ring platform down (RIGHT Arrow)
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+        platform.set_value(false);
+        on_rings = false;
+      }
+
+    // Ring platform up (Y)
+      else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
+        platform.set_value(true);
+        on_rings = true;
+      }
+
+    // Auto Climb (DOWN Arrow)
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
+        if (lift.get_position() >= -1900){
+          printf("Running lift task\n");
+          lift_task_enabled = true;
+        }
+        else if (lift.get_position() < -1900){
+          printf("Running climb task\n");
+          climb_task_enabled = true;
+        }
+      }
+
+    // Mogo Rectract is R2 which means Mogo UP
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+        mogo.set(true);
+      }
+      // Mogo Extend is R1 which means Mogo Down
+      else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+        mogo.set(false);
+      }
+
+    //Lift Down (L2)
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+        lift.set_current_limit_all(2500);
+        lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+        if (!isGearLocked) { 
+          lift.move_velocity(70);
+        }
+        else{
+          lift.move_velocity(0);
+        }
       }
 
 
-        // Ring platform down (RIGHT Arrow)
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
-          platform.set_value(false);
-          on_rings = false;
-        }
-        // Ring platform up (Y)
-        else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
-          platform.set_value(true);
-          on_rings = true;
-        }
-
-        // Auto Climb (DOWN Arrow)
-        if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
-          if (lift.get_position() >= -1900){
-            printf("Running lift task\n");
-            lift_task_enabled = true;
-          }
-          else if (lift.get_position() < -1900){
-            printf("Running climb task\n");
-            climb_task_enabled = true;
-          }
-        }
-
-
-    // Mogo Rectract is R2 which means Mogo UP
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-      mogo.set(true);
-    }
-    // Mogo Extend is R1 which means Mogo Down
-    else if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-      mogo.set(false);
-    }
-
-    //Lift Down (L2)
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
-         lift.set_current_limit_all(2500);
-      lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-        if (!isGearLocked) {  // Only move up if gears are unlocked
-            lift_task_enabled = false;
-            // Set brake mode to COAST when moving up for smoother motion
-            move_arm(70); 
-        }
-        else {  // Gears are locked, do not move the lift
-            lift.move_velocity(0);  // Stop the lift
-        }
-    }
-
-    // Lift up (L1)
-    if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-      lift.set_current_limit_all(2500);
-      lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-        if (!isGearLocked) {  // Only move up if gears are unlocked
-            lift_task_enabled = false;
-            // Set brake mode to COAST when moving up for smoother motion
-            move_arm(-70);  // Smooth movement up
-        }
-        else {  // Gears are locked, do not move the lift
-            lift.move_velocity(0);  // Stop the lift
-        }
-    }
-if(!master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)&& !master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-          // When no buttons are pressed, hold the arm in place
+      // Lift up (L1)
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+        lift.set_current_limit_all(2500);
         lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-        if (!lift_task_enabled && !climb_task_enabled) {
-            lift.set_current_limit_all(-2500); //TODO: CHANGE TO POSITIVE?
-            stop_arm();
-            chassis.drive_current_limit_set(2500);
-        }
-
-}
+              lift_task_enabled = false;
+              // Set brake mode to COAST when moving up for smoother motion
+              move_arm(-70);  // Smooth movement up
+      }
+      if(!master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)&& !master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
+            // When no buttons are pressed, hold the arm in place
+          lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+          if (!lift_task_enabled && !climb_task_enabled) {
+              lift.brake();
+              chassis.drive_current_limit_set(2500);
+          }
+      } 
     }
-
-    // Blah Blah 
-
     // Second Layer (when holding B)
     else {
 
-// L2 needs to be floor height of the DR4B 
-  if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-  lift.set_current_limit_all(2500);
-  lift.move_absolute(-100, 80); 
-  }
+    // L2 needs to be floor height of the DR4B 
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
+      lift.set_current_limit_all(2500);
+      lift.move_absolute(-100, 80); 
+      //master.rumble(".");
+      }
 
-// Y  needs to be the ratchet extends so Unlock 
-  if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
-  {
-    lift_brake.set(true);
-    unclimbing = true;
-    lift.move_relative(-150, 50);
-  }
-  else
-  {
-    unclimbing = false;
-  }
+    // Y  needs to be the ratchet extends so Unlock 
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y))
+      {
+        lift_brake.set(true);
+        unclimbing = true;
+        lift.move_relative(-150, 50);
+      }
+      else
+      {
+        unclimbing = false;
+      }
 
-// RIGHT needs to be the ratchet Retracts so Lock 
-  if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
-  {
-    lift_brake.set(false);
-  }
+    // RIGHT needs to be the ratchet Retracts so Lock 
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT))
+      {
+        lift_brake.set(false);
+      }
 
-// X needs to be Dock 
+  // X needs to be Dock 
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
               dock.set_value(false);
       }
 
-// A needs to be UnDock
+  // A needs to be UnDock
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
               dock.set_value(true);
       }
 
-// UP needs to be ladder arm extend so outwards
-  if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
-  {
-    ladder_arm.move_velocity(-100);
-  }else{
-    if (!lift_task_enabled)
-    {
-      ladder_arm.brake();
-    }    
-  }
+    // UP needs to be ladder arm extend so outwards
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP))
+      {
+        ladder_arm.move_velocity(-100);
+      }else{
+        if (!lift_task_enabled)
+        {
+          ladder_arm.brake();
+        }    
+      }
 
     }
 

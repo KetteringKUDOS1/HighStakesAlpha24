@@ -200,30 +200,28 @@ chassis.pid_odom_set({{{-10_in, -37_in}, fwd, 120}},
                       false);
 chassis.pid_wait();   //13, 32
 
-
-
 pros::delay(2000);
 
-chassis.pid_drive_set(20.5_in, 120);
-chassis.pid_wait(); //13.5
+chassis.pid_drive_set(10.5_in, 120);
+chassis.pid_wait();
 
 intake.brake();
 
 
-// pros::delay(500);
-// platform.set_value(false);
-// pros::delay(1000);
-// ladder_arm.move_relative(-900, 100); //-900
+pros::delay(2000);
+platform.set_value(false);
+pros::delay(500);
+ladder_arm.move_relative(-900, 100); 
 
-// lift.set_current_limit_all(2500);
-// lift.move_absolute(-3200, 75); 
-// pros::delay(2000);
+lift.set_current_limit_all(2500);
+lift.move_absolute(-3200, 75); 
+pros::delay(2000);
 
-// lift.move_absolute(-2770, 75); 
-// pros::delay(500);
-// lift.move_absolute(-3700, 75);  //-3400
-// pros::delay(800);
-// lift_brake.set(false);
+lift.move_absolute(-2770, 75); 
+pros::delay(500);
+lift.move_absolute(-3700, 75); 
+pros::delay(800);
+lift_brake.set(false);
 }
 
 void level_One_Blue_Match(){
