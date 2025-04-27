@@ -478,7 +478,7 @@ void opcontrol() {
         }    
       }
       // Intake rings (A)
-      if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_A)) { 
+      if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) { 
         if (abs(intake.get_target_velocity()) < 1){
           intake.set_current_limit(2500);
           intake.move_velocity(-200);
@@ -488,19 +488,6 @@ void opcontrol() {
           pros::delay(10);
           // Set current limit to 0 to prevent overcurrent draw when stationary
           intake.set_current_limit(0);  // Disable current limit
-        }
-      }
-      // Outtake rings (Left2)
-      if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
-        if (abs(intake.get_target_velocity()) < 1){
-          intake.set_current_limit(2500);
-          intake.move_velocity(200);
-        }else{
-          intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-          intake.brake();
-          pros::delay(10);
-          // Set current limit to 0 to prevent overcurrent draw when stationary
-          intake.set_current_limit(0); 
         }
       }
       // Ring platform down (RIGHT Arrow)
@@ -524,6 +511,22 @@ void opcontrol() {
           climb_task_enabled = true;
         }
       }
+      // RIGHT needs to be the ratchet Retracts so Lock 
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
+        isGearLocked = true;
+        lift_brake.set(false);
+      }
+
+      // A  needs to be the ratchet extends so Unlock 
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+        lift_brake.set(true);
+        isGearLocked = false;
+        unclimbing = true;
+        lift.move_relative(-150, 50);
+      }else{
+          unclimbing = false;
+      }
+
       // Mogo Rectract is R2 which means Mogo UP
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
         mogo.set(true);
@@ -559,6 +562,19 @@ void opcontrol() {
         }
       } 
     }else {       // Second Layer (when holding B)
+    // Outtake rings (Left2)
+      if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
+        if (abs(intake.get_target_velocity()) < 1){
+          intake.set_current_limit(2500);
+          intake.move_velocity(200);
+        }else{
+          intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+          intake.brake();
+          pros::delay(10);
+          // Set current limit to 0 to prevent overcurrent draw when stationary
+          intake.set_current_limit(0); 
+        }
+      }
       // L2 needs to be floor height of the DR4B 
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
           if(isGearLocked == true){
@@ -570,20 +586,9 @@ void opcontrol() {
           }
         }
       }
-      // Y  needs to be the ratchet extends so Unlock 
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
-        lift_brake.set(true);
-        isGearLocked = false;
-        unclimbing = true;
-        lift.move_relative(-150, 50);
-      }else{
-          unclimbing = false;
-      }
-      // RIGHT needs to be the ratchet Retracts so Lock 
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
-        isGearLocked = true;
-        lift_brake.set(false);
-      }
+
+
+
       // X needs to be Dock 
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
         dock.set_value(false);
@@ -592,6 +597,17 @@ void opcontrol() {
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
         dock.set_value(true);
       }
+
+      // A  needs to be the ratchet extends so Unlock 
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+        lift_brake.set(true);
+        isGearLocked = false;
+        unclimbing = true;
+        lift.move_relative(-150, 50);
+      }else{
+          unclimbing = false;
+      }
+
       // UP needs to be ladder arm extend so outwards
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
         ladder_arm.set_current_limit(2000);
