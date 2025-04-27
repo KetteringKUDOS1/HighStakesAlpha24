@@ -152,8 +152,8 @@ void level_One_Red_Match(){
                         false);
   chassis.pid_wait();
 
-  // 15" Grabs Rings + 2 Second Wait
-  pros::delay(2000);
+  // 15" Grabs Rings
+  pros::delay(1000); //2000
 
   // Raise 15" so we can intake the platform rings
   lift.move_absolute(-800, 80);
@@ -163,14 +163,14 @@ void level_One_Red_Match(){
                         false);
   chassis.pid_wait();
 
-  //2 Second Wait
-  pros::delay(1500); //2000
+  //Delay for 15" picking up rings
+  pros::delay(1000); //1500
 
   //Mogo Mech is Used
   mogo.set(false);
 
   //Delay 
-  pros::delay(500);
+  pros::delay(250);  //500
 
   //Intake Rings On Code
   intake.move_velocity(-200);
@@ -181,7 +181,7 @@ void level_One_Red_Match(){
   chassis.pid_wait();
 
   //Wait 
-  pros::delay(1200);  //1500
+  pros::delay(500);  //750
 
   //Intake Blue Bottom Stack Ring
   chassis.pid_odom_set({{{-18_in, -47_in}, fwd, 70}},
@@ -189,18 +189,11 @@ void level_One_Red_Match(){
   chassis.pid_wait(); 
 
   //Wait
-  pros::delay(1700); //2000
+  pros::delay(1100); //1100
 
   //Driving backwards from the rings 
   chassis.pid_drive_set(-7_in, 120); 
   chassis.pid_wait();
-
-  //Ladder Arm Extend
-  ladder_arm.set_current_limit(2000);
-  ladder_arm.move_relative(-900, 100); 
-
-  // Delay between driving backwards and turning to ladder
-  pros::delay(1700); //2000
 
   lift.set_current_limit_all(2500);
   lift.move_absolute(-2000, 75);
@@ -210,13 +203,18 @@ void level_One_Red_Match(){
                         false); 
   chassis.pid_wait(); 
 
+  //Ladder Arm Extend
+  pros::delay(950);
+  ladder_arm.set_current_limit(2000);
+  ladder_arm.move_absolute(-1000, 70); //90
+
   // delay bettween driving to the ladder and getting super close to the corner of the ladder
-  pros::delay(2500);  //4000
+  pros::delay(1500);  //2500
   chassis.pid_drive_set(13_in, 120);
-  chassis.pid_wait();//11.5
+  chassis.pid_wait();
 
   //Delay between driving and lifting 
-  pros::delay(2000);
+  pros::delay(1300);  //2000
 
   //Intake and Ladder Arm Stopping
   intake.brake();
@@ -228,20 +226,16 @@ void level_One_Red_Match(){
 
   //Raising Lift to max height of the lift 
   lift.set_current_limit_all(2500);
-  lift.move_absolute(-3700, 90); 
+  lift.move_absolute(-3400, 90);
 
   //Delay between lift movements
-  pros::delay(4000);
+  pros::delay(4000); //7000
 
   //Move lift to score on High Stake
-  lift.move_absolute(-3200, 50); //-3300
-
-  //Delay between lift movements
-  pros::delay(2000);
-  lift.move_absolute(-3600, 50);
+  lift.move_absolute(-3000, 50); //-2900 was too low, 3100 was too high
 
   //Delay between lift moving down and the ratchet locking
-  pros::delay(1100);
+  pros::delay(500); //1100
 
   //Ratchet Engaged
   lift_brake.set(false);
