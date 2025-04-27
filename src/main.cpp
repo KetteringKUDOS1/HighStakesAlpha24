@@ -469,7 +469,7 @@ void opcontrol() {
       }
       //UP Arrow needs to be Ladder arm retract so inwards
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-        ladder_arm.set_current_limit(2000);
+        ladder_arm.set_current_limit(2500);
         ladder_arm.move_velocity(100);
       }else{
         if (!lift_task_enabled){
@@ -610,7 +610,7 @@ void opcontrol() {
 
       // UP needs to be ladder arm extend so outwards
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-        ladder_arm.set_current_limit(2000);
+        ladder_arm.set_current_limit(2500);
         ladder_arm.move_velocity(-100);
       }else{
         if (!lift_task_enabled)
