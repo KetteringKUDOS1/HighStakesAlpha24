@@ -184,9 +184,9 @@ void level_One_Red_Match(){
   pros::delay(500);  //750
 
   //Intake Blue Bottom Stack Ring
-  chassis.pid_odom_set({{{-18_in, -47_in}, fwd, 70}},
+  chassis.pid_odom_set({{{-18_in, -45_in}, fwd, 70}},
               false);
-  chassis.pid_wait(); 
+  chassis.pid_wait(); //-47 to -45
 
   //Wait
   pros::delay(1100); //1100
@@ -205,7 +205,7 @@ void level_One_Red_Match(){
 
   //Ladder Arm Extend
   pros::delay(950);
-  ladder_arm.set_current_limit(2000);
+  ladder_arm.set_current_limit(2500);
   ladder_arm.move_absolute(-1000, 70); //90
 
   // delay bettween driving to the ladder and getting super close to the corner of the ladder

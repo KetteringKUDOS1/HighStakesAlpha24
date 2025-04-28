@@ -439,8 +439,12 @@ void opcontrol() {
   
   isGearLocked = false;
   lift.move_relative(-150, 120);
-  // ladder_arm.move_absolute(0, 100);   // Connor and Nathan wanted this in OpControl
-  // isLadderArmOut = false;
+
+  //Need to test this
+  ladder_arm.move_absolute(0, 100);   // Connor and Nathan wanted this in OpControl
+  isLadderArmOut = false;
+
+  
   pros::Controller master(pros::E_CONTROLLER_MASTER);
   
   while (true) {
@@ -463,6 +467,7 @@ void opcontrol() {
         lift_brake.set(true);
         isGearLocked = false;
         if(isLadderArmOut){
+          climb_task_enabled = false;
           deClimb_task_enabled = true;
           deClimb();
         }
@@ -516,7 +521,6 @@ void opcontrol() {
         isGearLocked = true;
         lift_brake.set(false);
       }
-
       // A  needs to be the ratchet extends so Unlock 
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
         lift_brake.set(true);
@@ -545,7 +549,6 @@ void opcontrol() {
           lift.move_velocity(0);
         }
       }
-
       // Lift up (L1)
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
         lift.set_current_limit_all(2500);
@@ -558,7 +561,6 @@ void opcontrol() {
         lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
         if (!lift_task_enabled && !climb_task_enabled) {
           lift.brake();
-          chassis.drive_current_limit_set(2500);
         }
       } 
     }else {       // Second Layer (when holding B)
@@ -586,9 +588,6 @@ void opcontrol() {
           }
         }
       }
-
-
-
       // X needs to be Dock 
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
         dock.set_value(false);
@@ -597,7 +596,6 @@ void opcontrol() {
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
         dock.set_value(true);
       }
-
       // A  needs to be the ratchet extends so Unlock 
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
         lift_brake.set(true);
@@ -607,7 +605,6 @@ void opcontrol() {
       }else{
           unclimbing = false;
       }
-
       // UP needs to be ladder arm extend so outwards
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
         ladder_arm.set_current_limit(2500);
