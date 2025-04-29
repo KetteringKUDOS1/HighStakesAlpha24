@@ -32,7 +32,6 @@ ez::Drive chassis(
 //ez::tracking_wheel horiz_tracker(1, 2.75, 4.0);             // Rotation sensors
 
 
-
 // Set arm motors to hold when braking, preventing back driving
 // WARNING: 
 // Do not leave motors on hold when under load for long periods,
@@ -103,7 +102,6 @@ void deClimb() {
   if(deClimb_task_enabled == true){    
     pros::delay(300);
 
-    lift_brake.set(true);
     lift.set_current_limit_all(2500);
 
     lift.move_absolute(90, 120);
@@ -122,7 +120,7 @@ void lift_task(){
       lift.set_current_limit_all(2500);
       lift.move_absolute(-2000, 75); //2000
       printf("Lift Pos 1: %f\n", lift.get_position());
-      if (lift.get_position() < -1990){
+      if (lift.get_position() < -2190){
         printf("Done with lifting 1\n");
         pros::delay(500);
         lift_task_enabled = false;
@@ -132,10 +130,10 @@ void lift_task(){
       platform.set_value(false);
       on_rings = true;
       lift.set_current_limit_all(2500);
-      lift.move_absolute(-5000, 75); //3200
-      ladder_arm.move_relative(-500, 100);
+      lift.move_absolute(-3400, 90);
+      ladder_arm.move_absolute(-1000, 100);
       printf("Lift Pos 2: %f\n", lift.get_position());
-      if (lift.get_position() < -3190){
+      if (lift.get_position() < -3500){
         printf("Done with lifting 2\n");
         climb_task_enabled = false;
       }
@@ -205,7 +203,7 @@ void initialize() {
   ez::as::initialize();
 
   master.rumble(".");
-  platform.set_value(true); // driver was true    auton was false
+  platform.set_value(true); e
   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
   
   lift_brake.set(true);
@@ -425,15 +423,12 @@ void ez_template_etxras() {
   bool isGearLocked = true;
   bool isLadderArmOut = true;
 void opcontrol() {
-
   // This is preference to what you like to drive on
   chassis.drive_brake_set(MOTOR_BRAKE_COAST);
   bool mogo_toggle = false;
   bool mogo_pressed = false;
-  //dock.set_value(true);
   //chassis.pid_drive_set(3_in, 70);
   //chassis.pid_wait();
-  //dock.set_value(false);
   // bool dock_toggle = false;
   // bool dock_pressed = false;
   
@@ -444,7 +439,6 @@ void opcontrol() {
   ladder_arm.move_absolute(0, 100);   // Connor and Nathan wanted this in OpControl
   isLadderArmOut = false;
 
-  
   pros::Controller master(pros::E_CONTROLLER_MASTER);
   
   while (true) {
@@ -466,8 +460,13 @@ void opcontrol() {
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
         lift_brake.set(true);
         isGearLocked = false;
-        if(isLadderArmOut){
-          climb_task_enabled = false;
+        if(isLadderArmOut == false){
+          deClimb_task_enabled = true;
+          deClimb();
+        }
+        if(isLadderArmOut == true){
+          ladder_arm.move_absolute(0, 70); 
+          pros::delay(500);
           deClimb_task_enabled = true;
           deClimb();
         }
@@ -491,8 +490,7 @@ void opcontrol() {
           intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST); 
           intake.brake();
           pros::delay(10);
-          // Set current limit to 0 to prevent overcurrent draw when stationary
-          intake.set_current_limit(0);  // Disable current limit
+          intake.set_current_limit(0);  
         }
       }
       // Ring platform down (RIGHT Arrow)
@@ -503,6 +501,7 @@ void opcontrol() {
       // Ring platform up (Y)
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
         platform.set_value(true);
+        climb_task_enabled = true;
         on_rings = true;
       }
       // Auto Climb (DOWN Arrow)

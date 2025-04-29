@@ -184,9 +184,9 @@ void level_One_Red_Match(){
   pros::delay(500);  //750
 
   //Intake Blue Bottom Stack Ring
-  chassis.pid_odom_set({{{-18_in, -45_in}, fwd, 70}},
+  chassis.pid_odom_set({{{-18_in, -50_in}, fwd, 70}},
               false);
-  chassis.pid_wait(); //-47 to -45
+  chassis.pid_wait(); //-47 to -50
 
   //Wait
   pros::delay(1100); //1100
