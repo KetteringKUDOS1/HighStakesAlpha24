@@ -1,4 +1,5 @@
 #include "main.h"
+#include <cstdio>
 #include "EZ-Template/util.hpp"
 #include "autons.hpp"
 #include "pros/device.hpp"
@@ -120,23 +121,41 @@ void lift_task(){
       lift.set_current_limit_all(2500);
       lift.move_absolute(-2000, 75); //2000
       printf("Lift Pos 1: %f\n", lift.get_position());
-      if (lift.get_position() < -2190){
+      if (lift.get_position() < -1900){
         printf("Done with lifting 1\n");
-        pros::delay(500);
+        //pros::delay(500);
         lift_task_enabled = false;
       }
     }
-    if (climb_task_enabled){
+  if (climb_task_enabled){
       platform.set_value(false);
       on_rings = true;
       lift.set_current_limit_all(2500);
       lift.move_absolute(-3400, 90);
       ladder_arm.move_absolute(-1000, 100);
       printf("Lift Pos 2: %f\n", lift.get_position());
-      if (lift.get_position() < -3500){
+      if (lift.get_position() < -3300){
         printf("Done with lifting 2\n");
         climb_task_enabled = false;
       }
+    }
+
+   if(deClimb_task_enabled == true){
+    climb_task_enabled = false;
+    lift_task_enabled = false;
+      printf("%d",deClimb_task_enabled);
+      printf("Delay");
+        pros::delay(300);
+        printf("Current Limit");
+        lift.set_current_limit_all(2500);
+        printf("Move");
+        lift.move_absolute(90, 120);
+        pros::delay(500);
+        printf("Platform");
+        platform.set_value(true);
+        on_rings = false;
+        //deClimb_task_enabled = false;
+    
     }
     pros::delay(ez::util::DELAY_TIME);
   }
@@ -203,7 +222,7 @@ void initialize() {
   ez::as::initialize();
 
   master.rumble(".");
-  platform.set_value(true); e
+  platform.set_value(true);
   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
   
   lift_brake.set(true);
@@ -458,17 +477,19 @@ void opcontrol() {
     if (!master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
       //DeCLimb (X)
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
+        printf("calling declimb %d\n",deClimb_task_enabled);
         lift_brake.set(true);
         isGearLocked = false;
         if(isLadderArmOut == false){
           deClimb_task_enabled = true;
-          deClimb();
+          printf("declimb should be true %d\n",deClimb_task_enabled);
+
         }
         if(isLadderArmOut == true){
           ladder_arm.move_absolute(0, 70); 
           pros::delay(500);
           deClimb_task_enabled = true;
-          deClimb();
+          printf("declimb should be true with the ladder arm niow in %d\n",deClimb_task_enabled);
         }
       }
       //UP Arrow needs to be Ladder arm retract so inwards
@@ -501,7 +522,7 @@ void opcontrol() {
       // Ring platform up (Y)
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
         platform.set_value(true);
-        climb_task_enabled = true;
+        climb_task_enabled = false;
         on_rings = true;
       }
       // Auto Climb (DOWN Arrow)
@@ -510,7 +531,7 @@ void opcontrol() {
           printf("Running lift task\n");
           lift_task_enabled = true;
         }
-        else if (lift.get_position() < -1900){
+        else if (lift.get_position() < -1800){
           printf("Running climb task\n");
           climb_task_enabled = true;
         }
@@ -550,10 +571,14 @@ void opcontrol() {
       }
       // Lift up (L1)
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+        if(lift.get_position() < -2000 && on_rings == false){
+          lift.brake();
+        }else{
         lift.set_current_limit_all(2500);
         lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
         lift_task_enabled = false;
         move_arm(-70); 
+        } 
       }
       if(!master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)&& !master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
         // When no buttons are pressed, hold the arm in place
