@@ -184,9 +184,9 @@ void level_One_Red_Match(){
   pros::delay(500);  //750
 
   //Intake Blue Bottom Stack Ring
-  chassis.pid_odom_set({{{-18_in, -50_in}, fwd, 70}},
-              false);
-  chassis.pid_wait(); //-47 to -50
+  chassis.pid_odom_set({{{-20_in, -50_in}, fwd, 70}},
+              false); 
+  chassis.pid_wait(); //-18 to -20
 
   //Wait
   pros::delay(1100); //1100
@@ -199,8 +199,8 @@ void level_One_Red_Match(){
   lift.move_absolute(-2000, 75);
 
   //Driving to Ladder
-  chassis.pid_odom_set({{{-10_in, -37.5_in}, fwd, 120}},
-                        false); 
+  chassis.pid_odom_set({{{-10_in, -38.5_in}, fwd, 120}},
+                        false); //38.25
   chassis.pid_wait(); 
 
   //Ladder Arm Extend
@@ -210,8 +210,8 @@ void level_One_Red_Match(){
 
   // delay bettween driving to the ladder and getting super close to the corner of the ladder
   pros::delay(1500);  //2500
-  chassis.pid_drive_set(12.5_in, 120);
-  chassis.pid_wait();
+  chassis.pid_drive_set(13_in, 120);
+  chassis.pid_wait(); //14 was a little too much
 
   //Delay between driving and lifting 
   pros::delay(1300);  //2000
@@ -226,13 +226,13 @@ void level_One_Red_Match(){
 
   //Raising Lift to max height of the lift 
   lift.set_current_limit_all(2500);
-  lift.move_absolute(-3400, 90);
+  lift.move_absolute(-3500, 90); //3400
 
   //Delay between lift movements
   pros::delay(4000); //7000
 
   //Move lift to score on High Stake
-  lift.move_absolute(-3000, 50); //-2900 was too low, 3100 was too high
+  lift.move_absolute(-3100, 50); //-2900 was too low, 3100 was too high, 3000 kind of worked
 
   //Delay between lift moving down and the ratchet locking
   pros::delay(500); //1100

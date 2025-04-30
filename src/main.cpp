@@ -140,25 +140,24 @@ void lift_task(){
       }
     }
 
-   if(deClimb_task_enabled == true){
-    climb_task_enabled = false;
-    lift_task_enabled = false;
-      printf("%d",deClimb_task_enabled);
-      printf("Delay");
-        pros::delay(300);
-        printf("Current Limit");
-        lift.set_current_limit_all(2500);
-        printf("Move");
-        lift.move_absolute(90, 120);
-        pros::delay(500);
-        printf("Platform");
-        platform.set_value(true);
-        on_rings = false;
-        //deClimb_task_enabled = false;
+  //  if(deClimb_task_enabled == true){
+  //   climb_task_enabled = false;
+  //   lift_task_enabled = false;
+  //     printf("%d",deClimb_task_enabled);
+  //     printf("Delay");
+  //       pros::delay(300);
+  //       printf("Current Limit");
+  //       lift.set_current_limit_all(2500);
+  //       printf("Move");
+  //       lift.move_absolute(90, 120);
+  //       pros::delay(500);
+  //       printf("Platform");
+  //       platform.set_value(true);
+  //       on_rings = false;
+  //       //deClimb_task_enabled = false;
     
     }
     pros::delay(ez::util::DELAY_TIME);
-  }
 }
 
 pros::Task LiftTask(lift_task);
@@ -483,6 +482,7 @@ void opcontrol() {
         if(isLadderArmOut == false){
           deClimb_task_enabled = true;
           printf("declimb should be true %d\n",deClimb_task_enabled);
+          deClimb();
 
         }
         if(isLadderArmOut == true){
@@ -490,6 +490,7 @@ void opcontrol() {
           pros::delay(500);
           deClimb_task_enabled = true;
           printf("declimb should be true with the ladder arm niow in %d\n",deClimb_task_enabled);
+          deClimb();
         }
       }
       //UP Arrow needs to be Ladder arm retract so inwards
