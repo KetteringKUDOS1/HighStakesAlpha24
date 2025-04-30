@@ -176,8 +176,8 @@ void level_One_Red_Match(){
   intake.move_velocity(-200);
 
   //Intake Blue Alone Ring
-  chassis.pid_odom_set({{{-10_in, -26_in}, fwd, 70}}, 
-                        false);
+  chassis.pid_odom_set({{{-8_in, -26_in}, fwd, 70}}, 
+                        false); //x = -10
   chassis.pid_wait();
 
   //Wait 
@@ -199,7 +199,7 @@ void level_One_Red_Match(){
   lift.move_absolute(-2000, 75);
 
   //Driving to Ladder
-  chassis.pid_odom_set({{{-10_in, -35.25_in}, fwd, 120}},
+  chassis.pid_odom_set({{{-10_in, -37.5_in}, fwd, 120}},
                         false); 
   chassis.pid_wait(); 
 
@@ -210,7 +210,7 @@ void level_One_Red_Match(){
 
   // delay bettween driving to the ladder and getting super close to the corner of the ladder
   pros::delay(1500);  //2500
-  chassis.pid_drive_set(13_in, 120);
+  chassis.pid_drive_set(12.5_in, 120);
   chassis.pid_wait();
 
   //Delay between driving and lifting 
