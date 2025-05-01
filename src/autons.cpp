@@ -163,8 +163,9 @@ void level_One_Red_Match(){
                         false);
   chassis.pid_wait();
 
+// TODO MESS WITH THIS DELAY
   //Delay for 15" picking up rings
-  pros::delay(1000); //1500
+  pros::delay(1000); 
 
   //Mogo Mech is Used
   mogo.set(false);
@@ -192,26 +193,26 @@ void level_One_Red_Match(){
   pros::delay(1100); //1100
 
   //Driving backwards from the rings 
-  chassis.pid_drive_set(-7_in, 120); 
+  chassis.pid_drive_set(-10_in, 120); 
   chassis.pid_wait();
 
   lift.set_current_limit_all(2500);
   lift.move_absolute(-2000, 75);
 
   //Driving to Ladder
-  chassis.pid_odom_set({{{-10_in, -38.5_in}, fwd, 120}},
-                        false); //38.25
+  chassis.pid_odom_set({{{-10_in, -35.5_in}, fwd, 120}},
+                        false); //36 was too right, 34 was too left
   chassis.pid_wait(); 
 
   //Ladder Arm Extend
   pros::delay(950);
   ladder_arm.set_current_limit(2500);
-  ladder_arm.move_absolute(-1000, 70); //90
+  ladder_arm.move_absolute(-1000, 70);
 
-  // delay bettween driving to the ladder and getting super close to the corner of the ladder
-  pros::delay(1500);  //2500
+  // delay between driving to the ladder and getting super close to the corner of the ladder
+  pros::delay(1500);
   chassis.pid_drive_set(13_in, 120);
-  chassis.pid_wait(); //14 was a little too much
+  chassis.pid_wait(); 
 
   //Delay between driving and lifting 
   pros::delay(1300);  //2000
@@ -226,16 +227,22 @@ void level_One_Red_Match(){
 
   //Raising Lift to max height of the lift 
   lift.set_current_limit_all(2500);
-  lift.move_absolute(-3500, 90); //3400
+  lift.move_absolute(-3400, 110); //04-30-2025 velocity was at 90
 
   //Delay between lift movements
   pros::delay(4000); //7000
 
   //Move lift to score on High Stake
-  lift.move_absolute(-3100, 50); //-2900 was too low, 3100 was too high, 3000 kind of worked
+  lift.move_absolute(-2800, 50); //04-30-2025 was -3000 
 
   //Delay between lift moving down and the ratchet locking
-  pros::delay(500); //1100
+  pros::delay(750); //04-30-2025 was 500
+
+//Added this: Make DR4B go back up at the end of L1 auton bc of 15” sagging when disabled worry 
+//(i think keeping the ratchet on should be okay)
+  //Raising Lift at end
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-3100, 90); 
 
   //Ratchet Engaged
   lift_brake.set(false);
