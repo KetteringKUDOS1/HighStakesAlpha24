@@ -235,7 +235,7 @@ void level_One_Red_Match(){
   //Raising Lift to max height of the lift 
   lift.set_current_limit_all(2500);
 
-  lift.move_absolute(-3500, 90); //04-30-2025 velocity was at 90
+  lift.move_absolute(-3500, 80);
 
   //Delay between lift movements
   pros::delay(4000); //4000
