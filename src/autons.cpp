@@ -209,12 +209,12 @@ void level_One_Red_Match(){
   chassis.pid_wait(); 
 
   //Ladder Arm Extend
-  pros::delay(500);//950
+  pros::delay(250);//5-1-/25 was 500
   ladder_arm.set_current_limit(2500);
   ladder_arm.move_absolute(-1000, 70); 
 
   // delay bettween driving to the ladder and getting super close to the corner of the ladder
-  pros::delay(2500);  //2500
+  pros::delay(250);  //5-1/25 was 1500
   //chassis.pid_drive_set(13_in, 120);
   chassis.pid_odom_set({{{2.4_in, -23.1_in, 45_deg}, fwd, 120}},
     false); // was at -.8, -26.3 and was 4 inches away from ladder with perfect alignment
@@ -222,7 +222,7 @@ void level_One_Red_Match(){
   
 
   //Delay between driving and lifting 
-  pros::delay(1500);  //5-1-25 was 2000
+  pros::delay(250);  //5-1-25 was 2000
 
   //Intake and Ladder Arm Stopping
   intake.brake();
@@ -245,7 +245,7 @@ void level_One_Red_Match(){
   lift.move_absolute(-2900, 50); //04-30-2025 was -2950 
 
   //Delay between lift moving down and the ratchet locking
-  pros::delay(1500); //05-1-2025 was 500
+  pros::delay(3000); //05-1-2025 was 500
 
 // //Added this: Make DR4B go back up at the end of L1 auton bc of 15” sagging when disabled worry 
 // //(i think keeping the ratchet on should be okay)
