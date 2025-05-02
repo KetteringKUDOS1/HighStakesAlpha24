@@ -101,7 +101,10 @@ void deClimb() {
   driveSafe_task_enabled = false;
   climb_task_enabled = false;
   if(deClimb_task_enabled == true){  
-    
+    ladder_arm.move_absolute(0, 100); 
+    pros::delay(250);
+
+
     lift.move_relative(-150, 80);
 
     pros::delay(500);
@@ -455,10 +458,6 @@ void opcontrol() {
   
   isGearLocked = false;
   lift.move_relative(-150, 120);
-
-  //Need to test this
-  ladder_arm.move_absolute(0, 100);   // Connor and Nathan wanted this in OpControl
-  isLadderArmOut = false;
 
   pros::Controller master(pros::E_CONTROLLER_MASTER);
   

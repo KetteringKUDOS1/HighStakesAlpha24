@@ -216,7 +216,7 @@ void level_One_Red_Match(){
   // delay bettween driving to the ladder and getting super close to the corner of the ladder
   pros::delay(2500);  //2500
   //chassis.pid_drive_set(13_in, 120);
-  chassis.pid_odom_set({{{2.4_in, -23.1_in, 45_deg}, fwd, 100}},
+  chassis.pid_odom_set({{{2.4_in, -23.1_in, 45_deg}, fwd, 120}},
     false); // was at -.8, -26.3 and was 4 inches away from ladder with perfect alignment
   chassis.pid_wait(); //14 was a little too much
   
