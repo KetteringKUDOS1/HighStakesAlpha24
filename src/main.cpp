@@ -100,12 +100,15 @@ bool deClimb_task_enabled = false;
 void deClimb() {
   driveSafe_task_enabled = false;
   climb_task_enabled = false;
-  if(deClimb_task_enabled == true){    
-    pros::delay(300);
+  if(deClimb_task_enabled == true){  
+    
+    lift.move_relative(-150, 80);
+
+    pros::delay(500);
 
     lift.set_current_limit_all(2500);
 
-    lift.move_absolute(90, 120);
+    lift.move_absolute(-90, 120);
     pros::delay(500);
 
     platform.set_value(true);
