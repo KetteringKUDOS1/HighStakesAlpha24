@@ -222,7 +222,7 @@ void level_One_Red_Match(){
   
 
   //Delay between driving and lifting 
-  pros::delay(2000);  //2000
+  pros::delay(1500);  //5-1-25 was 2000
 
   //Intake and Ladder Arm Stopping
   intake.brake();
@@ -238,14 +238,14 @@ void level_One_Red_Match(){
   lift.move_absolute(-3500, 80);
 
   //Delay between lift movements
-  pros::delay(4000); //4000
+  pros::delay(3000); //5-1-25 was 4000 
 
   //Move lift to score on High Stake
 
   lift.move_absolute(-2900, 50); //04-30-2025 was -2950 
 
   //Delay between lift moving down and the ratchet locking
-  pros::delay(500); //04-30-2025 was 500
+  pros::delay(1500); //05-1-2025 was 500
 
 // //Added this: Make DR4B go back up at the end of L1 auton bc of 15” sagging when disabled worry 
 // //(i think keeping the ratchet on should be okay)
