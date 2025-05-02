@@ -205,7 +205,8 @@ void initialize() {
   //NEED TO GO THRU AUTON SELCTIOSN TO GET RID OF SOME
 
   ez::as::auton_selector.autons_add({
-    Auton("Level 1 Red Match", level_One_Red_Match),
+   // Auton("Level 1 Red Match", level_One_Red_Match),
+    Auton("Level 1 Blue Match", level_One_Blue_Match),
       //Auton("tuning",tuning),
       //Auton("testTune",testTune),
       //Auton("purdue skills",purdueSkills),

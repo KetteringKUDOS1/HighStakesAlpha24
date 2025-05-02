@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "Red L1 Auton",
+    "project_name": "Blue L1 Auton",
     "target": "v5",
     "templates": {
       "EZ-Template": {
@@ -425,7 +425,7 @@
     },
     "upload_options": {
       "description": "making code ez",
-      "slot": 1,
+      "slot": 2,
       "after": "screen"
     },
     "use_early_access": false
