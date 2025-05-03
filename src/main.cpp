@@ -620,6 +620,14 @@ void opcontrol() {
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
         dock.set_value(false);
       }
+      // Mogo Rectract is R2 which means Mogo UP
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+        mogo.set(true);
+      }
+      // Mogo Extend is R1 which means Mogo Down
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+        mogo.set(false);
+      }
       // A needs to be UnDock
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
         dock.set_value(true);

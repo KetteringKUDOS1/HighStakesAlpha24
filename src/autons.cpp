@@ -360,10 +360,10 @@ void level_One_Blue_Match(){
 
   // delay bettween driving to the ladder and getting super close to the corner of the ladder
   pros::delay(250); 
-  chassis.pid_odom_set({{{-2.4_in, -23.1_in, -45_deg}, fwd, 120}},
+  chassis.pid_odom_set({{{-2.4_in, -22.6_in, -45_deg}, fwd, 120}},
     false); 
-  chassis.pid_wait();
-  
+  chassis.pid_wait();// was too short: -2.4_in, -23.1_in
+
 
   //Delay between driving and lifting 
   pros::delay(250); 
@@ -434,7 +434,7 @@ void red_AWP_match(){
   pros::delay(1000);
 
   chassis.pid_odom_set({{{-52.75_in, 17_in}, fwd, 60}}, // Move forward to mogo
-                       true);
+                       false);
   chassis.pid_wait();
 
 
