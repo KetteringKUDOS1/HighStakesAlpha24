@@ -1,6 +1,7 @@
 #include "autons.hpp"
 #include "main.h"
 #include "pros/motors.h"
+#include "pros/rtos.hpp"
 #include "subsystems.hpp"
 
 /////
@@ -273,6 +274,9 @@ void level_One_Blue_Match(){
 
  
   //Initlize and dock
+  long start_time = pros::millis();
+
+
   mogo.set(true);
   chassis.pid_targets_reset();                // Resets PID targets to 0
   chassis.drive_imu_reset();                  // Reset gyro position to 0
@@ -381,9 +385,14 @@ void level_One_Blue_Match(){
   lift.set_current_limit_all(2500);
 
   lift.move_absolute(-3500, 80);
+  pros::delay(3000);
+
+  while (pros::millis()- start_time < 21500){
+    pros::delay(10);
+  }
 
   //Delay between lift movements
-  pros::delay(3000);
+  
 
   //Move lift to score on High Stake
 

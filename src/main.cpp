@@ -101,23 +101,29 @@ void deClimb() {
   driveSafe_task_enabled = false;
   climb_task_enabled = false;
   if(deClimb_task_enabled == true){  
+    lift.set_current_limit_all(2500);
+    ladder_arm.set_current_limit(2500);
+
     ladder_arm.move_absolute(0, 100); 
+    ladder_arm.move_velocity(100);
+
     pros::delay(250);
 
 
-    lift.move_relative(-150, 80);
+    lift.move_absolute(-2000, 120);
 
     pros::delay(500);
 
-    lift.set_current_limit_all(2500);
+    ladder_arm.brake();
 
-    lift.move_absolute(-90, 120);
+    
     pros::delay(500);
 
     platform.set_value(true);
     on_rings = false;
   }
   deClimb_task_enabled = false;
+  ladder_arm.set_current_limit(0);
 }
 
 void lift_task(){
@@ -137,10 +143,11 @@ void lift_task(){
       platform.set_value(false);
       on_rings = true;
       lift.set_current_limit_all(2500);
-      lift.move_absolute(-3400, 90);
+      lift.move_absolute(-3525, 90);
       ladder_arm.move_absolute(-1000, 100);
+      lift_brake.set(false);
       printf("Lift Pos 2: %f\n", lift.get_position());
-      if (lift.get_position() < -3300){
+      if (lift.get_position() < -3400){
         printf("Done with lifting 2\n");
         climb_task_enabled = false;
       }
@@ -492,7 +499,7 @@ void opcontrol() {
           ladder_arm.move_absolute(0, 70); 
           pros::delay(500);
           deClimb_task_enabled = true;
-          printf("declimb should be true with the ladder arm niow in %d\n",deClimb_task_enabled);
+          printf("declimb should be true with the ladder arm now in %d\n",deClimb_task_enabled);
           deClimb();
         }
       }
@@ -500,8 +507,9 @@ void opcontrol() {
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
         ladder_arm.set_current_limit(2500);
         ladder_arm.move_velocity(100);
-      }else{
-        if (!lift_task_enabled){
+      }
+      else {
+        if (!lift_task_enabled && !deClimb_task_enabled){
           ladder_arm.set_current_limit(0);
           ladder_arm.brake();
         }    
@@ -521,13 +529,13 @@ void opcontrol() {
       // Ring platform down (RIGHT Arrow)
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
         platform.set_value(false);
-        on_rings = false;
+        on_rings = true;
       }
       // Ring platform up (Y)
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
         platform.set_value(true);
         climb_task_enabled = false;
-        on_rings = true;
+        on_rings = false;
       }
       // Auto Climb (DOWN Arrow)
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
@@ -556,13 +564,7 @@ void opcontrol() {
       }
 
       // Mogo Rectract is R2 which means Mogo UP
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-        mogo.set(true);
-      }
-      // Mogo Extend is R1 which means Mogo Down
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-        mogo.set(false);
-      }
+      
       //Lift Down (L2)
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
         lift.set_current_limit_all(2500);
@@ -577,7 +579,11 @@ void opcontrol() {
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
         if(lift.get_position() < -2000 && on_rings == false){
           lift.brake();
-        }else{
+        }
+        else if (lift.get_position() < -3550){
+          lift.brake();
+        }
+        else{
         lift.set_current_limit_all(2500);
         lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
         lift_task_enabled = false;
@@ -591,8 +597,17 @@ void opcontrol() {
           lift.brake();
         }
       } 
-    }else {       // Second Layer (when holding B)
-    // Outtake rings (Left2)
+      // Mogo Rectract is R2 which means Mogo UP
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+        mogo.set(true);
+      }
+      // Mogo Extend is R1 which means Mogo Down
+      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+        mogo.set(false);
+      }
+    }
+    else {       // Second Layer (when holding B)
+      // Outtake rings (Left2)
       if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
         if (abs(intake.get_target_velocity()) < 1){
           intake.set_current_limit(2500);
@@ -653,6 +668,6 @@ void opcontrol() {
         }    
       }
     }
-    //pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
+    pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
   }
 }
