@@ -261,7 +261,7 @@ void level_One_Red_Match(){
 }
 
 void level_One_Blue_Match(){
-//Level One Plan For Blue Side
+  //Level One Plan For Blue Side
  // Grab Stack for Claw 
  // Reverse
  // Grab MOGO Mech 
@@ -364,9 +364,9 @@ void level_One_Blue_Match(){
 
   // delay bettween driving to the ladder and getting super close to the corner of the ladder
   pros::delay(250); 
-  chassis.pid_odom_set({{{-2.4_in, -22.6_in, -45_deg}, fwd, 120}},
+  chassis.pid_odom_set({{{-4.5_in, -20.5_in, -45_deg}, fwd, 120}},
     false); 
-  chassis.pid_wait();// was too short: -2.4_in, -23.1_in
+  chassis.pid_wait();// was too short: -2.4_in, -22.6_in
 
 
   //Delay between driving and lifting 
@@ -384,10 +384,10 @@ void level_One_Blue_Match(){
   //Raising Lift to max height of the lift 
   lift.set_current_limit_all(2500);
 
-  lift.move_absolute(-3500, 80);
+  lift.move_absolute(-3200, 80);
   pros::delay(3000);
 
-  while (pros::millis()- start_time < 21500){
+  while (pros::millis()- start_time < 23000){
     pros::delay(10);
   }
 

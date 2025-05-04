@@ -620,7 +620,9 @@ void opcontrol() {
           intake.set_current_limit(0); 
         }
       }
-      // L2 needs to be floor height of the DR4B 
+
+
+      // L2 needs to be floor height of the DR4B
       if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
           if(isGearLocked == true){
             lift.brake();
