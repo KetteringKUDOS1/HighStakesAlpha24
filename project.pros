@@ -1,7 +1,7 @@
 {
   "py/object": "pros.conductor.project.Project",
   "py/state": {
-    "project_name": "Blue L1 Auton",
+    "project_name": "Blue: Worlds",
     "target": "v5",
     "templates": {
       "EZ-Template": {

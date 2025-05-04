@@ -17,8 +17,8 @@ void default_constants();
 void tuning();
 void testTune();
 
-void level_One_Blue_Match();
-void level_One_Red_Match();
+void Blue_Worlds();
+void Red_Worlds();
 
 
 void skills();

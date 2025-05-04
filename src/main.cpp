@@ -101,24 +101,22 @@ void deClimb() {
   driveSafe_task_enabled = false;
   climb_task_enabled = false;
   if(deClimb_task_enabled == true){  
+    //Sets the Curent Limits 
     lift.set_current_limit_all(2500);
     ladder_arm.set_current_limit(2500);
-
+    //Lift move up and Ladder arm go in
+    lift.move_relative(-50, 50); //Auton ends at -3500
     ladder_arm.move_absolute(0, 100); 
     ladder_arm.move_velocity(100);
-
     pros::delay(250);
 
-
+    //Lift goes down 
     lift.move_absolute(-2000, 120);
-
     pros::delay(500);
 
+    //Ladder arm stops and platform goes goes down so we are back on the ground
     ladder_arm.brake();
-
-    
     pros::delay(500);
-
     platform.set_value(true);
     on_rings = false;
   }
@@ -152,24 +150,7 @@ void lift_task(){
         climb_task_enabled = false;
       }
     }
-
-  //  if(deClimb_task_enabled == true){
-  //   climb_task_enabled = false;
-  //   lift_task_enabled = false;
-  //     printf("%d",deClimb_task_enabled);
-  //     printf("Delay");
-  //       pros::delay(300);
-  //       printf("Current Limit");
-  //       lift.set_current_limit_all(2500);
-  //       printf("Move");
-  //       lift.move_absolute(90, 120);
-  //       pros::delay(500);
-  //       printf("Platform");
-  //       platform.set_value(true);
-  //       on_rings = false;
-  //       //deClimb_task_enabled = false;
-    
-    }
+  }
     pros::delay(ez::util::DELAY_TIME);
 }
 
@@ -212,15 +193,20 @@ void initialize() {
   //NEED TO GO THRU AUTON SELCTIOSN TO GET RID OF SOME
 
   ez::as::auton_selector.autons_add({
-   //Auton("Level 1 Red Match", level_One_Red_Match),
-    Auton("Level 1 Blue Match", level_One_Blue_Match),
-      //Auton("tuning",tuning),
-      //Auton("testTune",testTune),
+    //Worlds Autons
+      //Auton("Red Auton: Worlds", Red_Worlds),
+      Auton("Blue Auton: Worlds", Blue_Worlds),
+
+    //Previous Competitions Codes
       //Auton("purdue skills",purdueSkills),
       //Auton("Red AWP Test", red_AWP_match),
       //Auton("Blue AWP Test", blue_AWP_match),
 
-      // PROS EXAMPLES
+    //Tuning Codes
+      //Auton("tuning",tuning),
+      //Auton("testTune",testTune),
+
+    // PROS EXAMPLES
       //Auton("Example Turn\n\nTurn 3 times.", turn_example),
       //Auton("Drive and Turn\n\nDrive forward, turn, come back. ", drive_and_turn),
       //Auton("Drive and Turn\n\nSlow down during drive.", wait_until_change_speed),
@@ -486,25 +472,13 @@ void opcontrol() {
     if (!master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
       //DeCLimb (X)
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
-        printf("calling declimb %d\n",deClimb_task_enabled);
         lift_brake.set(true);
         isGearLocked = false;
-        if(isLadderArmOut == false){
           deClimb_task_enabled = true;
-          printf("declimb should be true %d\n",deClimb_task_enabled);
           deClimb();
-
-        }
-        if(isLadderArmOut == true){
-          ladder_arm.move_absolute(0, 70); 
-          pros::delay(500);
-          deClimb_task_enabled = true;
-          printf("declimb should be true with the ladder arm now in %d\n",deClimb_task_enabled);
-          deClimb();
-        }
       }
       //UP Arrow needs to be Ladder arm retract so inwards
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
+      if(master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
         ladder_arm.set_current_limit(2500);
         ladder_arm.move_velocity(100);
       }
