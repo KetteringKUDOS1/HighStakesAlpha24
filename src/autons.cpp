@@ -37,17 +37,17 @@ void default_constants() {
 
   // Exit conditions
   // https://ez-robotics.github.io/EZ-Template/tutorials/tuning_exit_conditions
-  chassis.pid_turn_exit_condition_set(90_ms, 0_deg, 250_ms, 7_deg, 500_ms, 500_ms);
+  chassis.pid_turn_exit_condition_set(90_ms, 0_deg, 250_ms, 7_deg, 500_ms, 500000_ms);
 
-  chassis.pid_swing_exit_condition_set(90_ms, 0_deg, 250_ms, 7_deg, 500_ms, 500_ms);
+  chassis.pid_swing_exit_condition_set(90_ms, 0_deg, 250_ms, 7_deg, 500_ms, 500000_ms);
 
   // chassis.pid_drive_exit_condition_set(90_ms, 1_in, 250_ms, 3_in, 500_ms, 500_ms);
   //chassis.pid_drive_exit_condition_set(200_ms, 1.5_in, 400_ms, 3.5_in, 1000_ms, 1000_ms);
-  chassis.pid_drive_exit_condition_set(50_ms, 1_in, 150_ms, 8_in, 1000_ms, 1000_ms);
+  chassis.pid_drive_exit_condition_set(50_ms, 1_in, 150_ms, 8_in, 1000_ms, 1000000_ms);
 
-  chassis.pid_odom_turn_exit_condition_set(150_ms, 3_deg, 250_ms, 7_deg, 500_ms, 750_ms, false);
+  chassis.pid_odom_turn_exit_condition_set(150_ms, 3_deg, 250_ms, 7_deg, 500_ms, 750000_ms, false);
   // Can increase by increments of 10 only
-   chassis.pid_odom_drive_exit_condition_set(100_ms, 2_in, 250_ms, 3_in, 500_ms, 500_ms, false);
+   chassis.pid_odom_drive_exit_condition_set(100_ms, 2_in, 250_ms, 3_in, 500_ms, 500000_ms, false);
 
   chassis.pid_turn_chain_constant_set(3_deg);
   chassis.pid_swing_chain_constant_set(5_deg);
@@ -164,7 +164,7 @@ void Red_Worlds(){
   chassis.pid_odom_set({{{-43_in, -5_in}, rev, 120}},
                         false);
   chassis.pid_wait();
-  pros::delay(1000);
+  pros::delay(300);
 
   //Grabbing Mogo
   mogo.set(false);
@@ -224,14 +224,14 @@ void Red_Worlds(){
 
   //Raising Lift to above the High Stake
   lift.set_current_limit_all(2500);
-  lift.move_absolute(-3200, 80);
+  lift.move_absolute(-3130, 80);
   pros::delay(3000);
 
   //Lift Moving down for High Stake
-  while (pros::millis()- start_time < 23000){
+  while (pros::millis()- start_time < 23500){
     pros::delay(10);
   }
-  lift.move_absolute(-2850, 50);
+  lift.move_absolute(-2750, 50);
 
   //Raising Lift to above the High Stake
   pros::delay(3000);
@@ -299,7 +299,7 @@ void Blue_Worlds(){
 
   //Delay for 15" picking up rings
 
-  pros::delay(1000);
+  pros::delay(300); // was 1000, reduced for time savings | 5/9 12:30pm
 
   //Mogo Mech is Used
   mogo.set(false);
@@ -346,10 +346,10 @@ void Blue_Worlds(){
   ladder_arm.move_absolute(-1000, 70); 
 
   // delay bettween driving to the ladder and getting super close to the corner of the ladder
-  pros::delay(250); 
-  chassis.pid_odom_set({{{-4.5_in, -20.5_in, -45_deg}, fwd, 120}},
+  //pros::delay(250); // Commented out for time savings | 5/9 12:30 pm
+  chassis.pid_odom_set({{{-4.5_in, -20.5_in, -45_deg}, fwd, 120}},                 // -4.5, -20.5 |  5/9 11:20 | 3-4 inches too far right
     false); 
-  chassis.pid_wait();// was too short: -2.4_in, -22.6_in
+  chassis.pid_wait();
 
 
   //Delay between driving and lifting 
@@ -367,10 +367,10 @@ void Blue_Worlds(){
   //Raising Lift to max height of the lift 
   lift.set_current_limit_all(2500);
 
-  lift.move_absolute(-3200, 80);
+  lift.move_absolute(-3130, 80);
   pros::delay(3000);
 
-  while (pros::millis()- start_time < 23000){
+  while (pros::millis()- start_time < 23500){ // 23000 because it may not always touch ladder | 5/9 11:50 am
     pros::delay(10);
   }
 
@@ -379,7 +379,9 @@ void Blue_Worlds(){
 
   //Move lift to score on High Stake
 
-  lift.move_absolute(-2900, 50);
+  lift.move_absolute(-2750, 50);  //-2750 worked, but 15" didnt hard stop on high stake| 5/9 12:10 pm
+  // -2900 was too high and 15" was overshooting | 5/9 11:50 am
+   
 
   //Delay between lift moving down and the ratchet locking
   pros::delay(3000);
