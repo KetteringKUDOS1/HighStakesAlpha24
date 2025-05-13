@@ -111,7 +111,7 @@ void deClimb() {
     pros::delay(250);
 
     //Lift goes down 
-    lift.move_absolute(-2000, 120);
+    lift.move_absolute(-1000, 200);
     pros::delay(500);
 
     //Ladder arm stops and platform goes goes down so we are back on the ground
@@ -129,9 +129,9 @@ void lift_task(){
   while (true){
     if (lift_task_enabled){
       lift.set_current_limit_all(2500);
-      lift.move_absolute(-2000, 75); //2000
+      lift.move_absolute(-1950, 75); //2000
       printf("Lift Pos 1: %f\n", lift.get_position());
-      if (lift.get_position() < -1900){
+      if (lift.get_position() < -1850){
         printf("Done with lifting 1\n");
         //pros::delay(500);
         lift_task_enabled = false;
@@ -196,7 +196,7 @@ void initialize() {
     //Worlds Autons
       Auton("Red Auton: Worlds", Red_Worlds),
       //Auton("Blue Auton: Worlds", Blue_Worlds),
-
+      //Auton("MSOE: Worlds", MSOE),
     //Previous Competitions Codes
       //Auton("purdue skills",purdueSkills),
       //Auton("Red AWP Test", red_AWP_match),
@@ -470,7 +470,7 @@ void opcontrol() {
 
     // First Layer Controls
     if (!master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
-      //DeCLimb (X)
+      //DeCLimb (X) 
       if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
         lift_brake.set(true);
         isGearLocked = false;
@@ -517,7 +517,7 @@ void opcontrol() {
           printf("Running lift task\n");
           lift_task_enabled = true;
         }
-        else if (lift.get_position() < -1800){
+        else if (lift.get_position() < -1600){
           printf("Running climb task\n");
           climb_task_enabled = true;
         }

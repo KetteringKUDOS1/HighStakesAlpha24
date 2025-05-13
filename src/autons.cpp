@@ -118,6 +118,138 @@ void tuning(){
 ///
 // Worlds Red Auton
 ///
+void MSOE(){
+  long start_time = pros::millis();
+  mogo.set(true);
+  chassis.pid_targets_reset();                // Resets PID targets to 0
+  chassis.drive_imu_reset();                  // Reset gyro position to 0
+  chassis.drive_sensor_reset();               // Reset drive sensors to 0
+  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);   // Set motors to hold
+
+  //Setting the starting position/coordinates
+  chassis.odom_pose_set({51_in, -14_in, 180_deg});
+
+  intake.move_velocity(-200); // Begin intaking
+
+  // docking
+  chassis.pid_odom_set({{{51_in, -18_in}, fwd, 90}},
+    false);
+  chassis.pid_wait();
+  pros::delay(200);
+  dock.set_value(false);
+
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-1800, 150);
+  lift_brake.set(false);
+  
+  //pros::delay(200);
+
+  // drive forward to intake rings
+  //chassis.pid_drive_set(6_in, 170); 
+  //chassis.pid_wait();
+
+  //lift.move_absolute(-1800, 150);
+  lift_brake.set(false);
+
+
+
+
+
+  
+
+  chassis.drive_current_limit_set(2500);
+  // go to ladder
+  chassis.pid_odom_set({{{13_in, -20_in, 90_deg}, fwd, 160}},
+    false); 
+  chassis.pid_wait();
+  
+
+  pros::delay(1500);
+
+
+  ladder_arm.set_current_limit(0);
+
+  platform.set_value(false);
+
+
+  //Raising Lift to above the High Stake
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-3180, 80);
+
+  pros::delay(1500); 
+  lift_brake.set(false);
+
+}
+
+void old_MSOE(){
+  long start_time = pros::millis();
+  mogo.set(true);
+  chassis.pid_targets_reset();                // Resets PID targets to 0
+  chassis.drive_imu_reset();                  // Reset gyro position to 0
+  chassis.drive_sensor_reset();               // Reset drive sensors to 0
+  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);   // Set motors to hold
+
+  //Setting the starting position/coordinates
+  chassis.odom_pose_set({-51_in, -14_in, 180_deg});
+
+  intake.move_velocity(-200); // Begin intaking
+
+  // docking
+  chassis.pid_odom_set({{{-51_in, -20_in}, fwd, 90}},
+    false);
+  chassis.pid_wait();
+  pros::delay(200);
+  dock.set_value(false);
+
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-1800, 150);
+  lift_brake.set(false);
+  
+  //pros::delay(200);
+
+  // drive forward to intake rings
+  //chassis.pid_drive_set(6_in, 170); 
+  //chassis.pid_wait();
+
+  //lift.move_absolute(-1800, 150);
+  lift_brake.set(false);
+
+
+  
+
+  chassis.drive_current_limit_set(2500);
+
+  // align with ladder
+  chassis.pid_odom_set({{{-10_in, -35.5_in, 45_deg}, fwd, 150}}, // was at 120, 5/10 10 am
+                        false);
+  chassis.pid_wait(); 
+  
+  ladder_arm.set_current_limit(2500);
+  ladder_arm.move_absolute(-1000, 70); 
+
+  intake.brake();
+  intake.set_current_limit(0);
+
+  chassis.drive_current_limit_set(2500);
+  // go to ladder
+  chassis.pid_odom_set({{{4.5_in, -20.5_in, 45_deg}, fwd, 160}},
+    false); 
+  chassis.pid_wait();
+
+  ladder_arm.set_current_limit(0);
+
+  platform.set_value(false);
+
+
+  //Raising Lift to above the High Stake
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-3180, 80);
+
+  pros::delay(1500); 
+  lift_brake.set(false);
+
+}
+
 void Red_Worlds(){
 //Level One Plan For Red Side
   // Grab Stack for Claw 
@@ -224,7 +356,7 @@ void Red_Worlds(){
 
   //Raising Lift to above the High Stake
   lift.set_current_limit_all(2500);
-  lift.move_absolute(-3130, 80);
+  lift.move_absolute(-3180, 80); // 3130 was too low at one point | 5/9 6:00pm
   pros::delay(3000);
 
   //Lift Moving down for High Stake
@@ -367,7 +499,7 @@ void Blue_Worlds(){
   //Raising Lift to max height of the lift 
   lift.set_current_limit_all(2500);
 
-  lift.move_absolute(-3130, 80);
+  lift.move_absolute(-3180, 80); // 3130 was too low at one point | 5/9 6:00pm
   pros::delay(3000);
 
   while (pros::millis()- start_time < 23500){ // 23000 because it may not always touch ladder | 5/9 11:50 am
