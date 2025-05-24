@@ -194,9 +194,9 @@ void initialize() {
 
   ez::as::auton_selector.autons_add({
     //Worlds Autons
-      Auton("Red Auton: Worlds", Red_Worlds),
+      //Auton("Red Auton: Worlds", Red_Worlds),
       //Auton("Blue Auton: Worlds", Blue_Worlds),
-      //Auton("MSOE: Worlds", MSOE),
+      Auton("MSOE: Worlds", MSOE),
     //Previous Competitions Codes
       //Auton("purdue skills",purdueSkills),
       //Auton("Red AWP Test", red_AWP_match),

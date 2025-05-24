@@ -142,6 +142,10 @@ void MSOE(){
   lift.move_absolute(-1800, 150);
   lift_brake.set(false);
   
+
+  chassis.pid_turn_set(75_deg, 120);
+
+
   //pros::delay(200);
 
   // drive forward to intake rings
@@ -151,17 +155,11 @@ void MSOE(){
   //lift.move_absolute(-1800, 150);
   lift_brake.set(false);
 
-
-
-
-
-  
-
   chassis.drive_current_limit_set(2500);
   // go to ladder
-  chassis.pid_odom_set({{{13_in, -20_in, 90_deg}, fwd, 160}},
+  chassis.pid_odom_set({{{9_in, -20_in, 90_deg}, fwd, 160}},
     false); 
-  chassis.pid_wait();
+  chassis.pid_wait(); // 13,-20 at worlds
   
 
   pros::delay(1500);
