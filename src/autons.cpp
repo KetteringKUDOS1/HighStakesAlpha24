@@ -118,6 +118,59 @@ void tuning(){
 ///
 // Worlds Red Auton
 ///
+
+
+
+
+void No_Odom_MSOE(){
+  long start_time = pros::millis();
+  mogo.set(true);
+  chassis.pid_targets_reset();                // Resets PID targets to 0
+  chassis.drive_imu_reset();                  // Reset gyro position to 0
+  chassis.drive_sensor_reset();               // Reset drive sensors to 0
+  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);   // Set motors to hold
+
+  //Intake Starts
+  intake.move_velocity(-200); // Begin intaking
+  // docking
+  chassis.pid_drive_set(8_in, 90);
+  chassis.pid_wait_until(3_in);
+  pros::delay(200);
+  dock.set_value(false);
+
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-1800, 150);
+  lift_brake.set(false);
+  
+
+  chassis.pid_turn_set(90_deg, 120);
+
+  lift_brake.set(false);
+
+  chassis.drive_current_limit_set(2500);
+
+  // go to ladder
+
+  chassis.pid_drive_set(42_in, 120); //40_in 
+
+  pros::delay(1500);
+  platform.set_value(false);
+
+  ladder_arm.set_current_limit(2500);
+  ladder_arm.move_absolute(-1000, 70); 
+  //Raising Lift to above the High Stake
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-3180, 80);
+  ladder_arm.set_current_limit(0);
+
+  pros::delay(1500); 
+  lift_brake.set(false);
+
+}
+
+
+
+
 void MSOE(){
   long start_time = pros::millis();
   mogo.set(true);
@@ -132,7 +185,7 @@ void MSOE(){
   intake.move_velocity(-200); // Begin intaking
 
   // docking
-  chassis.pid_odom_set({{{51_in, -18_in}, fwd, 90}},
+  chassis.pid_odom_set({{{51_in, -22_in}, fwd, 90}},
     false);
   chassis.pid_wait();
   pros::delay(200);
@@ -143,8 +196,7 @@ void MSOE(){
   lift_brake.set(false);
   
 
-  chassis.pid_turn_set(75_deg, 120);
-
+  chassis.pid_turn_set(35_deg, 120);
 
   //pros::delay(200);
 
@@ -157,7 +209,7 @@ void MSOE(){
 
   chassis.drive_current_limit_set(2500);
   // go to ladder
-  chassis.pid_odom_set({{{9_in, -20_in, 90_deg}, fwd, 160}},
+  chassis.pid_odom_set({{{11_in, -20_in, 90_deg}, fwd, 160}},
     false); 
   chassis.pid_wait(); // 13,-20 at worlds
   

@@ -196,7 +196,8 @@ void initialize() {
     //Worlds Autons
       //Auton("Red Auton: Worlds", Red_Worlds),
       //Auton("Blue Auton: Worlds", Blue_Worlds),
-      Auton("MSOE: Worlds", MSOE),
+      //Auton("MSOE: Worlds", MSOE),
+      Auton("MSOE No ODOM", No_Odom_MSOE),
     //Previous Competitions Codes
       //Auton("purdue skills",purdueSkills),
       //Auton("Red AWP Test", red_AWP_match),
