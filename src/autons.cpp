@@ -130,10 +130,11 @@ void No_Odom_MSOE(){
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
   chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);   // Set motors to hold
 
-  //Intake Starts
-  intake.move_velocity(-200); // Begin intaking
+  //Intake On
+  intake.move_velocity(-200);
+
   // docking
-  chassis.pid_drive_set(8_in, 90);
+  chassis.pid_drive_set(12_in, 90);
   chassis.pid_wait_until(3_in);
   pros::delay(200);
   dock.set_value(false);
@@ -143,7 +144,7 @@ void No_Odom_MSOE(){
   lift_brake.set(false);
   
 
-  chassis.pid_turn_set(90_deg, 120);
+  chassis.pid_turn_set(95_deg, 120);
 
   lift_brake.set(false);
 
@@ -151,13 +152,14 @@ void No_Odom_MSOE(){
 
   // go to ladder
 
-  chassis.pid_drive_set(42_in, 120); //40_in 
+  chassis.pid_drive_set(43_in, 120); //40_in 
 
-  pros::delay(1500);
+  pros::delay(3000); //1500
   platform.set_value(false);
 
   ladder_arm.set_current_limit(2500);
   ladder_arm.move_absolute(-1000, 70); 
+
   //Raising Lift to above the High Stake
   lift.set_current_limit_all(2500);
   lift.move_absolute(-3180, 80);
@@ -165,6 +167,11 @@ void No_Odom_MSOE(){
 
   pros::delay(1500); 
   lift_brake.set(false);
+
+    //Intake Stop
+  intake.brake();
+  intake.set_current_limit(0);
+
 
 }
 
