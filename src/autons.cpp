@@ -144,9 +144,10 @@ void No_Odom_MSOE(){
   lift_brake.set(false);
   
 
-  chassis.pid_turn_set(95_deg, 120);
+  chassis.pid_turn_set(92_deg, 120);
 
   lift_brake.set(false);
+
 
   chassis.drive_current_limit_set(2500);
 
@@ -166,6 +167,8 @@ void No_Odom_MSOE(){
   ladder_arm.set_current_limit(0);
 
   pros::delay(1500); 
+  lift.move_absolute(-3150, 80);
+  lift.move_absolute(-3180, 80);
   lift_brake.set(false);
 
     //Intake Stop
@@ -181,6 +184,7 @@ void No_Odom_MSOE(){
 void MSOE(){
   long start_time = pros::millis();
   mogo.set(true);
+  lift_brake.set(false);
   chassis.pid_targets_reset();                // Resets PID targets to 0
   chassis.drive_imu_reset();                  // Reset gyro position to 0
   chassis.drive_sensor_reset();               // Reset drive sensors to 0
