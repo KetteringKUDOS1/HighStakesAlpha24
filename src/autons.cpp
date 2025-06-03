@@ -115,6 +115,30 @@ void tuning(){
   chassis.pid_wait();
 }
 
+
+
+
+void ladder_arm_test(){
+
+  mogo.set(true);
+  chassis.pid_targets_reset();                // Resets PID targets to 0
+  chassis.drive_imu_reset();                  // Reset gyro position to 0
+  chassis.drive_sensor_reset();               // Reset drive sensors to 0
+  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);   // Set motors to hold
+
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-1800, 950);
+  lift_brake.set(false);
+
+
+
+  //Ladder Arm Extend outwards in order to touch ladder
+  pros::delay(400); //250
+  ladder_arm.set_current_limit(2500);
+  ladder_arm.move_absolute(-1000, 70); 
+
+}
+
 ///
 // Worlds Red Auton
 ///
@@ -336,20 +360,23 @@ void Red_Worlds(){
   chassis.pid_odom_set({{{-51_in, -20_in}, fwd, 60}},
                         false);
   chassis.pid_wait();
-  pros::delay(200);
+  pros::delay(25); //200
   dock.set_value(false);
-  pros::delay(300); 
+  pros::delay(50); //300
 
   //Raising 15" so it is not dragging on the floor
   lift.set_current_limit_all(2500);
   lift.move_absolute(-90, 75);
 
+
+//Time Stamped 
   //Move forward so 15" can grab the High Stake Ring Stack
   chassis.pid_odom_set({{{-46_in, -33_in}, fwd, 120}},
                         false);
   chassis.pid_wait();
-  pros::delay(1000);
-
+  while (pros::millis()- start_time < 2800){
+    pros::delay(10);
+  }
   // Raise 15" so we can intake the platform rings
   lift.move_absolute(-800, 80);
 
@@ -370,19 +397,19 @@ void Red_Worlds(){
   chassis.pid_odom_set({{{-10_in, -26_in}, fwd, 70}}, 
                         false);
   chassis.pid_wait();
-  pros::delay(500);
+  pros::delay(300); //500
 
   //Intake Blue Bottom Stack Ring
   chassis.pid_odom_set({{{-20_in, -50_in}, fwd, 70}},
               false); 
   chassis.pid_wait();
-  pros::delay(750);
+  pros::delay(400); //750
 
   //Driving backwards from the rings 
   chassis.pid_drive_set(-10_in, 120); 
   chassis.pid_wait();
-  lift.set_current_limit_all(2500);
-  lift.move_absolute(-2000, 75);
+  //lift.set_current_limit_all(2500);
+  //lift.move_absolute(-2000, 75);
 
   //Driving to Ladder
   chassis.pid_turn_set(45_deg, 90);
@@ -391,23 +418,27 @@ void Red_Worlds(){
                         false);
   chassis.pid_wait(); 
 
+//Intake Stop
+  intake.brake();
+  intake.set_current_limit(0);
+  
+//Lift Up
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-2000, 75);
+
   //Ladder Arm Extend outwards in order to touch ladder
-  pros::delay(250);
   ladder_arm.set_current_limit(2500);
+  pros::delay(500); //250
   ladder_arm.move_absolute(-1000, 70); 
 
   // Driving/Turning to the ladder 
   pros::delay(250); 
-  chassis.pid_odom_set({{{4.5_in, -20.5_in, 45_deg}, fwd, 120}},
+  chassis.pid_odom_set({{{4.75_in, -20.25_in, 45_deg}, fwd, 120}},
     false); 
   chassis.pid_wait();
-  pros::delay(250); 
-//Y Coords: -20.5(may 3rd)
-//X Coords: 4.5(May 3rd)
-
-  //Intake Stop
-  intake.brake();
-  intake.set_current_limit(0);
+  pros::delay(500); //250
+//Y Coords: -20.5(June 2nd)
+//X Coords: 4.5(June 2nd)
 
   //Ladder Arm Stop
   ladder_arm.set_current_limit(0);
