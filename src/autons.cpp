@@ -139,14 +139,71 @@ void ladder_arm_test(){
 
 }
 
-///
-// Worlds Red Auton
-///
+
+void No_Odom_Red_MSOE(){
+long start_time = pros::millis();
+  mogo.set(true);
+  chassis.pid_targets_reset();                
+  chassis.drive_imu_reset();                  
+  chassis.drive_sensor_reset();               
+  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);
+
+  // Intake On
+  intake.move_velocity(-200);
+
+  // Docking
+  chassis.pid_drive_set(12_in, 90);
+  chassis.pid_wait_until(3_in);
+  pros::delay(200);
+  dock.set_value(false);
+
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-1800, 150);
+  //lift_brake.set(false);
+  
+  // Turn
+  chassis.pid_turn_set(-100_deg, 120); //-92 wasnt far enough
+
+  //lift_brake.set(false);
+
+  chassis.drive_current_limit_set(2500);
+
+  // Drive to ladder
+  chassis.pid_drive_set(43_in, 120); 
+
+  pros::delay(3000); 
+  platform.set_value(false);
+
+
+  while (pros::millis()- start_time < 3000){
+    pros::delay(10);
+  }
+  ladder_arm.set_current_limit(2500);
+  ladder_arm.move_absolute(-1000, 70); 
 
 
 
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-3180, 80);
 
-void No_Odom_MSOE(){
+  pros::delay(1500); 
+  lift.move_absolute(-3150, 80);
+  lift.move_absolute(-3180, 80);
+  lift_brake.set(false);
+
+
+  while (pros::millis()- start_time < 10000){
+    pros::delay(10);
+  }
+  // Intake + Ladder Stop
+  intake.brake();
+  intake.set_current_limit(0);
+  ladder_arm.set_current_limit(0);
+
+
+}
+
+void No_Odom_Blue_MSOE(){
   long start_time = pros::millis();
   mogo.set(true);
   chassis.pid_targets_reset();                // Resets PID targets to 0
