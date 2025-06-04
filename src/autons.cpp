@@ -335,6 +335,133 @@ void old_MSOE(){
 
 }
 
+
+
+void Blue_Worlds_2(){
+
+  //Initlize and dock
+  long start_time = pros::millis();
+  mogo.set(true);
+  chassis.pid_targets_reset();                // Resets PID targets to 0
+  chassis.drive_imu_reset();                  // Reset gyro position to 0
+  chassis.drive_sensor_reset();               // Reset drive sensors to 0
+  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);   // Set motors to hold
+
+  //Setting the starting position/coordinates
+  chassis.odom_pose_set({51_in, -14_in, 180_deg});
+
+  // Move forward to dock + Dock Engages
+  chassis.pid_odom_set({{{51_in, -20_in}, fwd, 60}},
+                        false);
+  chassis.pid_wait();
+  pros::delay(25); //200
+  dock.set_value(false);
+  pros::delay(50); //300
+
+  //Raising 15" so it is not dragging on the floor
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-90, 75);
+
+
+//Time Stamped 
+  //Move forward so 15" can grab the High Stake Ring Stack
+  chassis.pid_odom_set({{{46_in, -33_in}, fwd, 120}},
+                        false);
+  chassis.pid_wait();
+  while (pros::millis()- start_time < 2800){
+    pros::delay(10);
+  }
+  // Raise 15" so we can intake the platform rings
+  lift.move_absolute(-800, 80);
+
+  // Move backwards to mogo
+  chassis.pid_odom_set({{{43_in, -5_in}, rev, 120}},
+                        false);
+  chassis.pid_wait();
+  pros::delay(300);
+
+  //Grabbing Mogo
+  mogo.set(false);
+  pros::delay(250);
+
+  //Intake On
+  intake.move_velocity(-200);
+
+  //Intake Blue Alone Ring
+  chassis.pid_odom_set({{{10_in, -26_in}, fwd, 70}}, 
+                        false);
+  chassis.pid_wait();
+  pros::delay(300); //500
+
+  //Intake Blue Bottom Stack Ring
+  chassis.pid_odom_set({{{20_in, -50_in}, fwd, 70}},
+              false); 
+  chassis.pid_wait();
+  pros::delay(400); //750
+
+  //Driving backwards from the rings 
+  chassis.pid_drive_set(-10_in, 120); 
+  chassis.pid_wait();
+  //lift.set_current_limit_all(2500);
+  //lift.move_absolute(-2000, 75);
+
+  //Driving to Ladder
+  chassis.pid_turn_set(-45_deg, 90);
+  chassis.pid_wait(); 
+  chassis.pid_odom_set({{{10_in, -35.5_in, -45_deg}, fwd, 100}},
+                        false);
+  chassis.pid_wait(); 
+
+//Intake Stop
+  intake.brake();
+  intake.set_current_limit(0);
+  
+//Lift Up
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-2000, 75);
+
+  //Ladder Arm Extend outwards in order to touch ladder
+  ladder_arm.set_current_limit(2500);
+  pros::delay(500); //250
+  ladder_arm.move_absolute(-1000, 70); 
+
+  // Driving/Turning to the ladder 
+  pros::delay(250); 
+  chassis.pid_odom_set({{{-4.75_in, -20.25_in, -45_deg}, fwd, 120}},
+    false); 
+  chassis.pid_wait();
+  pros::delay(500); //250
+
+  //Ladder Arm Stop
+  ladder_arm.set_current_limit(0);
+
+  //Platform Set
+  platform.set_value(false);
+
+  //Raising Lift to above the High Stake
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-3180, 80); 
+  pros::delay(3000);
+
+  //Lift Moving down for High Stake
+  while (pros::millis()- start_time < 23500){
+    pros::delay(10);
+  }
+  lift.move_absolute(-2750, 50);
+
+  //Raising Lift to above the High Stake
+  pros::delay(3000);
+  lift.move_absolute(-3500, 50);
+
+  //Ratched Engaged/Locking
+  pros::delay(500); 
+  lift_brake.set(false);
+
+  //END OF AUTON
+}
+
+
+
 void Red_Worlds(){
 //Level One Plan For Red Side
   // Grab Stack for Claw 
