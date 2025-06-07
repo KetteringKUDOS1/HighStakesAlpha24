@@ -79,55 +79,76 @@ void AI_BaseLine(){
   chassis.drive_imu_reset();              // Reset gyro (IMU) position
   chassis.drive_sensor_reset();           // Reset drive sensors
   chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);   // Set motors to hold
-  chassis.odom_pose_set({-58_in, 32_in, 180_deg}); // Starting position
+  chassis.odom_pose_set({-56_in, 32_in, 180_deg}); // Starting position
 
-  chassis.pid_odom_set({{{-58_in, 28_in}, fwd, 60}}, true); // Move forward to dock
+  chassis.pid_odom_set({{{-56_in, 28_in}, fwd, 60}}, true); // Move forward to dock
   chassis.pid_wait();
 
   pros::delay(500);
-  // dock.set_value(false); // Activate docking
+  dock.set_value(false); 
   pros::delay(500);
 
-  intake.move_velocity(-200); // Begin intaking
+ // intake.move_velocity(-200); 
 
-  chassis.pid_odom_set({{{-53_in,5_in}, fwd, 110}, // First red ring intake
-                        {{-24_in, -24_in}, fwd, 110}, // Second red ring intake
-                        {{-6_in, -34_in}, fwd, 70}}, // Line up for 1st mogo
-                       true);
-  chassis.pid_wait();
- 
-//Intake Stop
-  intake.brake();
-  intake.set_current_limit(0);
-  
+
 //Lift Up
   lift.set_current_limit_all(2500);
-  lift.move_absolute(-2000, 75);
+  lift.move_absolute(-500, 75);
+  chassis.drive_current_limit_set(2500);
+  lift_brake.set(false);
 
-  //Ladder Arm Extend outwards in order to touch ladder
-  ladder_arm.set_current_limit(2500);
-  pros::delay(500); //250
-  ladder_arm.move_absolute(-1000, 70); 
 
-  // Driving/Turning to the ladder 
-  pros::delay(250); 
-  chassis.pid_odom_set({{{-4.75_in, -20.25_in, -45_deg}, fwd, 120}},
-    false); 
+//Drive Forward 
+   chassis.pid_odom_set({{{-33_in, 7_in}, fwd, 70}}, true); // Move to ladder
   chassis.pid_wait();
-  pros::delay(500); //250
 
-  //Ladder Arm Stop
-  ladder_arm.set_current_limit(0);
+  //pros::delay(3000); 
 
-  //Platform Set
-  platform.set_value(false);
 
-  //Raising Lift to above the High Stake
-  lift.set_current_limit_all(2500);
-  lift.move_absolute(-3180, 80); 
-  pros::delay(3000);
 
-  //Ratched Engaged/Locking
+
+//Ratchets engaged
+  pros::delay(3000); 
+  lift_brake.set(false);
+
+
+//   chassis.pid_odom_set({{{-44_in,6_in}, fwd, 110}, // First red ring intake
+//                         {{-18_in, -28_in}, fwd, 110}, // Second red ring intake
+//                         {{-9_in, -37_in}, fwd, 70}}, // Line up for 1st mogo
+//                        true);
+//   chassis.pid_wait();
+ 
+// //Intake Stop
+//   intake.brake();
+//   intake.set_current_limit(0);
+  
+
+
+//Mogo CODE ENTER HERE
+
+
+
+
+// //Lift Up
+//   lift.set_current_limit_all(2500);
+//   lift.move_absolute(-2000, 75);
+
+//   // Driving/Turning to the ladder 
+//   pros::delay(250); 
+//   chassis.pid_odom_set({{{-4.75_in, -20.25_in, -45_deg}, fwd, 120}},
+//     false); 
+//   chassis.pid_wait();
+//   pros::delay(500); //250
+
+//   //Platform Set
+//   platform.set_value(false);
+
+//   //Raising Lift to above the High Stake
+//   lift.set_current_limit_all(2500);
+//   lift.move_absolute(-3180, 80); 
+//   pros::delay(3000);
+
+//   //Ratched Engaged/Locking
   pros::delay(500); 
   lift_brake.set(false);
 
@@ -229,7 +250,7 @@ long start_time = pros::millis();
   //lift_brake.set(false);
   
   // Turn
-  chassis.pid_turn_set(-100_deg, 120); //-92 wasnt far enough
+  chassis.pid_turn_set(-92_deg, 120); //-90 was too far
 
   //lift_brake.set(false);
 
@@ -240,6 +261,7 @@ long start_time = pros::millis();
 
   pros::delay(3000); 
   platform.set_value(false);
+  chassis.drive_current_limit_set(0);
 
 
   while (pros::millis()- start_time < 3000){

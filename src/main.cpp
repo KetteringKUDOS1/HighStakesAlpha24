@@ -198,8 +198,8 @@ void initialize() {
        //Auton("Red Auton: Worlds", Red_Worlds),
       //Auton("Blue Auton 2.0",Blue_Worlds_2),
       // Auton("MSOE BLUE No ODOM ", No_Odom_Blue_MSOE),
-     //  Auton("MSOE RED No ODOM", No_Odom_Red_MSOE),
-    Auton("AI Skills",AI_BaseLine),
+       Auton("MSOE RED No ODOM", No_Odom_Red_MSOE),
+   // Auton("AI Skills",AI_BaseLine),
 
 
 
