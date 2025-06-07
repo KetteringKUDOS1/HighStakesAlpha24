@@ -70,6 +70,73 @@ void default_constants() {
   chassis.pid_angle_behavior_set(ez::shortest);  // Changes the default behavior for turning, this defaults it to the shortest path there
 }
 
+
+
+ 
+void AI_BaseLine(){
+  platform.set_value(true);               // Prepare platform
+  chassis.pid_targets_reset();            // Reset PID targets to 0
+  chassis.drive_imu_reset();              // Reset gyro (IMU) position
+  chassis.drive_sensor_reset();           // Reset drive sensors
+  chassis.drive_brake_set(pros::E_MOTOR_BRAKE_HOLD);   // Set motors to hold
+  chassis.odom_pose_set({-58_in, 32_in, 180_deg}); // Starting position
+
+  chassis.pid_odom_set({{{-58_in, 28_in}, fwd, 60}}, true); // Move forward to dock
+  chassis.pid_wait();
+
+  pros::delay(500);
+  // dock.set_value(false); // Activate docking
+  pros::delay(500);
+
+  intake.move_velocity(-200); // Begin intaking
+
+  chassis.pid_odom_set({{{-53_in,5_in}, fwd, 110}, // First red ring intake
+                        {{-24_in, -24_in}, fwd, 110}, // Second red ring intake
+                        {{-6_in, -34_in}, fwd, 70}}, // Line up for 1st mogo
+                       true);
+  chassis.pid_wait();
+ 
+//Intake Stop
+  intake.brake();
+  intake.set_current_limit(0);
+  
+//Lift Up
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-2000, 75);
+
+  //Ladder Arm Extend outwards in order to touch ladder
+  ladder_arm.set_current_limit(2500);
+  pros::delay(500); //250
+  ladder_arm.move_absolute(-1000, 70); 
+
+  // Driving/Turning to the ladder 
+  pros::delay(250); 
+  chassis.pid_odom_set({{{-4.75_in, -20.25_in, -45_deg}, fwd, 120}},
+    false); 
+  chassis.pid_wait();
+  pros::delay(500); //250
+
+  //Ladder Arm Stop
+  ladder_arm.set_current_limit(0);
+
+  //Platform Set
+  platform.set_value(false);
+
+  //Raising Lift to above the High Stake
+  lift.set_current_limit_all(2500);
+  lift.move_absolute(-3180, 80); 
+  pros::delay(3000);
+
+  //Ratched Engaged/Locking
+  pros::delay(500); 
+  lift_brake.set(false);
+
+  //END OF AUTON
+}
+
+
+
+
 void testTune(){
   chassis.pid_targets_reset();                // Resets PID targets to 0
   chassis.drive_imu_reset();                  // Reset gyro position to 0
@@ -528,8 +595,8 @@ void Red_Worlds(){
   // Turn and Line up for climb
   // Tier 3 climb buddy + platform
   // High Stake
-
   //Initlize and dock
+
   long start_time = pros::millis();
   mogo.set(true);
   chassis.pid_targets_reset();                // Resets PID targets to 0
@@ -1462,11 +1529,6 @@ void thirtyPointSkills(){
 
   intake.brake();
 
-  // Pickup 3rd ring (optional)
-  // intake.set_current_limit(2500);
-  // intake.move_velocity(-200);
-  // pros::delay(100);
-
   // Lift control for stack manipulation (adjust based on your needs)
   lift.set_current_limit_all(2500);
   lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
@@ -1520,15 +1582,6 @@ void stateSkills() {
   pros::delay(200);
   // dock.set_value(false);
   pros::delay(300);
-
-
-  //Example code of the Lock Mech
-  // if (!isGearLocked) {
-  //   lift.move_absolute(-2000, 75); 
-  //   pros::delay(500);
-  // } else {
-  //   lift.move_velocity(0);  // Ensure the lift doesn't move if the gears are locked
-  // }
 
   // Lining up for 1st ring and picking it up
   chassis.pid_odom_set({{{-53_in, -18_in}, fwd, 80}}, true); //70

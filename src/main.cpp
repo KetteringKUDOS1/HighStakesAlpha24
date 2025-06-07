@@ -39,7 +39,7 @@ ez::Drive chassis(
 // they will draw a lot of current and overheat
 
 
-// Slew configuration\
+// Slew configuration
 
 bool arm_slew_active = false;
 int arm_dir = 0;
@@ -96,6 +96,7 @@ bool lift_task_enabled = false;
 bool climb_task_enabled = false;
 bool driveSafe_task_enabled = false;
 bool deClimb_task_enabled = false;
+bool Ran_Auton = false;
 
 void deClimb() {
   driveSafe_task_enabled = false;
@@ -194,16 +195,17 @@ void initialize() {
 
   ez::as::auton_selector.autons_add({
     //Worlds Autons
-       Auton("Red Auton: Worlds", Red_Worlds),
+       //Auton("Red Auton: Worlds", Red_Worlds),
       //Auton("Blue Auton 2.0",Blue_Worlds_2),
-      // Auton("MSOE: Worlds", MSOE),
-      // Auton("MSOE BLUE No ODOM BLUE", No_Odom_Blue_MSOE),
-       //Auton("MSOE RED No ODOM BLUE", No_Odom_Red_MSOE),
+      // Auton("MSOE BLUE No ODOM ", No_Odom_Blue_MSOE),
+     //  Auton("MSOE RED No ODOM", No_Odom_Red_MSOE),
+    Auton("AI Skills",AI_BaseLine),
 
-    
-    
+
+
     //Previous Competitions Codes
     //Auton("Blue Auton: Worlds", Blue_Worlds),
+      // Auton("MSOE: Worlds", MSOE),
 
       //Auton("purdue skills",purdueSkills),
       //Auton("Red AWP Test", red_AWP_match),
@@ -297,14 +299,19 @@ void competition_initialize() {
 void autonomous() {
   //lift.move_absolute(-2000, 75);
   //pros::delay(9999999);
-  home_arm();
   //master.print(0,0,"%lf",chassis.odom_theta_get());
 
  /* for (int i = 0; i < 100 - 1; i++) {
   master.print(0,0,"%lf",chassis.get_value(degrees));
   }*/
-
+  if(Ran_Auton){
+    chassis.drive_current_limit_set(0);
+    return;
+  }
+  Ran_Auton = true;
+  home_arm();
   ez::as::auton_selector.selected_auton_call();  // Calls selected auton from autonomous selector
+ 
 
   /*
     chassis.pid_targets_reset();                // Resets PID targets to 0
