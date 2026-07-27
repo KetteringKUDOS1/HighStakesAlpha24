@@ -19,18 +19,18 @@
 // Chassis constructor
 ez::Drive chassis(
     // These are your drive motors, the first motor is used for sensing!
-    {11, -12, 13, -14, -15},    // Left Chassis Ports (negative port will reverse it!)
-    {20, -19, 18, -17, 4},    // Right Chassis Ports (negative port will reverse it!)
-    21,      // IMU Port
+    {17,12},    // Left Chassis Ports (negative port will reverse it!)
+    {-19,-8},    // Right Chassis Ports (negative port will reverse it!)
+    16,      // IMU Port
     3.25,  // Wheel Diameter (Remember, 4" wheels without screw holes are actually 4.125!)
     360);   // Wheel RPM
 
 // Are you using tracking wheels?  Comment out which ones you're using here!
 //  `2.75` is the wheel diameter
 //  `4.0` is the distance from the center of the wheel to the center of the robot
- ez::tracking_wheel right_tracker({'C', 'D'}, 2.75, 4.7);  // ADI Encoders
- ez::tracking_wheel left_tracker({-'E', -'F'}, 2.75, 4.7);  // ADI Encoders plugged into a Smart port
-//ez::tracking_wheel horiz_tracker(1, 2.75, 4.0);             // Rotation sensors
+//  ez::tracking_wheel right_tracker({'C', 'D'}, 2.75, 4.7);  // ADI Encoders
+//  ez::tracking_wheel left_tracker({-'E', -'F'}, 2.75, 4.7);  // ADI Encoders plugged into a Smart port
+// //ez::tracking_wheel horiz_tracker(1, 2.75, 4.0);             // Rotation sensors
 
 
 // Set arm motors to hold when braking, preventing back driving
@@ -170,11 +170,11 @@ void initialize() {
   pros::delay(500);  // Stop the user from doing anything while legacy ports configure
 
   // Are you using tracking wheels?  Comment out which ones you're using here!
-  right_tracker.ticks_per_rev_set(8192);
-  left_tracker.ticks_per_rev_set(8192);
-  chassis.odom_tracker_right_set(&right_tracker);
-  chassis.odom_tracker_left_set(&left_tracker);
-  // chassis.odom_tracker_back_set(&horiz_tracker);
+  // right_tracker.ticks_per_rev_set(8192);
+  // left_tracker.ticks_per_rev_set(8192);
+  // chassis.odom_tracker_right_set(&right_tracker);
+  // chassis.odom_tracker_left_set(&left_tracker);
+  // // chassis.odom_tracker_back_set(&horiz_tracker);
   
   // Configure your chassis controls
   chassis.opcontrol_curve_buttons_toggle(true);  // Enables modifying the controller curve with buttons on the joysticks
@@ -460,17 +460,21 @@ void ez_template_etxras() {
   bool isGearLocked = true;
   bool isLadderArmOut = true;
 void opcontrol() {
+
+  chassis.drive_brake_set(MOTOR_BRAKE_HOLD);
+
+
   // This is preference to what you like to drive on
-  chassis.drive_brake_set(MOTOR_BRAKE_COAST);
-  bool mogo_toggle = false;
-  bool mogo_pressed = false;
+ // chassis.drive_brake_set(MOTOR_BRAKE_COAST);
+ // bool mogo_toggle = false;
+ // bool mogo_pressed = false;
   //chassis.pid_drive_set(3_in, 70);
   //chassis.pid_wait();
   // bool dock_toggle = false;
   // bool dock_pressed = false;
   
-  isGearLocked = false;
-  lift.move_relative(-150, 120);
+//  isGearLocked = false;
+//  lift.move_relative(-150, 120);
 
   pros::Controller master(pros::E_CONTROLLER_MASTER);
   
@@ -488,181 +492,183 @@ void opcontrol() {
     // printf("DT Motor Amps: %2.f", chassis.drive_mA_left());
 
     // First Layer Controls
-    if (!master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
+   // if (!master.get_digital(pros::E_CONTROLLER_DIGITAL_B)) {
       //DeCLimb (X) 
-      if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
-        lift_brake.set(true);
-        isGearLocked = false;
-          deClimb_task_enabled = true;
-          deClimb();
-      }
-      //UP Arrow needs to be Ladder arm retract so inwards
-      if(master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-        ladder_arm.set_current_limit(2500);
-        ladder_arm.move_velocity(100);
-      }
-      else {
-        if (!lift_task_enabled && !deClimb_task_enabled){
-          ladder_arm.set_current_limit(0);
-          ladder_arm.brake();
-        }    
-      }
-      // Intake rings (A)
-      if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) { 
-        if (abs(intake.get_target_velocity()) < 1){
-          intake.set_current_limit(2500);
-          intake.move_velocity(-200);
-        }else{
-          intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST); 
-          intake.brake();
-          pros::delay(10);
-          intake.set_current_limit(0);  
-        }
-      }
-      // Ring platform down (RIGHT Arrow)
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
-        platform.set_value(false);
-        on_rings = true;
-      }
-      // Ring platform up (Y)
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
-        platform.set_value(true);
-        climb_task_enabled = false;
-        on_rings = false;
-      }
-      // Auto Climb (DOWN Arrow)
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
-        if (lift.get_position() >= -1900){
-          printf("Running lift task\n");
-          lift_task_enabled = true;
-        }
-        else if (lift.get_position() < -1600){
-          printf("Running climb task\n");
-          climb_task_enabled = true;
-        }
-      }
-      // RIGHT needs to be the ratchet Retracts so Lock 
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
-        isGearLocked = true;
-        lift_brake.set(false);
-      }
-      // A  needs to be the ratchet extends so Unlock 
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
-        lift_brake.set(true);
-        isGearLocked = false;
-        unclimbing = true;
-        lift.move_relative(-150, 50);
-      }else{
-          unclimbing = false;
+   //   if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
+   //     lift_brake.set(true);
+    //    isGearLocked = false;
+    //      deClimb_task_enabled = true;
+    //      deClimb();
       }
 
-      // Mogo Rectract is R2 which means Mogo UP
+
+    //   //UP Arrow needs to be Ladder arm retract so inwards
+    //   if(master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
+    //     ladder_arm.set_current_limit(2500);
+    //     ladder_arm.move_velocity(100);
+    //   }
+    //   else {
+    //     if (!lift_task_enabled && !deClimb_task_enabled){
+    //       ladder_arm.set_current_limit(0);
+    //       ladder_arm.brake();
+    //     }    
+    //   }
+    //   // Intake rings (A)
+    //   if(master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)) { 
+    //     if (abs(intake.get_target_velocity()) < 1){
+    //       intake.set_current_limit(2500);
+    //       intake.move_velocity(-200);
+    //     }else{
+    //       intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST); 
+    //       intake.brake();
+    //       pros::delay(10);
+    //       intake.set_current_limit(0);  
+    //     }
+    //   }
+    //   // Ring platform down (RIGHT Arrow)
+    //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+    //     platform.set_value(false);
+    //     on_rings = true;
+    //   }
+    //   // Ring platform up (Y)
+    //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_Y)){
+    //     platform.set_value(true);
+    //     climb_task_enabled = false;
+    //     on_rings = false;
+    //   }
+    //   // Auto Climb (DOWN Arrow)
+    //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_DOWN)){
+    //     if (lift.get_position() >= -1900){
+    //       printf("Running lift task\n");
+    //       lift_task_enabled = true;
+    //     }
+    //     else if (lift.get_position() < -1600){
+    //       printf("Running climb task\n");
+    //       climb_task_enabled = true;
+    //     }
+    //   }
+    //   // RIGHT needs to be the ratchet Retracts so Lock 
+    //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
+    //     isGearLocked = true;
+    //     lift_brake.set(false);
+    //   }
+    //   // A  needs to be the ratchet extends so Unlock 
+    //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+    //     lift_brake.set(true);
+    //     isGearLocked = false;
+    //     unclimbing = true;
+    //     lift.move_relative(-150, 50);
+    //   }else{
+    //       unclimbing = false;
+    //   }
+
+    //   // Mogo Rectract is R2 which means Mogo UP
       
-      //Lift Down (L2)
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
-        lift.set_current_limit_all(2500);
-        lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-        if (!isGearLocked) { 
-          lift.move_velocity(70);
-        }else{
-          lift.move_velocity(0);
-        }
-      }
-      // Lift up (L1)
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
-        if(lift.get_position() < -2000 && on_rings == false){
-          lift.brake();
-        }
-        else if (lift.get_position() < -3550){
-          lift.brake();
-        }
-        else{
-        lift.set_current_limit_all(2500);
-        lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-        lift_task_enabled = false;
-        move_arm(-70); 
-        } 
-      }
-      if(!master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)&& !master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-        // When no buttons are pressed, hold the arm in place
-        lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
-        if (!lift_task_enabled && !climb_task_enabled) {
-          lift.brake();
-        }
-      } 
-      // Mogo Rectract is R2 which means Mogo UP
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-        mogo.set(true);
-      }
-      // Mogo Extend is R1 which means Mogo Down
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-        mogo.set(false);
-      }
-    }
-    else {       // Second Layer (when holding B)
+    //   //Lift Down (L2)
+    //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)) {
+    //     lift.set_current_limit_all(2500);
+    //     lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    //     if (!isGearLocked) { 
+    //       lift.move_velocity(70);
+    //     }else{
+    //       lift.move_velocity(0);
+    //     }
+    //   }
+    //   // Lift up (L1)
+    //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)) {
+    //     if(lift.get_position() < -2000 && on_rings == false){
+    //       lift.brake();
+    //     }
+    //     else if (lift.get_position() < -3550){
+    //       lift.brake();
+    //     }
+    //     else{
+    //     lift.set_current_limit_all(2500);
+    //     lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    //     lift_task_enabled = false;
+    //     move_arm(-70); 
+    //     } 
+    //   }
+    //   if(!master.get_digital(pros::E_CONTROLLER_DIGITAL_L1)&& !master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
+    //     // When no buttons are pressed, hold the arm in place
+    //     lift.set_brake_mode_all(pros::E_MOTOR_BRAKE_HOLD);
+    //     if (!lift_task_enabled && !climb_task_enabled) {
+    //       lift.brake();
+    //     }
+    //   } 
+    //   // Mogo Rectract is R2 which means Mogo UP
+    //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+    //     mogo.set(true);
+    //   }
+    //   // Mogo Extend is R1 which means Mogo Down
+    //   if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+    //     mogo.set(false);
+    //   }
+    // }
+   // else {       // Second Layer (when holding B)
       // Outtake rings (Left2)
-      if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
-        if (abs(intake.get_target_velocity()) < 1){
-          intake.set_current_limit(2500);
-          intake.move_velocity(200);
-        }else{
-          intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
-          intake.brake();
-          pros::delay(10);
+    //  if (master.get_digital_new_press(pros::E_CONTROLLER_DIGITAL_LEFT)){
+    //   if (abs(intake.get_target_velocity()) < 1){
+     //     intake.set_current_limit(2500);
+    //      intake.move_velocity(200);
+    //    }else{
+    //      intake.set_brake_mode(pros::E_MOTOR_BRAKE_COAST);
+      //    intake.brake();
+        //  pros::delay(10);
           // Set current limit to 0 to prevent overcurrent draw when stationary
-          intake.set_current_limit(0); 
-        }
-      }
+        //  intake.set_current_limit(0); 
+        //}
+     // }
 
 
       // L2 needs to be floor height of the DR4B
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
-          if(isGearLocked == true){
-            lift.brake();
-        }else{
-          if(isGearLocked == false){
-              lift.set_current_limit_all(2500);
-              lift.move_absolute(90, 80); 
-          }
-        }
-      }
-      // X needs to be Dock 
-      if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
-        dock.set_value(false);
-      }
-      // Mogo Rectract is R2 which means Mogo UP
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
-        mogo.set(true);
-      }
-      // Mogo Extend is R1 which means Mogo Down
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
-        mogo.set(false);
-      }
-      // A needs to be UnDock
-      if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
-        dock.set_value(true);
-      }
-      // A  needs to be the ratchet extends so Unlock 
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
-        lift_brake.set(true);
-        isGearLocked = false;
-        unclimbing = true;
-        lift.move_relative(-150, 50);
-      }else{
-          unclimbing = false;
-      }
-      // UP needs to be ladder arm extend so outwards
-      if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
-        ladder_arm.set_current_limit(2500);
-        ladder_arm.move_velocity(-100);
-      }else{
-        if (!lift_task_enabled)
-        {
-          ladder_arm.set_current_limit(0);
-          ladder_arm.brake();
-        }    
-      }
-    }
-    pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
-  }
+    //  if (master.get_digital(pros::E_CONTROLLER_DIGITAL_L2)){
+  //         if(isGearLocked == true){
+  //           lift.brake();
+  //       }else{
+  //         if(isGearLocked == false){
+  //             lift.set_current_limit_all(2500);
+  //             lift.move_absolute(90, 80); 
+  //         }
+  //       }
+  //     }
+  //     // X needs to be Dock 
+  //     if(master.get_digital(pros::E_CONTROLLER_DIGITAL_X)){
+  //       dock.set_value(false);
+  //     }
+  //     // Mogo Rectract is R2 which means Mogo UP
+  //     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R2)){
+  //       mogo.set(true);
+  //     }
+  //     // Mogo Extend is R1 which means Mogo Down
+  //     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_R1)){
+  //       mogo.set(false);
+  //     }
+  //     // A needs to be UnDock
+  //     if(master.get_digital(pros::E_CONTROLLER_DIGITAL_A)){
+  //       dock.set_value(true);
+  //     }
+  //     // A  needs to be the ratchet extends so Unlock 
+  //     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_RIGHT)){
+  //       lift_brake.set(true);
+  //       isGearLocked = false;
+  //       unclimbing = true;
+  //       lift.move_relative(-150, 50);
+  //     }else{
+  //         unclimbing = false;
+  //     }
+  //     // UP needs to be ladder arm extend so outwards
+  //     if (master.get_digital(pros::E_CONTROLLER_DIGITAL_UP)){
+  //       ladder_arm.set_current_limit(2500);
+  //       ladder_arm.move_velocity(-100);
+  //     }else{
+  //       if (!lift_task_enabled)
+  //       {
+  //         ladder_arm.set_current_limit(0);
+  //         ladder_arm.brake();
+  //       }    
+  //     }
+  //   }
+  //   pros::delay(ez::util::DELAY_TIME);  // This is used for timer calculations!  Keep this ez::util::DELAY_TIME
+ // }
 }

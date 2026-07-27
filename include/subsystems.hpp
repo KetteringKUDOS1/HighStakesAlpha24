@@ -7,6 +7,9 @@
 
 // Your motors, sensors, etc. should go here.  Below are examples
 
+inline pros::MotorGroup youthLeft({17,12}, pros::v5::MotorGears::red);
+inline pros::MotorGroup youthRight({19,8}, pros::v5::MotorGears::red);
+
 inline pros::Motor intake(1);
 inline pros::Motor ladder_arm(2);
 // inline pros::adi::DigitalIn limit_switch('A');
